@@ -7,6 +7,7 @@ import type {
   SceneEntity,
   SceneRelation,
   SceneState,
+  Shape2,
 } from "../algebra/types";
 
 export interface SceneMutation {
@@ -133,6 +134,37 @@ export class SceneEngine {
   }
 
   /**
+   * Replace only the geometric representation of an existing subject.
+   *
+   * Identity, traversal order, pose, velocity, parentage and active target are
+   * preserved. This is the scene-level bridge required by continuous topology
+   * morphing:
+   *
+   *   same subject id
+   *   + evolving Shape2
+   *   != remove(old) + add(new)
+   */
+  setShape(id: EntityId, shape: Shape2): SceneState {
+    const entity = this.state.entities.get(id);
+    if (!entity) throw new Error("Unknown scene entity: " + id);
+
+    const entities = new Map(this.state.entities);
+    entities.set(id, {
+      ...entity,
+      shape: cloneShape(shape),
+    });
+
+    const next: SceneState = {
+      ...this.state,
+      entities,
+    };
+
+    assertSceneLaws(next);
+    this.state = next;
+    return next;
+  }
+
+  /**
    * Settled is a relation between current dynamic state and its exact target.
    *
    * Elapsed time is not evidence of sleep.
@@ -245,6 +277,16 @@ export function isEntityTargetSettled(
     scaleError <= thresholds.scale &&
     velocity <= thresholds.velocity
   );
+}
+
+function cloneShape(shape: Shape2): Shape2 {
+  if (shape.kind === "rect") return { ...shape };
+
+  return {
+    kind: "polygon",
+    closed: true,
+    vertices: shape.vertices.map((point) => ({ ...point })),
+  };
 }
 
 function integrateEntity(entity: SceneEntity, target: PoseTarget, dt: number): SceneEntity {

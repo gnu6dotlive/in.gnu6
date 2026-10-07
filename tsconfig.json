@@ -10,5 +10,11 @@
     "skipLibCheck": true,
     "types": ["vitest/globals"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "consumers/**/*.ts", "adapters/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts",
+    "consumers/**/*.ts",
+    "adapters/**/*.ts",
+    "qualification/pixi/main.ts"
+  ]
 }

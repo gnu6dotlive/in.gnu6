@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[in.gnu6] PixiJS qualification</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main id="qualification-shell">
+      <header>
+        <div>
+          <p class="eyebrow">[in.gnu6] / MQ-12</p>
+          <h1>PixiJS reference renderer qualification</h1>
+        </div>
+        <output id="status">booting…</output>
+      </header>
+
+      <section id="stage-shell" aria-label="Renderer qualification stage">
+        <div id="pixi-mount"></div>
+        <div id="semantic-mount" aria-label="Semantic accessibility projection"></div>
+      </section>
+
+      <footer>
+        <span>PixiJS 8.22 · WebGL · manual render</span>
+        <span id="scene-state">scene pending</span>
+      </footer>
+    </main>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

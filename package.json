@@ -14,11 +14,19 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "build:pixi-qualification": "vite build --config qualification/pixi/vite.config.ts",
+    "test:browser": "playwright test"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.3",
+    "@playwright/test": "1.63.0",
+    "playwright": "1.63.0",
     "typescript": "6.0.3",
+    "vite": "8.3.3",
     "vitest": "4.1.11"
+  },
+  "dependencies": {
+    "pixi.js": "8.22.0"
   }
 }
