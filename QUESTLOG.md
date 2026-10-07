@@ -1016,7 +1016,8 @@ Quick wins completed without preempting the Main Quest:
 - deterministic `test:browser` script;
 - Playwright/Vite harness separation;
 - Biome generated-artifact boundary;
-- idempotent `check -> build -> browser -> check` cycle.
+- idempotent `check -> build -> browser -> check` cycle;
+- explicit Playwright/Vite graceful shutdown to remove qualification-server teardown races.
 
 These completed mechanics do not close SQ-005 as a whole.
 

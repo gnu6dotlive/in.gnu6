@@ -13,7 +13,7 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4176",
     viewport: { width: 1280, height: 900 },
-    trace: "retain-on-failure",
+    trace: "off",
     screenshot: "only-on-failure",
     video: "off",
   },
@@ -21,6 +21,10 @@ export default defineConfig({
     command: "mise exec node@24 -- corepack npx vite --config qualification/pixi/vite.config.ts",
     url: "http://127.0.0.1:4176",
     reuseExistingServer: false,
+    gracefulShutdown: {
+      signal: "SIGTERM",
+      timeout: 2_000,
+    },
     timeout: 120_000,
   },
 });
