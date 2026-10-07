@@ -430,6 +430,15 @@ Implementation:
 Receipt:
 `docs/evidence/mq-06-deck-topology-2026-10-06.md`
 
+### Post-ratification requalification
+MQ-10 exposed a hidden deck-field assumption: lift was implicitly hardcoded to local `-Y`.
+
+The core now requires explicit `liftDirection`, allowing Docklab inward lift and SPJ upward lift with the same solver.
+
+The old behavior was causally falsified by the unified consumer scenario.
+
+MQ-06 remains **RATIFIED** with this assumption repaired.
+
 ### Exit gate
 Docklab and SPJ deck harnesses both consume the same deck/topology primitives while producing distinct spatial behavior.
 
@@ -558,7 +567,7 @@ A failing consumer test can produce a compact deterministic scene receipt suffic
 **Disposition: RATIFIED.**
 ## MQ-10 — Multi-consumer falsification
 
-State: **IMPLEMENTING**
+State: **RATIFIED**
 
 ### Required consumers
 
@@ -585,10 +594,36 @@ Neither harness may fork:
 - environment model.
 
 ### Stronger proof
-Both consumers should be able to coexist in one synthetic World fixture.
+Both consumers coexist in one synthetic World fixture using one:
+- SceneEngine;
+- FixedStepClock;
+- SpatialFrameGraph;
+- SpatialEnvironment;
+- TopologyRegistry / OwnershipRegistry;
+- SceneReceipt surface.
+
+### Ratified evidence
+- Docklab stable edge-frame mutation;
+- Docklab local neighbor field + reorder;
+- SPJ responsive consumer metrics + reorder;
+- SPJ hand→playzone bounded authority transfer;
+- one shared semantic clock across both consumer families;
+- final deterministic SceneReceipt observes both families;
+- no consumer-specific names/branches under `src/`;
+- MQ-10 discovered and repaired the prior hardcoded `-Y` lift assumption;
+- causal mutation restoring hardcoded `-Y` produced **1 RED end-to-end test**;
+- restored-state gates: **24 files / 96 tests PASS**, format/lint/typecheck PASS.
+
+Implementation:
+`3d85cd0 feat: prove one-core multi-consumer integration`
+
+Receipt:
+`docs/evidence/mq-10-multi-consumer-2026-10-06.md`
 
 ### Exit gate
 The same `[in.gnu6]` core supports both consumers with adapters/configuration rather than consumer-specific engine branches.
+
+**Disposition: RATIFIED.**
 
 ## MQ-11 — Renderer contract
 
@@ -1065,7 +1100,7 @@ Current program position:
 
 Next mandatory movement:
 
-> Complete and falsify MQ-10 — multi-consumer integration — using the ratified introspection surface to prove Docklab and SP Joaillerie share one core without hidden consumer forks.
+> Implement and falsify MQ-11 — renderer contract — while keeping renderer/provider authority strictly downstream from semantic scene truth.
 
 Current optional high-value Side Quest:
 

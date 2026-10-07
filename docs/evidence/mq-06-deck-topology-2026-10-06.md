@@ -171,3 +171,25 @@ The MQ-06 exit gate is satisfied:
 > Docklab and SP Joaillerie harnesses consume the same deck/topology primitives while producing distinct spatial behavior.
 
 Disposition: **RATIFIED**.
+
+
+## Post-ratification amendment — discovered during MQ-10
+
+MQ-10 multi-consumer falsification exposed one hidden coordinate assumption in the ratified deck influence model.
+
+Previous behavior encoded lift along local `-Y`.
+
+That was correct for one screen-aligned hand convention but not for an arbitrary spatial frame whose local V axis has different semantic meaning.
+
+The repair introduced explicit `liftDirection` in `DeckInfluenceSpec`.
+
+The core normalizes the direction and remains consumer-neutral.
+
+Requalification evidence:
+- Docklab selects inward local direction;
+- SP Joaillerie selects upward local direction;
+- one unified scenario uses both simultaneously;
+- hardcoding the old `-Y` assumption makes MQ-10 RED;
+- restored full gate: **24 files / 96 tests PASS**.
+
+MQ-06 remains **RATIFIED**, now with the hidden assumption removed rather than preserved as historical truth.
