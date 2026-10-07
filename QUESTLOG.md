@@ -1262,9 +1262,9 @@ Disposition: **OPEN — OPTIONAL / OPERATOR PRIORITY UNSET**.
 
 Kind: side
 Category: CAPITAL
-State: **IMPLEMENTING**
+State: **CLOSED**
 Suggested priority: high
-Operator priority: **NOW**
+Operator priority: **DONE**
 
 Intent:
 Capture the first substantial downstream `gnu6.live Experience` evidence produced after MQ-15, and
@@ -1287,7 +1287,9 @@ Typed quest relations:
   - consumer implementation commit `2f7164d feat(experience): enforce causal handoff continuity`;
   - qualification commit `3e612ed docs(experience): qualify v6.7.4 causal handoff`;
   - runtime tag `experience-v6.7.4-amendment-04`;
-  - local live receipt commit `5893875 docs(experience): record v6.7.4 local live receipt`.
+  - local live receipt commit `5893875 docs(experience): record v6.7.4 local live receipt`;
+  - consumer provenance contract commit `72bf476 feat(experience): bind in.gnu6 consumer provenance`;
+  - backflow receipt: `docs/evidence/sq-009-gnu6-live-consumer-provenance-2026-10-07.md`.
 
 Observed downstream proof:
 - `gnu6.live` worktree: `feat/experience-6.7.4-handoff-continuity`;
@@ -1336,18 +1338,27 @@ Why this belongs in `[in.gnu6]` Questlog:
 - vendoring creates a provenance/synchronization boundary that should become explicit rather than
   silently drifting.
 
-Known boundary debt discovered during downstream qualification:
-- `gnu6.live` repository-global `format:check` currently reports 7 import-order findings entirely
-  under `vendor/in.gnu6/`;
-- `gnu6.live` repository-global lint also reports project-service/parser findings for vendored
-  `[in.gnu6]` files plus unrelated pre-existing React/compiler findings;
-- Experience 6.7.4 itself has **zero `vendor/in.gnu6` delta**;
-- these findings were deliberately not repaired inside the isolated Experience 6.7.4 slice.
+Boundary repair result:
+- `vendor/in.gnu6/manifest.json` now binds the selected revision, exact file set, per-file SHA-256 and
+  aggregate source-tree SHA-256;
+- `npm run in-gnu6:sync -- --revision <revision>` forbids floating intake and rewrites vendor bytes
+  from an explicit autonomous Git object;
+- `npm run in-gnu6:check` proves committed bytes against the manifest and, when available, the
+  autonomous source repository;
+- one-byte drift mutation produced the expected RED result and exact resync restored GREEN;
+- direct vendor imports are bounded to `app/experience/engine/**`;
+- Biome and ESLint now exclude immutable vendor bytes while the provenance gate owns byte integrity;
+- Experience compatibility qualification: **90/90 Vitest files**, **349 PASS + 3 skipped**,
+  typecheck/build/renderer PASS, Chromium **68/68 PASS**;
+- global format gate is now PASS;
+- global lint remains RED on 9 pre-existing non-SQ009 findings;
+- global typecheck remains RED on the same 8 pre-existing test errors reproduced at the untouched
+  Experience 6.7.4 baseline.
 
 Priority:
 - authority: OPERATOR
 - suggested_value: high
-- operator_priority: UNSET
+- operator_priority: DONE
 - urgency: medium
 
 Scope:
@@ -1382,13 +1393,16 @@ Provenance:
 - discovered_at: 2026-10-07
 - discovered_in: gnu6.live
 - source_revision: `3e612ed0f14205589d6e94e9c308739067e6d5ec`
+- resolved_in_project: gnu6.live
+- resolved_in_revision: `72bf476`
+- backflow_receipt: `docs/evidence/sq-009-gnu6-live-consumer-provenance-2026-10-07.md`
 - derived_from:
   - project: gnu6.live
   - quest: Experience 6.7.4 causal handoff continuity
   - relation: DISCOVERED_DURING
 
 Disposition:
-**OPEN — DOWNSTREAM CONSUMER EVIDENCE CAPTURED / OPERATOR PRIORITY UNSET**
+**CLOSED — DOWNSTREAM CONSUMER PROVENANCE FORMALIZED / NO AUTHORITY TRANSFER**
 
 # Side Quest template
 
@@ -1562,13 +1576,16 @@ Any future mandatory work must come from:
 - a Side Quest explicitly promoted because evidence makes it causally required;
 - or an operator-defined mandate extension.
 
-Current optional high-value Side Quests:
+Operator-approved Side Quest batch:
+- SQ-003 — **CLOSED**: blob.in donor truth reconstructed and reusable laws harvested;
+- SQ-009 — **CLOSED**: gnu6.live consumer provenance/sync boundary formalized and falsified.
 
-> SQ-003 — reconstruct blob.in donor truth.
+No currently operator-approved Side Quest remains in execution.
 
-> SQ-009 — formalize gnu6.live Experience consumer integration / vendored-runtime provenance.
+Other open/deferred Side Quests remain in the registry under their existing priorities. None becomes
+mandatory or `NOW` without operator reprioritization.
 
-SQ-009 is supported by fresh downstream Experience 6.7.4 evidence and is **NON_CAUSAL** to the already-ratified MQ-15 completeness claim. It does not reopen the Main Questline.
+MQ-15 remains **RATIFIED COMPLETE FOR CURRENT MANDATE**.
 
 Operator may reprioritize Side Quests at any time.
 
