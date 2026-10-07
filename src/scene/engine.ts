@@ -23,7 +23,7 @@ export interface SettleThresholds {
   velocity: number;
 }
 
-const DEFAULT_SETTLE_THRESHOLDS: SettleThresholds = {
+export const DEFAULT_SETTLE_THRESHOLDS: SettleThresholds = {
   position: 0.001,
   rotation: 0.001,
   scale: 0.001,
@@ -147,29 +147,7 @@ export class SceneEngine {
     const entity = this.state.entities.get(id);
     const target = this.state.targets.get(id);
     if (!entity || !target) return false;
-
-    const positionError = Math.hypot(
-      entity.pose.position.x - target.pose.position.x,
-      entity.pose.position.y - target.pose.position.y,
-    );
-    const scaleError = Math.max(
-      Math.abs(entity.pose.scale.x - target.pose.scale.x),
-      Math.abs(entity.pose.scale.y - target.pose.scale.y),
-    );
-    const velocity = Math.max(
-      Math.abs(entity.velocity.linear.x),
-      Math.abs(entity.velocity.linear.y),
-      Math.abs(entity.velocity.angular),
-      Math.abs(entity.velocity.scale.x),
-      Math.abs(entity.velocity.scale.y),
-    );
-
-    return (
-      positionError <= thresholds.position &&
-      Math.abs(entity.pose.rotation - target.pose.rotation) <= thresholds.rotation &&
-      scaleError <= thresholds.scale &&
-      velocity <= thresholds.velocity
-    );
+    return isEntityTargetSettled(entity, target, thresholds);
   }
 
   /**
@@ -238,6 +216,35 @@ export class SceneEngine {
     this.state = next;
     return next;
   }
+}
+
+export function isEntityTargetSettled(
+  entity: SceneEntity,
+  target: PoseTarget,
+  thresholds: SettleThresholds = DEFAULT_SETTLE_THRESHOLDS,
+): boolean {
+  const positionError = Math.hypot(
+    entity.pose.position.x - target.pose.position.x,
+    entity.pose.position.y - target.pose.position.y,
+  );
+  const scaleError = Math.max(
+    Math.abs(entity.pose.scale.x - target.pose.scale.x),
+    Math.abs(entity.pose.scale.y - target.pose.scale.y),
+  );
+  const velocity = Math.max(
+    Math.abs(entity.velocity.linear.x),
+    Math.abs(entity.velocity.linear.y),
+    Math.abs(entity.velocity.angular),
+    Math.abs(entity.velocity.scale.x),
+    Math.abs(entity.velocity.scale.y),
+  );
+
+  return (
+    positionError <= thresholds.position &&
+    Math.abs(entity.pose.rotation - target.pose.rotation) <= thresholds.rotation &&
+    scaleError <= thresholds.scale &&
+    velocity <= thresholds.velocity
+  );
 }
 
 function integrateEntity(entity: SceneEntity, target: PoseTarget, dt: number): SceneEntity {

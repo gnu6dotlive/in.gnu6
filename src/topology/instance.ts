@@ -112,11 +112,26 @@ export function defineTopology(input: TopologyInstance): TopologyInstance {
  * Solvers propose targets; ownership decides whether they are authorized to
  * control a degree of freedom.
  */
+export interface OwnershipObservation {
+  entityId: EntityId;
+  degree: DegreeOfFreedom;
+  ownerId: TopologyId;
+}
+
 export class OwnershipRegistry {
-  private readonly owners = new Map<string, TopologyId>();
+  private readonly owners = new Map<string, OwnershipObservation>();
 
   ownerOf(entityId: EntityId, degree: DegreeOfFreedom): TopologyId | null {
-    return this.owners.get(key(entityId, degree)) ?? null;
+    return this.owners.get(key(entityId, degree))?.ownerId ?? null;
+  }
+
+  observation(): readonly OwnershipObservation[] {
+    return [...this.owners.values()]
+      .map((entry) => ({ ...entry }))
+      .sort((a, b) => {
+        const entityOrder = a.entityId.localeCompare(b.entityId);
+        return entityOrder !== 0 ? entityOrder : a.degree.localeCompare(b.degree);
+      });
   }
 
   claim(ownerId: TopologyId, entityId: EntityId, degrees: readonly DegreeOfFreedom[]): void {
@@ -130,7 +145,7 @@ export class OwnershipRegistry {
     }
 
     for (const degree of degrees) {
-      this.owners.set(key(entityId, degree), ownerId);
+      this.owners.set(key(entityId, degree), { entityId, degree, ownerId });
     }
   }
 
@@ -177,7 +192,7 @@ export class OwnershipRegistry {
     }
 
     for (const degree of degrees) {
-      this.owners.set(key(entityId, degree), to);
+      this.owners.set(key(entityId, degree), { entityId, degree, ownerId: to });
     }
   }
 }
