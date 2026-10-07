@@ -243,7 +243,7 @@ The engine can host at least two materially different topology systems concurren
 
 ## MQ-03 — Deterministic scene time and dynamics
 
-State: **IMPLEMENTING**
+State: **RATIFIED**
 
 ### Required invariants
 1. Scene time is explicit.
@@ -263,15 +263,27 @@ State: **IMPLEMENTING**
 - shape-morph progress spring;
 - continuous radial fields.
 
-### Still required
-- accumulator/fixed-step clock;
-- retarget/reversal law tests;
-- velocity transfer across topology handoff;
-- sleeping/settled criteria;
-- deterministic replay fixture.
+### Ratified evidence
+- fixed-step scheduler with bounded catch-up;
+- renderer-cadence independence proof;
+- retarget/reversal velocity preservation;
+- topology handoff velocity preservation inherited from MQ-02;
+- explicit settled predicate;
+- reduced-motion destination parity;
+- deterministic semantic replay fixture;
+- causal mutation: removing the catch-up budget produced **600 executed steps instead of 6** and made the long-pause gate RED;
+- restored-state gates: **9 files / 42 tests PASS**, format/lint/typecheck PASS.
+
+Receipt:
+`docs/evidence/mq-03-deterministic-time-2026-10-06.md`
+
+Implementation:
+`236ed78 feat: add deterministic scene time and dynamics gates`
 
 ### Exit gate
 Identical ordered inputs + identical initial state produce identical scene observations independent of renderer frame cadence.
+
+**Disposition: RATIFIED.**
 
 ## MQ-04 — Environment / space model
 
