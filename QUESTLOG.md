@@ -287,7 +287,7 @@ Identical ordered inputs + identical initial state produce identical scene obser
 
 ## MQ-04 — Environment / space model
 
-State: **DESIGNED**
+State: **RATIFIED**
 
 ### Required model
 World `W` may contain:
@@ -311,8 +311,23 @@ World `W` may contain:
 - renderer-neutral hit/pick query;
 - environment mutation with deterministic reflow.
 
+### Ratified evidence
+- implementation: `fd6af22 feat: add deterministic environment space model`;
+- receipt: `docs/evidence/mq-04-environment-space-2026-10-06.md`;
+- AABB admissibility/exclusion/containment/proximity/occlusion;
+- nearest-region and renderer-neutral geometric pick primitives;
+- shared context-like / deck-like / playzone-like placement proof;
+- environment mutation reflow proof;
+- causal mutation ignoring exclusions produced **3 RED tests**;
+- restored-state gates: **12 files / 53 tests PASS**, format/lint/typecheck PASS.
+
+Scope note:
+MQ-04 ratifies the current world-space AABB environment model. Arbitrary polygonal/generalized constraint solving remains MQ-07.
+
 ### Exit gate
 A context surface, deck and playzone can all ask the same engine for admissible spatial solutions without encoding duplicated `near edge` consumer logic.
+
+**Disposition: RATIFIED.**
 
 ## MQ-05 — Topology and shape evolution
 
