@@ -146,7 +146,7 @@ export interface SpringLaw {
  *   for every entity e and property q:
  *     |Owner(e,q)| <= 1
  *
- * This formalizes the SP Joaillerie donor lesson:
+ * This formalizes a general motion-ownership rule:
  * one animation clock per property, per node.
  */
 export interface PoseTarget {
