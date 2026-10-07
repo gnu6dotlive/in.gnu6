@@ -1,5 +1,11 @@
 import { defineConfig } from "@playwright/test";
 
+const qualificationPort = Number(
+  process.env.IN_GNU6_QUALIFICATION_PORT ?? "4176",
+);
+const qualificationUrl =
+  "http://127.0.0.1:" + qualificationPort;
+
 export default defineConfig({
   testDir: "./tests/browser",
   testMatch: "**/*.pw.ts",
@@ -11,16 +17,19 @@ export default defineConfig({
   workers: 1,
   reporter: [["line"]],
   use: {
-    baseURL: "http://127.0.0.1:4176",
+    baseURL: qualificationUrl,
     viewport: { width: 1280, height: 900 },
     trace: "off",
     screenshot: "only-on-failure",
     video: "off",
   },
   webServer: {
-    command: "mise exec node@24 -- corepack npx vite --config qualification/pixi/vite.config.ts",
-    url: "http://127.0.0.1:4176",
-    reuseExistingServer: true,
+    command:
+      "IN_GNU6_QUALIFICATION_PORT=" +
+      qualificationPort +
+      " mise exec node@24 -- node node_modules/vite/bin/vite.js --config qualification/pixi/vite.config.ts",
+    url: qualificationUrl,
+    reuseExistingServer: false,
     gracefulShutdown: {
       signal: "SIGTERM",
       timeout: 2_000,
