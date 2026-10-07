@@ -51,12 +51,6 @@
           "correctness": {
             "noNodejsModules": "off",
             "noProcessGlobal": "off"
-          },
-          "suspicious": {
-            "noConsole": "off"
-          },
-          "security": {
-            "noSecrets": "off"
           }
         }
       }

@@ -34,16 +34,26 @@ const pkg = json("package.json");
 
 for (let index = 0; index <= 14; index += 1) {
   const id = String(index).padStart(2, "0");
-  const blockPattern = new RegExp(
-    "## MQ-" + id + "[\\s\\S]*?(?=\\n## MQ-|\\n# Side Quest Registry)",
-  );
-  const block = questlog.match(blockPattern)?.[0] ?? "";
+  const block = questBlock(questlog, id);
 
   gate(
     "MQ-" + id + " ratified",
-    /^State: \*\*RATIFIED(?:\b|\s|—)/m.test(block),
+    block.includes("State: **RATIFIED"),
     block ? "state line must begin with RATIFIED" : "quest block missing",
   );
+}
+
+function questBlock(source, id) {
+  const heading = "## MQ-" + id;
+  const start = source.indexOf(heading);
+  if (start < 0) return "";
+
+  const nextQuest = source.indexOf("\n## MQ-", start + heading.length);
+  const sideQuestRegistry = source.indexOf("\n# Side Quest Registry", start + heading.length);
+  const candidates = [nextQuest, sideQuestRegistry].filter((position) => position >= 0);
+  const end = candidates.length > 0 ? Math.min(...candidates) : source.length;
+
+  return source.slice(start, end);
 }
 
 const requiredEvidence = [
