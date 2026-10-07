@@ -1549,6 +1549,53 @@ Every materially completed quest should leave:
 
 A green checkmark without this binding is insufficient for Main Quest closure.
 
+# Product / Integration Slice ledger
+
+Side Quests remain a backlog for optional capital, habitat and truth-debt work.
+They are not the default source of active implementation.
+
+Active cross-repository work should instead be expressed as a bounded Product/Integration Slice with:
+- one concrete consumer/product problem;
+- one explicit authority boundary;
+- the smallest engine change required by that problem;
+- RED→GREEN causal proof;
+- exact engine revision promotion;
+- downstream compatibility qualification;
+- local/live observation when a runnable consumer exists;
+- a closure invariant and explicit remaining debt.
+
+## EXPERIENCE-IN-01 — Canonical RuntimeWindow ↔ Card handoff
+
+State: **CLOSED — QUALIFIED + LOCAL LIVE**
+Category: PRODUCT_INTEGRATION
+Operator priority: **DONE**
+
+Problem:
+Experience 6.7.4 preserved Minimize/Restore causal semantics but still recomputed scenic handoff
+geometry inside the consumer.
+
+Engine change:
+- `68371fe feat(topology): plan canonical rect handoffs`;
+- generic stable-subject rectangular handoff planner;
+- source/transfer/target geometry + radius + endpoint vector;
+- no RuntimeWindow/AppCard/Minimize/Restore vocabulary in the engine.
+
+Consumer result:
+- `d93a559 feat(experience): canonicalize window card handoff`;
+- exact sync to `[in.gnu6]@68371fe`;
+- bounded adapter `app/experience/engine/in-gnu6-handoff.ts`;
+- consumer no longer computes intermediate card geometry or handoff vector;
+- full Chromium Experience matrix: **68/68 PASS**;
+- local live container: healthy;
+- live capture/restore report `geometryOwner=in.gnu6@68371fe`;
+- same semantic identity retained across both directions.
+
+Backflow evidence:
+`docs/evidence/experience-in-01-consumer-qualification-2026-10-07.md`
+
+Disposition:
+**CLOSED — REAL CONSUMER NEED → MINIMAL ENGINE CAPABILITY → EXACT PROMOTION → LIVE PROOF**
+
 # Current next movement
 
 Current program position:
@@ -1581,6 +1628,12 @@ Operator-approved Side Quest batch:
 - SQ-009 — **CLOSED**: gnu6.live consumer provenance/sync boundary formalized and falsified.
 
 No currently operator-approved Side Quest remains in execution.
+
+Most recent Product/Integration Slice:
+- EXPERIENCE-IN-01 — **CLOSED / QUALIFIED + LOCAL LIVE**.
+
+No Product/Integration Slice is currently active. The next slice should originate from a concrete
+consumer/product problem, not from automatic backlog traversal.
 
 Other open/deferred Side Quests remain in the registry under their existing priorities. None becomes
 mandatory or `NOW` without operator reprioritization.
