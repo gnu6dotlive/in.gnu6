@@ -18,9 +18,9 @@ export interface ShapeMorphTrack {
  *
  *   M : subject × sourceShape × targetShape → track
  *
- * subject identity is independent of representation. A window becoming a card
- * therefore remains the same subject while its boundary representation moves
- * through shape space.
+ * subject identity is independent of representation. One surface representation
+ * may therefore become another while the same subject boundary moves through
+ * shape space.
  */
 export function createShapeMorphTrack(
   subjectId: EntityId,
