@@ -331,7 +331,7 @@ A context surface, deck and playzone can all ask the same engine for admissible 
 
 ## MQ-05 — Topology and shape evolution
 
-State: **IMPLEMENTING**
+State: **GREEN_LOCAL**
 
 ### Required invariants
 1. Shape connectivity is represented explicitly.
@@ -352,16 +352,30 @@ State: **IMPLEMENTING**
 - rounded-rect contour;
 - window→card compatible contour generation.
 
-### Still required
-- deformation fields over contour nodes;
-- topology retarget/reversal;
-- shape velocity;
-- exclusion/collision against environment;
-- nested/local-frame contour transforms;
-- numerical stability gates.
+### Headless evidence complete
+- per-node contour position + velocity;
+- topology retarget/reversal preserving live node state;
+- continuous deformation fields;
+- shape/environment collision observation;
+- nested/local-frame contour projection;
+- numerical stability gates;
+- causal mutation zeroing velocity produced **2 RED tests**;
+- restored-state gates: **14 files / 60 tests PASS**, format/lint/typecheck PASS;
+- core donor/product-name scan: NONE.
+
+Implementation:
+`4ef5a37 feat: add deformable contour dynamics`
+
+Receipt:
+`docs/evidence/mq-05-headless-topology-2026-10-06.md`
+
+### Remaining dependency
+Reference-renderer/no-cutoff proof remains required and is expected to be supplied by MQ-12/MQ-13.
 
 ### Exit gate
 A single entity can continuously evolve between at least three materially different surface topologies under retargeting without identity loss or visual discontinuity in a reference renderer.
+
+**Disposition: GREEN_LOCAL — NOT YET RATIFIED.**
 
 ## MQ-06 — Deck / card topology family
 
