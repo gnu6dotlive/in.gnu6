@@ -789,6 +789,160 @@ function snapshot() {
   };
 }
 
+async function benchmarkProjection(entityCount: number, iterations = 60) {
+  if (!Number.isInteger(entityCount) || entityCount <= 0) {
+    throw new Error("benchmark entityCount must be a positive integer");
+  }
+  if (!Number.isInteger(iterations) || iterations <= 0) {
+    throw new Error("benchmark iterations must be a positive integer");
+  }
+
+  const benchmarkMount = document.createElement("div");
+  benchmarkMount.style.position = "fixed";
+  benchmarkMount.style.left = "-10000px";
+  benchmarkMount.style.top = "0";
+  benchmarkMount.style.width = "1200px";
+  benchmarkMount.style.height = "720px";
+  document.body.appendChild(benchmarkMount);
+
+  const benchmarkRenderer = await PixiBrowserRenderer.create({
+    mount: benchmarkMount,
+    width: 1200,
+    height: 720,
+    preference: "webgl",
+    resolution: 1,
+    antialias: false,
+  });
+
+  const benchmarkScene = new SceneEngine();
+  const entities: SceneEntity[] = Array.from({ length: entityCount }, (_, index) => {
+    const column = index % 40;
+    const row = Math.floor(index / 40);
+
+    return {
+      id: asEntityId("bench-" + entityCount + "-" + index),
+      role: "card",
+      pose: {
+        position: {
+          x: 20 + column * 28,
+          y: 28 + row * 38,
+        },
+        rotation: (index % 9) * 0.01,
+        scale: { x: 1, y: 1 },
+      },
+      velocity: zeroVelocity(),
+      shape: {
+        kind: "rect",
+        width: 26,
+        height: 36,
+        radius: 4,
+      },
+      z: index,
+      visible: true,
+      parent: null,
+    };
+  });
+
+  benchmarkScene.mutate({ add: entities });
+
+  const buildFrame = (frameSequence: number) =>
+    buildRendererFrame(benchmarkScene.snapshot(), {
+      sequence: frameSequence,
+      motionMode: "normal",
+      accessibility: [],
+    });
+
+  const firstFrame = buildFrame(0);
+  const initialStart = performance.now();
+  const firstResult = benchmarkRenderer.render(firstFrame);
+  const initialRenderMs = performance.now() - initialStart;
+  const gpu = webglRendererInfo(firstResult.output);
+
+  for (let index = 0; index < 10; index += 1) {
+    benchmarkRenderer.render(firstFrame);
+  }
+
+  const frameBuildSamples: number[] = [];
+  const renderSamples: number[] = [];
+
+  for (let index = 0; index < iterations; index += 1) {
+    const buildStart = performance.now();
+    const frame = buildFrame(index + 1);
+    frameBuildSamples.push(performance.now() - buildStart);
+
+    const renderStart = performance.now();
+    benchmarkRenderer.render(frame);
+    renderSamples.push(performance.now() - renderStart);
+  }
+
+  const memory = (
+    performance as Performance & {
+      memory?: {
+        usedJSHeapSize: number;
+        totalJSHeapSize: number;
+        jsHeapSizeLimit: number;
+      };
+    }
+  ).memory;
+
+  const diagnostics = benchmarkRenderer.diagnostics();
+  const report = {
+    entityCount,
+    iterations,
+    initialRenderMs,
+    frameBuild: distribution(frameBuildSamples),
+    pixiRender: distribution(renderSamples),
+    diagnostics,
+    gpu,
+    jsHeap: memory
+      ? {
+          usedBytes: memory.usedJSHeapSize,
+          totalBytes: memory.totalJSHeapSize,
+          limitBytes: memory.jsHeapSizeLimit,
+        }
+      : null,
+  };
+
+  benchmarkRenderer.destroy();
+  benchmarkMount.remove();
+
+  return report;
+}
+
+function webglRendererInfo(canvas: HTMLCanvasElement) {
+  const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+
+  if (!gl) return null;
+
+  const debug = gl.getExtension("WEBGL_debug_renderer_info") as WEBGL_debug_renderer_info | null;
+
+  return {
+    version: String(gl.getParameter(gl.VERSION)),
+    shadingLanguageVersion: String(gl.getParameter(gl.SHADING_LANGUAGE_VERSION)),
+    vendor: String(gl.getParameter(debug?.UNMASKED_VENDOR_WEBGL ?? gl.VENDOR)),
+    renderer: String(gl.getParameter(debug?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER)),
+  };
+}
+
+function distribution(values: readonly number[]) {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mean = sorted.reduce((sum, value) => sum + value, 0) / Math.max(1, sorted.length);
+
+  const percentile = (p: number) => {
+    if (sorted.length === 0) return 0;
+    const index = Math.min(sorted.length - 1, Math.max(0, Math.ceil(sorted.length * p) - 1));
+    return sorted[index]!;
+  };
+
+  return {
+    meanMs: mean,
+    medianMs: percentile(0.5),
+    p95Ms: percentile(0.95),
+    minMs: sorted[0] ?? 0,
+    maxMs: sorted.at(-1) ?? 0,
+  };
+}
+
 function compareMotionParity() {
   const id = asEntityId("parity");
   const base = parityEntity(id);
@@ -935,6 +1089,7 @@ const qualificationApi = {
   traceHandoffToPlayzone,
   traceContextSurfaceLifecycle,
   snapshot,
+  benchmarkProjection,
   compareMotionParity,
   ids: {
     dock: dockIds,

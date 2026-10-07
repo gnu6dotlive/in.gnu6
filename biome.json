@@ -25,5 +25,22 @@
       "suspicious": "error",
       "security": "error"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "benchmarks/**/*.mjs",
+        "tests/performance/**/*.ts",
+        "vitest.performance.config.ts"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off",
+            "noProcessGlobal": "off"
+          }
+        }
+      }
+    }
+  ]
 }
