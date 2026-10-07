@@ -1,10 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-const qualificationPort = Number(
-  process.env.IN_GNU6_QUALIFICATION_PORT ?? "4176",
-);
-const qualificationUrl =
-  "http://127.0.0.1:" + qualificationPort;
+const qualificationPort = Number(process.env.IN_GNU6_QUALIFICATION_PORT ?? "4176");
+const qualificationUrl = "http://127.0.0.1:" + qualificationPort;
 
 export default defineConfig({
   testDir: "./tests/browser",

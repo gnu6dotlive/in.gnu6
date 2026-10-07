@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
 
-const qualificationPort = Number(
-  process.env.IN_GNU6_QUALIFICATION_PORT ?? "4176",
-);
+const qualificationPort = Number(process.env.IN_GNU6_QUALIFICATION_PORT ?? "4176");
 
 export default defineConfig({
   root: "qualification/pixi",
