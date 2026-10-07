@@ -1033,16 +1033,21 @@ A green checkmark without this binding is insufficient for Main Quest closure.
 Current program position:
 - MQ-00: RATIFIED
 - MQ-01: IMPLEMENTING
-- MQ-02: RATIFIED DESIGN / NOT YET IMPLEMENTED
-- MQ-03: IMPLEMENTING
-- MQ-05: IMPLEMENTING
-- MQ-06: IMPLEMENTING
+- MQ-02: RATIFIED
+- MQ-03: RATIFIED
+- MQ-04: RATIFIED
+- MQ-05: GREEN_LOCAL — renderer/no-cutoff dependency remains
+- MQ-06: RATIFIED
+- MQ-07: RATIFIED
+- MQ-08: RATIFIED
+- MQ-09: DISCOVERED
 - MQ-10: IMPLEMENTING
-- remaining Main Quests: open
+- MQ-11..14: open
+- MQ-15: blocked by remaining mandatory quests
 
 Next mandatory movement:
 
-> Implement and falsify MQ-02 — composable SpatialFrames + concurrent TopologyInstances + degree-of-freedom ownership — using Docklab and SPJ as independent consumer pressure.
+> Implement and falsify MQ-09 — deterministic introspection and explainable scene frames — so later consumer/renderer failures can produce causal receipts instead of opaque screenshots.
 
 Current optional high-value Side Quest:
 
