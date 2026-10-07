@@ -1072,13 +1072,49 @@ Receipt: `docs/provenance/donor-spj-e7595ce.md`
 Value: preserves deck/tarot technical capital without granting SPJ engine authority.
 
 ## SQ-003 — blob.in donor reconstruction
-State: **DISCOVERED**
+State: **CLOSED**
 Suggested priority: high
-Operator priority: **UNSET**
+Operator priority: **DONE**
 
 Question: Which blob.in mechanics are real reusable topology/dynamics capital, and which displayed Rust/Lyon/FFI claims remain unproven?
 
-Expected output: revision-bound donor receipt + extracted laws/fixtures.
+Receipt: `docs/provenance/donor-blobin-appstack-b3-4603aed.md`
+
+Extracted fixtures:
+- `tests/fixtures/blobin-donor.ts`;
+- `tests/model/blobin-donor-laws.test.ts`.
+
+Fresh reconstruction:
+- preserved donor snapshot manifest: **95 files**;
+- manifest digest: `5a7831ec1293c0dd810cef11c4b953bba6a891c2065b24ac63b43f4f40218b2d`;
+- pristine exported workspace: **not self-contained** because `gnosis-gpui-theme` is absent;
+- isolated Rust core: **47/47 PASS** under default, sequential and threaded configurations;
+- reconstructed workspace excluding only the missing GPUI member: Rust/CXX-Qt/generator/golden tests PASS;
+- reconstructed Qt 6 / Corrosion / CXX render-shim build: PASS;
+- preserved no-unsafe gate: PASS;
+- C++ shim budget: **282/300 PASS**;
+- preserved RTX 3070 R8 checksums: PASS;
+- R10 14-day dogfood remains explicitly unproven/pending.
+
+Capital retained:
+- renderer-neutral ordered contours;
+- winding as topological data;
+- deterministic damped spring law;
+- stable subject identity through shape evolution;
+- dirty/cold scheduling separated from semantic state;
+- bounded projection/provider frontier.
+
+Not imported as authority:
+- Qt/QSG/RHI/CXX provider choices;
+- lyon/Rayon provider choices;
+- mascot/BubbleBloom semantics;
+- backend env naming;
+- historical performance/GPU sign-offs as fresh results.
+
+The source suffix `4603aed` could not be independently resolved to a surviving Git object, so the
+snapshot path + manifest digest is the reconstruction authority.
+
+Disposition: **CLOSED — DONOR TRUTH RECONSTRUCTED / LAWS HARVESTED WITHOUT CORE AUTHORITY TRANSFER**.
 
 ## SQ-004 — PixiJS renderer/vendor study
 State: **CLOSED — OPERATOR DECISION**
@@ -1226,9 +1262,9 @@ Disposition: **OPEN — OPTIONAL / OPERATOR PRIORITY UNSET**.
 
 Kind: side
 Category: CAPITAL
-State: **OBSERVED**
+State: **IMPLEMENTING**
 Suggested priority: high
-Operator priority: **UNSET**
+Operator priority: **NOW**
 
 Intent:
 Capture the first substantial downstream `gnu6.live Experience` evidence produced after MQ-15, and
