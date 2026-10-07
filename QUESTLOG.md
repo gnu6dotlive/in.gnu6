@@ -517,7 +517,7 @@ At least two renderer/harness environments can submit equivalent pointer observa
 
 ## MQ-09 — Introspection and explainable scene frames
 
-State: **DISCOVERED**
+State: **RATIFIED**
 
 ### Minimum observable facts
 - scene time;
@@ -536,8 +536,26 @@ State: **DISCOVERED**
 ### Rule
 Introspection observes scene truth. It must not become another authority.
 
+### Ratified evidence
+- deterministic renderer-neutral `SceneReceipt`;
+- local + world pose, velocity, parentage, topology membership, ownership, target, constraints, containment, occlusion, fields and motion-state observation;
+- detached ownership observation surface;
+- deterministic serialization;
+- exact structural receipt diff;
+- receipt mutation cannot mutate scene truth;
+- causal mutation substituting local pose for world pose produced **1 RED test**;
+- restored-state gates: **23 files / 92 tests PASS**, format/lint/typecheck PASS.
+
+Implementation:
+`c38c661 feat: add deterministic scene introspection`
+
+Receipt:
+`docs/evidence/mq-09-introspection-2026-10-06.md`
+
 ### Exit gate
 A failing consumer test can produce a compact deterministic scene receipt sufficient to explain the causal difference.
+
+**Disposition: RATIFIED.**
 ## MQ-10 — Multi-consumer falsification
 
 State: **IMPLEMENTING**
@@ -1047,7 +1065,7 @@ Current program position:
 
 Next mandatory movement:
 
-> Implement and falsify MQ-09 — deterministic introspection and explainable scene frames — so later consumer/renderer failures can produce causal receipts instead of opaque screenshots.
+> Complete and falsify MQ-10 — multi-consumer integration — using the ratified introspection surface to prove Docklab and SP Joaillerie share one core without hidden consumer forks.
 
 Current optional high-value Side Quest:
 
