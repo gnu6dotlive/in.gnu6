@@ -790,7 +790,7 @@ Every required reference transition has an explicit causal continuity proof or a
 
 ## MQ-14 — Performance and scale envelope
 
-State: **DISCOVERED**
+State: **RATIFIED**
 
 ### Required measurements
 No fixed targets are ratified yet.
@@ -809,8 +809,36 @@ The engine must eventually characterize:
 ### Rule
 Optimization may not silently weaken invariants.
 
+### Ratified evidence
+- reproducible core performance harness;
+- reproducible browser/Pixi performance harness;
+- fixed-step scaling characterized to 2048 entities;
+- field evaluation characterized;
+- contour step + retarget scaling characterized to 1024 nodes;
+- picking characterized to 5000 occupants;
+- representative Docklab 24-card and SPJ 12-card workloads measured;
+- core memory observations recorded;
+- browser RendererFrame build + Pixi projection measured to 512 entities;
+- browser JS heap observed;
+- full SceneReceipt observer overhead quantified at 256 entities;
+- post-instrumentation functional gates remain GREEN.
+
+Raw evidence:
+- `docs/evidence/assets/mq-14-core-envelope.json`
+- `docs/evidence/assets/mq-14-browser-envelope.json`
+
+Receipt:
+`docs/evidence/mq-14-performance-envelope-2026-10-07.md`
+
+Important limitations:
+- browser renderer measurements used headless Chrome SwiftShader, not physical GPU hardware;
+- no product SLO was invented;
+- SceneReceipt is expensive enough to remain on-demand diagnostic work at the measured scale.
+
 ### Exit gate
 A documented performance envelope exists for representative Docklab and SPJ workloads, and instrumentation overhead is known.
+
+**Disposition: RATIFIED.**
 
 ## MQ-15 — Engine completeness evaluation
 
@@ -1112,6 +1140,44 @@ Completion contract:
 - causal proof for any claimed advantage.
 
 Disposition: **OPEN — FUTURE / OPERATOR LATER**.
+
+## SQ-008 — Incremental / lower-cost scene observation
+
+Kind: side
+Category: CAPITAL
+State: **DISCOVERED**
+Suggested priority: medium
+Operator priority: **UNSET**
+
+Intent:
+Reduce the cost of introspection if future products require high-frequency scene telemetry or continuous receipts.
+
+Relation to Main Quest:
+- quest: MQ-09 / MQ-14
+- causal_status: NON_CAUSAL for current completeness
+- evidence: at 256 entities, full `SceneReceipt` construction measured ~19.8 ms median versus ~0.055 ms for the semantic step alone.
+
+Potential directions:
+- incremental/delta receipts;
+- dirty-entity tracking;
+- topology/ownership observation caching;
+- configurable receipt detail levels;
+- sampling cadence policy;
+- structural sharing.
+
+Non-goals:
+- do not weaken MQ-09 truth content silently;
+- do not make telemetry another semantic authority;
+- do not promote this work to Main Quest without operator-visible causal evidence.
+
+Completion contract:
+- same causal truth for equivalent requested detail;
+- measured observer overhead improvement;
+- explicit tradeoff if any detail is omitted;
+- mutation/falsification proof for stale-cache hazards.
+
+Disposition: **OPEN — OPTIONAL / OPERATOR PRIORITY UNSET**.
+
 # Side Quest template
 
 Append new Side Quests using this form:
@@ -1274,12 +1340,12 @@ Current program position:
 - MQ-11: RATIFIED
 - MQ-12: RATIFIED — PixiJS 8.22.0 / WebGL reference
 - MQ-13: RATIFIED
-- MQ-14: DISCOVERED
-- MQ-15: blocked by remaining mandatory quests
+- MQ-14: RATIFIED
+- MQ-15: blocked only by MQ-01 formal ontology closure
 
 Next mandatory movement after the required human continuity checkpoint:
 
-> Implement and measure MQ-14 — performance and scale envelope — without weakening any ratified semantic or continuity invariant.
+> Close and falsify MQ-01 — formal scene ontology — by adding the missing explicit query algebra and requalifying lifecycle/ownership/observation semantics against the now-ratified downstream system.
 
 Current optional high-value Side Quest:
 

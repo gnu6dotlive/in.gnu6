@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-07T04:45:50.164Z",
+  "source": {
+    "gitHead": "a2f5adbde7c220cf822554f4cf24a3586328e21c",
+    "treeStatus": ""
+  },
+  "instrument": {
+    "browserVersion": "153.0.8010.12",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+    "pixiVersion": "8.22.0",
+    "backend": "webgl",
+    "tickerStarted": false,
+    "resolution": 1,
+    "antialias": false,
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    }
+  },
+  "methodology": {
+    "entityCounts": [16, 64, 256, 512],
+    "iterationsPerCount": 60,
+    "warmupRenders": 10,
+    "note": "Headless Chrome reference-envelope observation. JS heap is browser-observed heap, not GPU memory."
+  },
+  "projection": [
+    {
+      "entityCount": 16,
+      "iterations": 60,
+      "initialRenderMs": 2.600000023841858,
+      "frameBuild": {
+        "meanMs": 0.033333335320154825,
+        "medianMs": 0,
+        "p95Ms": 0.10000002384185791,
+        "minMs": 0,
+        "maxMs": 0.7000000476837158
+      },
+      "pixiRender": {
+        "meanMs": 0.1299999972184499,
+        "medianMs": 0.10000002384185791,
+        "p95Ms": 0.2999999523162842,
+        "minMs": 0,
+        "maxMs": 0.3999999761581421
+      },
+      "diagnostics": {
+        "rendererName": "webgl",
+        "tickerStarted": false,
+        "graphicsHandles": 16,
+        "semanticNodes": 0,
+        "canvasWidth": 1200,
+        "canvasHeight": 720
+      },
+      "gpu": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "vendor": "Google Inc. (Google)",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "jsHeap": {
+        "usedBytes": 20621970,
+        "totalBytes": 24561342,
+        "limitBytes": 4395630592
+      }
+    },
+    {
+      "entityCount": 64,
+      "iterations": 60,
+      "initialRenderMs": 2.4000000953674316,
+      "frameBuild": {
+        "meanMs": 0.1416666626930237,
+        "medianMs": 0.10000002384185791,
+        "p95Ms": 0.30000007152557373,
+        "minMs": 0,
+        "maxMs": 0.40000009536743164
+      },
+      "pixiRender": {
+        "meanMs": 0.19666666984558107,
+        "medianMs": 0.19999992847442627,
+        "p95Ms": 0.30000007152557373,
+        "minMs": 0.09999990463256836,
+        "maxMs": 0.3999999761581421
+      },
+      "diagnostics": {
+        "rendererName": "webgl",
+        "tickerStarted": false,
+        "graphicsHandles": 64,
+        "semanticNodes": 0,
+        "canvasWidth": 1200,
+        "canvasHeight": 720
+      },
+      "gpu": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "vendor": "Google Inc. (Google)",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "jsHeap": {
+        "usedBytes": 20964747,
+        "totalBytes": 29610079,
+        "limitBytes": 4395630592
+      }
+    },
+    {
+      "entityCount": 256,
+      "iterations": 60,
+      "initialRenderMs": 3.399999976158142,
+      "frameBuild": {
+        "meanMs": 1.596666661898295,
+        "medianMs": 1.5,
+        "p95Ms": 2.100000023841858,
+        "minMs": 1.1999999284744263,
+        "maxMs": 3
+      },
+      "pixiRender": {
+        "meanMs": 0.775000003973643,
+        "medianMs": 0.7000000476837158,
+        "p95Ms": 1.3000000715255737,
+        "minMs": 0.5,
+        "maxMs": 1.5999999046325684
+      },
+      "diagnostics": {
+        "rendererName": "webgl",
+        "tickerStarted": false,
+        "graphicsHandles": 256,
+        "semanticNodes": 0,
+        "canvasWidth": 1200,
+        "canvasHeight": 720
+      },
+      "gpu": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "vendor": "Google Inc. (Google)",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "jsHeap": {
+        "usedBytes": 26362919,
+        "totalBytes": 55814239,
+        "limitBytes": 4395630592
+      }
+    },
+    {
+      "entityCount": 512,
+      "iterations": 60,
+      "initialRenderMs": 4.299999952316284,
+      "frameBuild": {
+        "meanMs": 6.016666664679845,
+        "medianMs": 5.899999976158142,
+        "p95Ms": 6.299999952316284,
+        "minMs": 5.399999976158142,
+        "maxMs": 10.899999976158142
+      },
+      "pixiRender": {
+        "meanMs": 1.4683333377043406,
+        "medianMs": 1.399999976158142,
+        "p95Ms": 1.8000000715255737,
+        "minMs": 1.1999999284744263,
+        "maxMs": 2.899999976158142
+      },
+      "diagnostics": {
+        "rendererName": "webgl",
+        "tickerStarted": false,
+        "graphicsHandles": 512,
+        "semanticNodes": 0,
+        "canvasWidth": 1200,
+        "canvasHeight": 720
+      },
+      "gpu": {
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "shadingLanguageVersion": "WebGL GLSL ES 3.00 (OpenGL ES GLSL ES 3.0 Chromium)",
+        "vendor": "Google Inc. (Google)",
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+      },
+      "jsHeap": {
+        "usedBytes": 51890627,
+        "totalBytes": 93804639,
+        "limitBytes": 4395630592
+      }
+    }
+  ]
+}
