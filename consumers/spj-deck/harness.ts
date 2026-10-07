@@ -1,11 +1,11 @@
-import type { EntityId, Pose2 } from "../../src/algebra/types";
-import { layoutTarotFan, type DeckSpec } from "../../src/deck/deck";
+import type { EntityId } from "../../src/algebra/types";
 import {
-  asFrameId,
-  localToWorld,
-  type FrameId,
-  type SpatialFrameGraph,
-} from "../../src/spatial/frame";
+  layoutTarotFan,
+  projectDeckCentersToWorld,
+  type DeckCardPose,
+  type DeckSpec,
+} from "../../src/deck/deck";
+import { asFrameId, type FrameId, type SpatialFrameGraph } from "../../src/spatial/frame";
 
 export interface ViewportExtent {
   width: number;
@@ -81,15 +81,8 @@ export function layoutSpjHand(
   frames: SpatialFrameGraph,
   handFrameId: FrameId,
   ids: readonly EntityId[],
-): Array<{ id: EntityId; pose: Pose2; z: number }> {
+): DeckCardPose[] {
   const local = layoutTarotFan(ids, spjDeckSpec(ids.length));
 
-  return local.map((card) => ({
-    id: card.id,
-    z: card.z,
-    pose: {
-      ...card.pose,
-      position: localToWorld(frames.snapshot(), handFrameId, card.pose.position),
-    },
-  }));
+  return projectDeckCentersToWorld(local, frames.snapshot(), handFrameId);
 }

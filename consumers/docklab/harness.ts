@@ -1,11 +1,11 @@
-import type { EntityId, Pose2 } from "../../src/algebra/types";
-import { layoutTarotFan, type DeckSpec } from "../../src/deck/deck";
+import type { EntityId } from "../../src/algebra/types";
 import {
-  asFrameId,
-  localToWorld,
-  type SpatialFrame,
-  type SpatialFrameGraph,
-} from "../../src/spatial/frame";
+  layoutTarotFan,
+  projectDeckCentersToWorld,
+  type DeckCardPose,
+  type DeckSpec,
+} from "../../src/deck/deck";
+import { asFrameId, type SpatialFrame, type SpatialFrameGraph } from "../../src/spatial/frame";
 
 export type DockEdge = "top" | "right" | "bottom" | "left";
 
@@ -86,16 +86,9 @@ export function layoutDocklabFan(
   frames: SpatialFrameGraph,
   ids: readonly EntityId[],
   edge: DockEdge = "bottom",
-): Array<{ id: EntityId; pose: Pose2; z: number }> {
+): DeckCardPose[] {
   const frameId = asFrameId("dock:" + edge);
   const local = layoutTarotFan(ids, DOCKLAB_DECK_SPEC);
 
-  return local.map((card) => ({
-    id: card.id,
-    z: card.z,
-    pose: {
-      ...card.pose,
-      position: localToWorld(frames.snapshot(), frameId, card.pose.position),
-    },
-  }));
+  return projectDeckCentersToWorld(local, frames.snapshot(), frameId);
 }
