@@ -437,7 +437,7 @@ Docklab and SPJ deck harnesses both consume the same deck/topology primitives wh
 
 ## MQ-07 — Constraints, collisions, exclusion and admissibility
 
-State: **DISCOVERED**
+State: **RATIFIED**
 
 ### Required invariants
 - constraints are explicit;
@@ -457,8 +457,28 @@ State: **DISCOVERED**
 - topology-specific admissibility;
 - deterministic conflict reporting.
 
+### Ratified evidence
+- explicit constraint identity + owner + typed result;
+- position-range and extent-range constraints;
+- safe-region and exclusion constraints;
+- peer overlap policy with exact peer identity;
+- topology-specific admissibility facts;
+- deterministic interval-conflict reporting;
+- one evaluation per declared constraint on resolved paths;
+- small-perturbation stability gate;
+- causal mutation silently dropping topology-admissibility produced **2 RED tests**;
+- restored-state gates: **19 files / 78 tests PASS**, format/lint/typecheck PASS.
+
+Implementation:
+`c9134bb feat: add explicit spatial constraint solver`
+
+Receipt:
+`docs/evidence/mq-07-constraints-admissibility-2026-10-06.md`
+
 ### Exit gate
 The engine can explain why a target is admissible, adjusted or rejected.
+
+**Disposition: RATIFIED.**
 
 ## MQ-08 — Picking, interaction projection and authority handoff
 
