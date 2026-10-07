@@ -31,13 +31,32 @@
       "includes": [
         "benchmarks/**/*.mjs",
         "tests/performance/**/*.ts",
-        "vitest.performance.config.ts"
+        "vitest.performance.config.ts",
+        "playwright.config.ts",
+        "qualification/pixi/vite.config.ts"
       ],
       "linter": {
         "rules": {
           "correctness": {
             "noNodejsModules": "off",
             "noProcessGlobal": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["scripts/**/*.mjs"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off",
+            "noProcessGlobal": "off"
+          },
+          "suspicious": {
+            "noConsole": "off"
+          },
+          "security": {
+            "noSecrets": "off"
           }
         }
       }
