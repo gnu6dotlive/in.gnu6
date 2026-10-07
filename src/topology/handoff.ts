@@ -22,6 +22,8 @@ export interface RectHandoffPlan {
   transfer: RectSurfaceGeometry | null;
   target: RectSurfaceGeometry;
   vector: Vec2;
+  generation: number;
+  retargetCount: number;
 }
 export function rectBoundsToGeometry(bounds: RectBounds): RectSurfaceGeometry {
   assertRectBounds(bounds);
@@ -63,13 +65,16 @@ export function planRectHandoff({
   source,
   target,
   transferShape,
+  generation = 0,
 }: {
   subjectId: EntityId;
   sequence: RectHandoffSequence;
   source: RectBounds;
   target: RectBounds;
   transferShape?: Omit<RectShape, "kind">;
+  generation?: number;
 }): RectHandoffPlan {
+  assertGeneration(generation);
   const sourceGeometry = rectBoundsToGeometry(source);
   const targetGeometry = rectBoundsToGeometry(target);
 
@@ -90,6 +95,58 @@ export function planRectHandoff({
       x: targetGeometry.center.x - sourceGeometry.center.x,
       y: targetGeometry.center.y - sourceGeometry.center.y,
     },
+    generation,
+    retargetCount: 0,
+  };
+}
+
+export function retargetRectHandoff({
+  plan,
+  target,
+  transferShape,
+  generation,
+}: {
+  plan: RectHandoffPlan;
+  target: RectBounds;
+  transferShape?: Omit<RectShape, "kind">;
+  generation: number;
+}): RectHandoffPlan {
+  assertGeneration(generation);
+  if (generation <= plan.generation) {
+    throw new Error("Rectangular handoff retarget generation must be newer than the current plan");
+  }
+
+  const targetGeometry = rectBoundsToGeometry(target);
+  const transfer =
+    plan.sequence === "direct"
+      ? null
+      : transferGeometry(
+          plan.sequence === "reshape-then-translate" ? plan.source.center : targetGeometry.center,
+          transferShape ??
+            (plan.transfer
+              ? {
+                  width: plan.transfer.shape.width,
+                  height: plan.transfer.shape.height,
+                  radius: plan.transfer.shape.radius,
+                }
+              : undefined),
+        );
+
+  return {
+    subjectId: plan.subjectId,
+    sequence: plan.sequence,
+    source: {
+      center: { ...plan.source.center },
+      shape: { ...plan.source.shape },
+    },
+    transfer,
+    target: targetGeometry,
+    vector: {
+      x: targetGeometry.center.x - plan.source.center.x,
+      y: targetGeometry.center.y - plan.source.center.y,
+    },
+    generation,
+    retargetCount: plan.retargetCount + 1,
   };
 }
 
@@ -154,6 +211,12 @@ function assertFiniteNonNegative(value: number, label: string): void {
   }
   if (value < 0) {
     throw new Error(`Rectangular handoff ${label} must be non-negative`);
+  }
+}
+
+function assertGeneration(generation: number): void {
+  if (!Number.isSafeInteger(generation) || generation < 0) {
+    throw new Error("Rectangular handoff generation must be a non-negative safe integer");
   }
 }
 
