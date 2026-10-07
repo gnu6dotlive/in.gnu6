@@ -670,7 +670,7 @@ The renderer contract is sufficient to implement at least two materially differe
 
 ## MQ-12 — Reference browser renderer
 
-State: **IMPLEMENTING — PIXIJS SELECTED BY OPERATOR**
+State: **RATIFIED — PIXIJS 8.22.0 / WEBGL REFERENCE**
 
 ### Provider decision
 
@@ -700,8 +700,35 @@ PixiJS remains downstream from the ratified MQ-11 renderer contract and may not 
 - reduced-motion semantic parity;
 - accessible product integration strategy.
 
+### Ratified evidence
+- operator-selected `pixi.js@latest` resolved and pinned to **8.22.0**;
+- manual WebGL render path with Pixi ticker stopped;
+- stable `EntityId -> Graphics` provider handles;
+- Pixi event authority disabled (`eventMode = "none"`);
+- sibling semantic DOM accessibility projection;
+- real Chrome for Testing browser proof via Playwright;
+- live overlap, magnification, neighbor yield, shape morph, insertion/removal, handoff, nested frames and concurrent topologies;
+- reduced-motion destination parity;
+- shape mutation blocker repaired via identity-preserving `SceneEngine.setShape`;
+- causal mutation recreating Pixi handles made browser continuity RED;
+- restored-state cycle `check -> build -> browser -> check` PASS;
+- Vitest: **26 files / 104 tests PASS**;
+- Playwright: **1/1 PASS**;
+- npm audit: **0 vulnerabilities**.
+
+Implementation:
+`0e40a06 feat: add PixiJS browser reference renderer`
+
+Receipt:
+`docs/evidence/mq-12-pixi-browser-2026-10-07.md`
+
+Visual evidence:
+`docs/evidence/assets/mq-12-pixi-reference-browser.png`
+
 ### Exit gate
 A real browser observation demonstrates the above from scene truth without moving semantic authority into the renderer.
+
+**Disposition: RATIFIED.**
 
 ## MQ-13 — Motion continuity / no-cutoff gate
 
@@ -973,7 +1000,7 @@ Operator disposition:
 Disposition: **CLOSED / PROVIDES_FOR MQ-12**.
 
 ## SQ-005 — Repository/toolchain ergonomics
-State: **DISCOVERED**
+State: **DISCOVERED — PARTIAL CAPITAL HARVESTED**
 Suggested priority: low
 Operator priority: **UNSET**
 
@@ -983,6 +1010,15 @@ Examples:
 - faster CI;
 - contributor/dev shell;
 - provenance automation.
+
+Quick wins completed without preempting the Main Quest:
+- deterministic `build:pixi-qualification` script;
+- deterministic `test:browser` script;
+- Playwright/Vite harness separation;
+- Biome generated-artifact boundary;
+- idempotent `check -> build -> browser -> check` cycle.
+
+These completed mechanics do not close SQ-005 as a whole.
 
 Promotion rule: only if repeated mechanics justify deterministic tooling.
 
@@ -1178,13 +1214,14 @@ Current program position:
 - MQ-09: RATIFIED
 - MQ-10: RATIFIED
 - MQ-11: RATIFIED
-- MQ-12: IMPLEMENTING — PixiJS latest selected by operator
-- MQ-13..14: open
+- MQ-12: RATIFIED — PixiJS 8.22.0 / WebGL reference
+- MQ-13: DISCOVERED
+- MQ-14: open
 - MQ-15: blocked by remaining mandatory quests
 
 Next mandatory movement:
 
-> Implement and observe MQ-12 — a reference browser renderer — as a qualification surface only, without turning its provider into the engine ontology.
+> Implement and falsify MQ-13 — motion continuity / no-cutoff — across the ratified PixiJS browser reference path, including renderer mount/unmount behavior and explicit semantic-termination cases.
 
 Current optional high-value Side Quest:
 
