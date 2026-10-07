@@ -50,12 +50,17 @@ Side Quests may be valuable, urgent or strategically important, but they are **n
 
 Agents may discover, classify, estimate causal value and recommend priority. Agents may not silently convert optional work into mandatory program scope.
 
+**The main quest defines what “complete” means. Side quests preserve what was learned along the way.**
+
+**Optional does not mean unimportant; required does not mean urgent. Priority belongs to the operator.**
+
 ## Quest state model
 
 Every quest uses one of these states:
 
 - `UNKNOWN`
 - `DISCOVERED`
+- `DISCOVERED_BLOCKER_CANDIDATE`
 - `HYPOTHESIS`
 - `DESIGNED`
 - `IMPLEMENTING`
@@ -593,6 +598,58 @@ Completion does not mean frozen forever. It means the current completeness claim
 
 Side Quests are operator-prioritized. Agents may append newly discovered Side Quests with evidence and recommendations.
 
+A Side Quest is optional with respect to **whether it is executed now**, but never vague about what completion would mean.
+
+Every Side Quest must distinguish:
+- importance;
+- urgency;
+- necessity to a Main Quest;
+- execution order;
+- operator priority.
+
+These dimensions must not be collapsed into one field.
+
+## Side Quest categories
+
+### HABITAT
+Work that restores or improves the surrounding execution environment.
+
+Examples:
+- cleanup artifacts outside repository ownership;
+- repair local tooling;
+- restore deterministic fixtures;
+- remove accidental environmental pollution.
+
+### CAPITAL
+Work that creates reusable leverage.
+
+Examples:
+- build a reusable external toolchain;
+- improve deterministic workflows;
+- add reusable diagnostics;
+- benchmark alternate providers.
+
+### TRUTH_DEBT
+Work that restores epistemic/documentary truth.
+
+Examples:
+- update stale documentation;
+- remove false historical claims;
+- reconcile contradictory receipts;
+- recover missing provenance.
+
+A Side Quest may begin as `DISCOVERED_BLOCKER_CANDIDATE` when its causal relation to the Main Quest is unknown.
+
+After inspection, its causal status must become one of:
+- `UNKNOWN`;
+- `NON_CAUSAL`;
+- `CAUSAL_REQUIRED`;
+- `CAUSAL_ACCELERATOR`.
+
+Only `CAUSAL_REQUIRED` justifies promotion into Main Quest required scope.
+
+Promotion requires evidence and operator visibility.
+
 ## SQ-001 — Donor provenance: Docklab
 State: **OBSERVED**
 Suggested priority: medium
@@ -658,33 +715,74 @@ Append new Side Quests using this form:
 ```text
 ## SQ-NNN — Short name
 
-State: DISCOVERED
-Suggested priority: low | medium | high
-Operator priority: UNSET | NOW | NEXT | LATER | DEFERRED
+Kind: side
+Category: HABITAT | CAPITAL | TRUTH_DEBT
+State: DISCOVERED | DISCOVERED_BLOCKER_CANDIDATE | ...
 
-Discovery:
-What was observed?
+Intent:
+Why does this quest exist?
 
-Why optional:
-Why is this not required for the current Main Quest completeness claim?
+Relation to Main Quest:
+- quest: MQ-NN
+- causal_status: UNKNOWN | NON_CAUSAL | CAUSAL_REQUIRED | CAUSAL_ACCELERATOR
+- evidence: ...
 
-Potential value:
-What entropy, risk or future cost could it reduce?
+Priority:
+- authority: OPERATOR
+- suggested_value: low | medium | high
+- operator_priority: UNSET | NOW | NEXT | LATER | DEFERRED
+- urgency: unset | low | medium | high
 
-Authority:
-What can be done now?
-What requires operator approval?
+Scope:
+- reads: [...]
+- writes: [...]
+- forbidden: [...]
 
-Evidence:
-Links / revisions / receipts.
+Completion contract:
+- invariants: [...]
+- gates: [...]
+- evidence: [...]
+
+Provenance:
+- discovered_by: ...
+- discovered_at: ...
+- source_revision: ...
 
 Disposition:
-OPEN | CLOSED | PROMOTED_TO_MAIN | DEFERRED_BY_OPERATOR
+OPEN | CLOSED | PROMOTED_TO_MAIN | DEFERRED_BY_OPERATOR | REJECTED
 ```
 
 If a Side Quest is discovered to be causally necessary for a Main Quest exit gate, it may be proposed for promotion.
 
 **Promotion requires explicit reasoning and operator visibility.**
+
+# Questlog as causal project state
+
+The Questlog is the bridge between epistemic state and execution state:
+
+```text
+reality
+  ↓
+observation
+  ↓
+discovery
+  ↓
+questlog
+  ├── MAIN_REQUIRED
+  ├── SIDE / OPTIONAL
+  ├── BLOCKER_CANDIDATE
+  └── CLOSED / REJECTED
+        ↓
+operator prioritization
+        ↓
+bounded agent contract
+        ↓
+evidence
+        ↓
+quest requalification
+```
+
+An agent therefore receives not only a task, but a position inside a durable causal history of work.
 
 # Main Quest extension rule
 
@@ -703,6 +801,8 @@ Required amendment record:
 7. operator ratification state.
 
 The Questlog must not be shortened merely to make completion easier.
+
+Quest history is append-only in meaning: a quest may be reclassified, promoted, deferred or rejected, but the reason it existed and the evidence that changed its classification must remain reconstructible.
 
 # Quest execution receipt
 
