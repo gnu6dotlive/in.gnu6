@@ -72,4 +72,51 @@ describe("MQ-02 spatial frame laws", () => {
 
     expect(() => graph.reparent(asFrameId("a"), asFrameId("b"))).toThrow("cycle");
   });
+
+  it("mutates frame geometry without changing frame identity", () => {
+    const graph = new SpatialFrameGraph();
+    const id = asFrameId("surface");
+    graph.add({
+      id,
+      parent: null,
+      origin: { x: 0, y: 700 },
+      basisU: { x: 1, y: 0 },
+      basisV: { x: 0, y: -1 },
+    });
+
+    graph.update(id, {
+      origin: { x: 0, y: 0 },
+      basisU: { x: 0, y: 1 },
+      basisV: { x: 1, y: 0 },
+    });
+
+    expect(graph.snapshot().get(id)?.id).toBe(id);
+    expect(localToWorld(graph.snapshot(), id, { x: 20, y: 30 })).toEqual({
+      x: 30,
+      y: 20,
+    });
+  });
+
+  it("rolls back an invalid frame geometry update", () => {
+    const graph = new SpatialFrameGraph();
+    const id = asFrameId("surface");
+    graph.add({
+      id,
+      parent: null,
+      origin: { x: 10, y: 20 },
+      basisU: { x: 1, y: 0 },
+      basisV: { x: 0, y: 1 },
+    });
+
+    const before = graph.snapshot().get(id);
+
+    expect(() =>
+      graph.update(id, {
+        basisU: { x: 1, y: 0 },
+        basisV: { x: 2, y: 0 },
+      }),
+    ).toThrow("invertible");
+
+    expect(graph.snapshot().get(id)).toEqual(before);
+  });
 });

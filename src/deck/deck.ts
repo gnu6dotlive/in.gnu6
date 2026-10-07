@@ -7,6 +7,7 @@ export interface DeckInfluenceSpec {
   hoverRadius: number;
   hoverScale: number;
   hoverLift: number;
+  liftDirection: Vec2;
   neighborYield: number;
   neighborFalloff: number;
 }
@@ -206,9 +207,9 @@ export function layoutCardSpread(ids: readonly EntityId[], spec: SpreadSpec): De
  * Then:
  *
  *   scale = 1 + (hoverScale - 1) w
- *   lift  = hoverLift w
+ *   lift  = normalize(liftDirection) * hoverLift * w
  *
- * Neighbor yield uses the signed distance to the pointer:
+ * Neighbor yield uses the signed tangent distance to the pointer:
  *
  *   yield = sign(xi - xp) * neighborYield * w
  *
@@ -249,6 +250,7 @@ function applyDeckInfluenceField(
   spec: DeckInfluenceSpec,
 ): DeckCardPose[] {
   const radius = Math.max(1, spec.hoverRadius);
+  const liftDirection = normalizeDirection(spec.liftDirection);
 
   return poses.map((card) => {
     const dx = card.pose.position.x - center.x;
@@ -268,8 +270,8 @@ function applyDeckInfluenceField(
       pose: {
         ...card.pose,
         position: {
-          x: card.pose.position.x + yieldX,
-          y: card.pose.position.y - lift,
+          x: card.pose.position.x + yieldX + liftDirection.x * lift,
+          y: card.pose.position.y + liftDirection.y * lift,
         },
         scale: { x: scale, y: scale },
       },
@@ -492,6 +494,22 @@ function cardPoseAabb(pose: Pose2, extent: CardExtent) {
     minY: pose.position.y - halfY,
     maxX: pose.position.x + halfX,
     maxY: pose.position.y + halfY,
+  };
+}
+
+function normalizeDirection(direction: Vec2): Vec2 {
+  if (!Number.isFinite(direction.x) || !Number.isFinite(direction.y)) {
+    throw new Error("Deck lift direction must be finite");
+  }
+
+  const length = Math.hypot(direction.x, direction.y);
+  if (length <= 1e-9) {
+    throw new Error("Deck lift direction must be non-zero");
+  }
+
+  return {
+    x: direction.x / length,
+    y: direction.y / length,
   };
 }
 

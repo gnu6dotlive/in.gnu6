@@ -96,6 +96,7 @@ describe("MQ-06 deck topology family", () => {
       hoverRadius: 180,
       hoverScale: 1.12,
       hoverLift: 30,
+      liftDirection: { x: 0, y: -1 },
       neighborYield: 18,
       neighborFalloff: 2.5,
     });
@@ -104,6 +105,33 @@ describe("MQ-06 deck topology family", () => {
     expect(focused[1]!.pose.scale.x).toBeCloseTo(1.12, 8);
     expect(focused[0]!.influence).toBeGreaterThan(0);
     expect(focused[2]!.influence).toBeGreaterThan(0);
+  });
+
+  it("treats lift direction as consumer-provided local geometry", () => {
+    const poses = layoutCardSpread(ids("a", "b", "c"), {
+      center: { x: 0, y: 0 },
+      gap: 80,
+    });
+
+    const upward = applyDeckFocusField(poses, asEntityId("b"), {
+      hoverRadius: 180,
+      hoverScale: 1,
+      hoverLift: 30,
+      liftDirection: { x: 0, y: -1 },
+      neighborYield: 0,
+      neighborFalloff: 2.5,
+    });
+    const inward = applyDeckFocusField(poses, asEntityId("b"), {
+      hoverRadius: 180,
+      hoverScale: 1,
+      hoverLift: 30,
+      liftDirection: { x: 1, y: 0 },
+      neighborYield: 0,
+      neighborFalloff: 2.5,
+    });
+
+    expect(upward[1]!.pose.position).toEqual({ x: 0, y: -30 });
+    expect(inward[1]!.pose.position).toEqual({ x: 30, y: 0 });
   });
 
   it("derives bounded optional tilt from velocity", () => {

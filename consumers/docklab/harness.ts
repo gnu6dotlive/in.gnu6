@@ -1,11 +1,18 @@
-import type { EntityId } from "../../src/algebra/types";
+import type { EntityId, Vec2 } from "../../src/algebra/types";
 import {
+  applyDeckPointerField,
   layoutTarotFan,
+  previewDeckOrder,
   projectDeckCentersToWorld,
   type DeckCardPose,
   type DeckSpec,
 } from "../../src/deck/deck";
-import { asFrameId, type SpatialFrame, type SpatialFrameGraph } from "../../src/spatial/frame";
+import {
+  asFrameId,
+  type FrameId,
+  type SpatialFrame,
+  type SpatialFrameGraph,
+} from "../../src/spatial/frame";
 
 export type DockEdge = "top" | "right" | "bottom" | "left";
 
@@ -17,19 +24,21 @@ export interface ViewportExtent {
 /**
  * Docklab donor translation.
  *
- * Docklab's reusable fact is not "there are four special Dock modes".
- * It is that an environment surface defines a local basis:
+ * Reusable capital:
+ *   local U = edge tangent
+ *   local V = inward normal
  *
- *   u = tangent to the surface
- *   v = inward normal
- *
- * This harness expresses that fact as an ordinary SpatialFrame.
+ * Edge identity itself remains consumer policy.
  */
-export function dockEdgeFrame(edge: DockEdge, viewport: ViewportExtent): SpatialFrame {
+export function dockSurfaceFrame(
+  id: FrameId,
+  edge: DockEdge,
+  viewport: ViewportExtent,
+): SpatialFrame {
   switch (edge) {
     case "top":
       return {
-        id: asFrameId("dock:top"),
+        id,
         parent: null,
         origin: { x: 0, y: 0 },
         basisU: { x: 1, y: 0 },
@@ -37,7 +46,7 @@ export function dockEdgeFrame(edge: DockEdge, viewport: ViewportExtent): Spatial
       };
     case "right":
       return {
-        id: asFrameId("dock:right"),
+        id,
         parent: null,
         origin: { x: viewport.width, y: 0 },
         basisU: { x: 0, y: 1 },
@@ -45,7 +54,7 @@ export function dockEdgeFrame(edge: DockEdge, viewport: ViewportExtent): Spatial
       };
     case "bottom":
       return {
-        id: asFrameId("dock:bottom"),
+        id,
         parent: null,
         origin: { x: 0, y: viewport.height },
         basisU: { x: 1, y: 0 },
@@ -53,7 +62,7 @@ export function dockEdgeFrame(edge: DockEdge, viewport: ViewportExtent): Spatial
       };
     case "left":
       return {
-        id: asFrameId("dock:left"),
+        id,
         parent: null,
         origin: { x: 0, y: 0 },
         basisU: { x: 0, y: 1 },
@@ -62,7 +71,26 @@ export function dockEdgeFrame(edge: DockEdge, viewport: ViewportExtent): Spatial
   }
 }
 
-const DOCKLAB_DECK_SPEC: DeckSpec = {
+export function dockEdgeFrame(edge: DockEdge, viewport: ViewportExtent): SpatialFrame {
+  return dockSurfaceFrame(asFrameId("dock:" + edge), edge, viewport);
+}
+
+export function updateDockSurfaceFrame(
+  frames: SpatialFrameGraph,
+  frameId: FrameId,
+  edge: DockEdge,
+  viewport: ViewportExtent,
+): SpatialFrame {
+  const next = dockSurfaceFrame(frameId, edge, viewport);
+  return frames.update(frameId, {
+    parent: next.parent,
+    origin: next.origin,
+    basisU: next.basisU,
+    basisV: next.basisV,
+  });
+}
+
+export const DOCKLAB_DECK_SPEC: DeckSpec = {
   center: { x: 180, y: 44 },
   cardWidth: 72,
   cardHeight: 82,
@@ -72,23 +100,58 @@ const DOCKLAB_DECK_SPEC: DeckSpec = {
   hoverRadius: 160,
   hoverScale: 1.055,
   hoverLift: 18,
+  liftDirection: { x: 0, y: 1 },
   neighborYield: 18,
   neighborFalloff: 2.4,
 };
 
+export function layoutDocklabFanInFrame(
+  frames: SpatialFrameGraph,
+  frameId: FrameId,
+  ids: readonly EntityId[],
+): DeckCardPose[] {
+  return projectDeckCentersToWorld(
+    layoutTarotFan(ids, DOCKLAB_DECK_SPEC),
+    frames.snapshot(),
+    frameId,
+  );
+}
+
+export function layoutDocklabInteractiveFan(
+  frames: SpatialFrameGraph,
+  frameId: FrameId,
+  ids: readonly EntityId[],
+  pointerLocal: Vec2 | null,
+): DeckCardPose[] {
+  const local = applyDeckPointerField(
+    layoutTarotFan(ids, DOCKLAB_DECK_SPEC),
+    pointerLocal,
+    DOCKLAB_DECK_SPEC,
+  );
+
+  return projectDeckCentersToWorld(local, frames.snapshot(), frameId);
+}
+
 /**
- * The generic deck solver produces local poses.
- * SpatialFrame projects them into World coordinates.
- *
- * deck topology != environment orientation
+ * Reorder stays on the deck tangent coordinate U.
+ * World orientation does not change the permutation law.
  */
+export function previewDocklabReorder(
+  order: readonly EntityId[],
+  dragId: EntityId,
+  tangentCoordinate: number,
+  previousIndex: number | null,
+): { order: EntityId[]; index: number } {
+  const staticOrder = order.filter((id) => id !== dragId);
+  const slots = layoutTarotFan(staticOrder, DOCKLAB_DECK_SPEC).map((card) => card.pose.position.x);
+
+  return previewDeckOrder(order, dragId, tangentCoordinate, slots, previousIndex);
+}
+
 export function layoutDocklabFan(
   frames: SpatialFrameGraph,
   ids: readonly EntityId[],
   edge: DockEdge = "bottom",
 ): DeckCardPose[] {
-  const frameId = asFrameId("dock:" + edge);
-  const local = layoutTarotFan(ids, DOCKLAB_DECK_SPEC);
-
-  return projectDeckCentersToWorld(local, frames.snapshot(), frameId);
+  return layoutDocklabFanInFrame(frames, asFrameId("dock:" + edge), ids);
 }

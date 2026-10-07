@@ -59,20 +59,40 @@ export class SpatialFrameGraph {
   }
 
   reparent(id: FrameId, parent: FrameId | null): SpatialFrame {
+    return this.update(id, { parent });
+  }
+
+  /**
+   * Transactionally mutate frame geometry while preserving frame identity.
+   *
+   * A frame is an addressable coordinate chart. Changing its origin/basis must
+   * not require consumers to recreate that identity.
+   *
+   * Invalid updates are rolled back before becoming observable.
+   */
+  update(id: FrameId, patch: Partial<Omit<SpatialFrame, "id">>): SpatialFrame {
     const current = this.frames.get(id);
     if (!current) throw new Error("Unknown spatial frame: " + id);
-    if (parent && !this.frames.has(parent)) {
-      throw new Error("Missing parent spatial frame: " + parent);
-    }
 
-    const previous = current.parent;
-    const next = { ...current, parent };
+    const next: SpatialFrame = {
+      id,
+      parent: patch.parent ?? current.parent,
+      origin: patch.origin ? { ...patch.origin } : { ...current.origin },
+      basisU: patch.basisU ? { ...patch.basisU } : { ...current.basisU },
+      basisV: patch.basisV ? { ...patch.basisV } : { ...current.basisV },
+    };
+
+    if (next.parent && !this.frames.has(next.parent)) {
+      throw new Error("Missing parent spatial frame: " + next.parent);
+    }
+    assertInvertible(next);
+
     this.frames.set(id, next);
 
     try {
       this.assertAcyclic();
     } catch (error) {
-      this.frames.set(id, { ...current, parent: previous });
+      this.frames.set(id, cloneFrame(current));
       throw error;
     }
 

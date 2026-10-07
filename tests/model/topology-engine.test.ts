@@ -24,6 +24,7 @@ const deckSpec: DeckSpec = {
   hoverRadius: 180,
   hoverScale: 1.14,
   hoverLift: 42,
+  liftDirection: { x: 0, y: -1 },
   neighborYield: 24,
   neighborFalloff: 2.6,
 };
