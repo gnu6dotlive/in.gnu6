@@ -331,7 +331,7 @@ A context surface, deck and playzone can all ask the same engine for admissible 
 
 ## MQ-05 — Topology and shape evolution
 
-State: **GREEN_LOCAL**
+State: **RATIFIED**
 
 ### Required invariants
 1. Shape connectivity is represented explicitly.
@@ -369,13 +369,29 @@ Implementation:
 Receipt:
 `docs/evidence/mq-05-headless-topology-2026-10-06.md`
 
-### Remaining dependency
-Reference-renderer/no-cutoff proof remains required and is expected to be supplied by MQ-12/MQ-13.
+### Closure evidence
+The renderer/no-cutoff dependency was satisfied by MQ-12 and MQ-13.
+
+Reference browser proof:
+- one persistent semantic entity evolves `rounded rect -> polygon/diamond -> card-like surface`;
+- same Pixi Graphics handle survives;
+- shape evolution uses identity-preserving `SceneEngine.setShape`.
+
+No-cutoff proof:
+- continuity trace for the surface→card transition reports `violations = []`;
+- every live sample remains mounted, visible, renderable, alpha > 0 and finite.
+
+Fresh requalification:
+- headless targeted gate: **2 files / 7 tests PASS**;
+- browser no-cutoff targeted gate: **1/1 PASS**.
+
+Closure receipt:
+`docs/evidence/mq-05-topology-closure-2026-10-07.md`
 
 ### Exit gate
 A single entity can continuously evolve between at least three materially different surface topologies under retargeting without identity loss or visual discontinuity in a reference renderer.
 
-**Disposition: GREEN_LOCAL — NOT YET RATIFIED.**
+**Disposition: RATIFIED.**
 
 ## MQ-06 — Deck / card topology family
 
@@ -1249,7 +1265,7 @@ Current program position:
 - MQ-02: RATIFIED
 - MQ-03: RATIFIED
 - MQ-04: RATIFIED
-- MQ-05: GREEN_LOCAL — renderer/no-cutoff dependency remains
+- MQ-05: RATIFIED
 - MQ-06: RATIFIED
 - MQ-07: RATIFIED
 - MQ-08: RATIFIED
@@ -1257,8 +1273,8 @@ Current program position:
 - MQ-10: RATIFIED
 - MQ-11: RATIFIED
 - MQ-12: RATIFIED — PixiJS 8.22.0 / WebGL reference
-- MQ-13: DISCOVERED
-- MQ-14: open
+- MQ-13: RATIFIED
+- MQ-14: DISCOVERED
 - MQ-15: blocked by remaining mandatory quests
 
 Next mandatory movement:
