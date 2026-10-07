@@ -70,6 +70,7 @@ Every quest uses one of these states:
 - `INVARIANT_CANDIDATE`
 - `RATIFIED`
 - `BLOCKED_AUTHORITY`
+- `NEEDS_REQUALIFICATION`
 - `DEFERRED_BY_OPERATOR`
 - `CLOSED`
 
@@ -650,6 +651,100 @@ Only `CAUSAL_REQUIRED` justifies promotion into Main Quest required scope.
 
 Promotion requires evidence and operator visibility.
 
+## Cross-project quest propagation
+
+Quest knowledge may cross project boundaries without transferring control of either project.
+
+The three independent dimensions are:
+
+### Hierarchy
+
+`MAIN -> SIDE`
+
+This answers where a quest sits inside one project's completeness structure.
+
+### Causality
+
+Allowed typed relations include:
+
+- `BLOCKS`
+- `MAY_AFFECT`
+- `IMPLEMENTS`
+- `PROVIDES_FOR`
+- `DUPLICATES`
+- `SUPERSEDES`
+
+This answers what causal role one quest may have relative to another.
+
+### Provenance
+
+Allowed typed lineage relations include:
+
+- `DISCOVERED_DURING`
+- `DERIVED_FROM`
+- `COPIED_FROM`
+
+This answers where the discovery came from.
+
+Avoid generic `related_to` when a typed relation can state the actual meaning.
+
+### Propagation laws
+
+**Discovery is portable.**
+A discovery may be projected into any questlog where it becomes relevant.
+
+**Copy, don't silently transfer.**
+The source quest remains in its original project until that project's own relation to the discovery is requalified.
+
+**Quest propagation carries knowledge, not authority.**
+A copied quest does not grant write, execute, publish, mutate or administrative authority in the destination project.
+
+**Quest propagation carries discovery, not priority.**
+The destination receives operator priority `UNSET` unless its operator explicitly assigns one.
+
+**Resolution may propagate evidence back, not automatic closure.**
+Closing a derived quest in Project B may add evidence to the source quest in Project A, but the source moves to `NEEDS_REQUALIFICATION` rather than `CLOSED` automatically.
+
+### Copy lineage minimum
+
+A copied quest must preserve at least:
+
+```text
+provenance:
+  discovered_in: project-a
+  derived_from:
+    project: project-a
+    quest: SQ-A17
+    relation: COPIED_FROM
+```
+
+The destination then assigns its own:
+- local quest ID;
+- causal relation to its own Main Quest;
+- scope;
+- authority;
+- completion contract;
+- operator priority.
+
+### Resolution-backflow rule
+
+If:
+
+`Project B / SQ-B04 -> CLOSED`
+
+and Project A depends on that work, Project A records:
+
+```text
+new_evidence:
+  source: Project B / SQ-B04
+  state: CLOSED
+
+status:
+  NEEDS_REQUALIFICATION
+```
+
+Project A must decide whether the new evidence fully, partially or not at all resolves its own quest.
+
 ## SQ-001 — Donor provenance: Docklab
 State: **OBSERVED**
 Suggested priority: medium
@@ -727,6 +822,12 @@ Relation to Main Quest:
 - causal_status: UNKNOWN | NON_CAUSAL | CAUSAL_REQUIRED | CAUSAL_ACCELERATOR
 - evidence: ...
 
+Typed quest relations:
+- relation: BLOCKS | MAY_AFFECT | IMPLEMENTS | PROVIDES_FOR | DUPLICATES | SUPERSEDES
+- target_project: ...
+- target_quest: ...
+- evidence: ...
+
 Priority:
 - authority: OPERATOR
 - suggested_value: low | medium | high
@@ -746,7 +847,12 @@ Completion contract:
 Provenance:
 - discovered_by: ...
 - discovered_at: ...
+- discovered_in: ...
 - source_revision: ...
+- derived_from:
+  - project: ...
+  - quest: ...
+  - relation: DISCOVERED_DURING | DERIVED_FROM | COPIED_FROM
 
 Disposition:
 OPEN | CLOSED | PROMOTED_TO_MAIN | DEFERRED_BY_OPERATOR | REJECTED
