@@ -732,7 +732,7 @@ A real browser observation demonstrates the above from scene truth without movin
 
 ## MQ-13 — Motion continuity / no-cutoff gate
 
-State: **DISCOVERED**
+State: **RATIFIED**
 
 ### Normal-motion invariant
 When an entity remains semantically continuous across a state transition, normal-motion rendering must not use disappearance/reappearance as a substitute for transformation.
@@ -751,8 +751,26 @@ Cut-off is allowed only when:
 - context attachment;
 - renderer mount/unmount behavior.
 
+### Ratified evidence
+- renderer-neutral continuity oracle;
+- stable provider-handle law;
+- mount/visibility/renderability/alpha/finite-geometry laws;
+- real Chrome continuity traces for magnification, reflow, topology morph, insertion/removal, handoff and context/menu lifecycle;
+- context attachment observed explicitly;
+- semantic birth/termination distinguished from continuous identity;
+- causal mutation setting live Pixi alpha to zero produced `PROVIDER_NONZERO_ALPHA_WHILE_SEMANTIC_IDENTITY_LIVES` RED;
+- restored-state gates: **27 files / 110 tests PASS**, Vite build PASS, Playwright **2/2 PASS**.
+
+Implementation:
+`2a72679 feat: add browser no-cutoff continuity ledger`
+
+Receipt:
+`docs/evidence/mq-13-motion-continuity-2026-10-07.md`
+
 ### Exit gate
 Every required reference transition has an explicit causal continuity proof or an explicit semantic-termination proof.
+
+**Disposition: RATIFIED.**
 
 ## MQ-14 — Performance and scale envelope
 
