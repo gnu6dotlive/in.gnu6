@@ -1222,6 +1222,138 @@ Completion contract:
 
 Disposition: **OPEN — OPTIONAL / OPERATOR PRIORITY UNSET**.
 
+## SQ-009 — gnu6.live Experience consumer integration / vendored-runtime provenance
+
+Kind: side
+Category: CAPITAL
+State: **OBSERVED**
+Suggested priority: high
+Operator priority: **UNSET**
+
+Intent:
+Capture the first substantial downstream `gnu6.live Experience` evidence produced after MQ-15, and
+decide how the autonomous `[in.gnu6]` repository should relate to the consumer's current vendored
+runtime without transferring consumer authority back into the engine.
+
+Relation to Main Quest:
+- quest: MQ-10 / MQ-13 / MQ-15
+- causal_status: NON_CAUSAL for the already-ratified current completeness mandate
+- evidence: `gnu6.live` Experience 6.7.4 exercises stable identity, topology presentation and
+  handoff continuity in a real consumer while MQ-15 is already closed.
+- effect on completeness: supporting downstream evidence only; it does not reopen MQ-15 or silently
+  extend the ratified mandate.
+
+Typed quest relations:
+- relation: PROVIDES_FOR
+- target_project: gnu6.live
+- target_quest: Experience 6.7.4 causal handoff continuity
+- evidence:
+  - consumer implementation commit `2f7164d feat(experience): enforce causal handoff continuity`;
+  - qualification commit `3e612ed docs(experience): qualify v6.7.4 causal handoff`;
+  - runtime tag `experience-v6.7.4-amendment-04`;
+  - local live receipt commit `5893875 docs(experience): record v6.7.4 local live receipt`.
+
+Observed downstream proof:
+- `gnu6.live` worktree: `feat/experience-6.7.4-handoff-continuity`;
+- exact tagged runtime: `3e612ed0f14205589d6e94e9c308739067e6d5ec`;
+- local live route: `http://gnu6.local/work/`;
+- Vitest: **89/89 files PASS**;
+- tests: **346 PASS, 3 skipped**;
+- Experience typecheck: PASS;
+- Experience production build: PASS;
+- renderer boundary: PASS;
+- full Chromium Experience matrix: **68/68 PASS**;
+- local deployed container: healthy.
+
+Causal consumer result:
+- Spawn: new identity materializes at actual RuntimeWindow geometry; no fake Deck provenance;
+- Minimize: RuntimeWindow acquires card shape, travels to Deck/helper datum, then commits parked;
+- Restore: parked WindowCard/AppCard datum travels as the exact subject, expands at destination, then
+  commits mapped;
+- Close: existing RuntimeWindow releases in place with no Deck-directed transfer;
+- bulk Minimize/Restore serializes exact identities through one transfer owner.
+
+Live observation:
+```text
+TITLE=Gnosix Experience v6.7.4 · gnu6.live
+VERSION=6.7.4
+SPAWN_SEQUENCE=materialize
+SPAWN_MORPHS=0
+CAPTURE_SEQUENCE=shape-then-travel
+CAPTURE_MODE_DURING=normal
+CAPTURE_MODE_AFTER=minimized
+RESTORE_SEQUENCE=travel-then-expand
+RESTORE_FROM=stack-slot
+RESTORE_TO=managed-window
+RESTORE_MODE_DURING=minimized
+RESTORE_MODE_AFTER=normal
+CLOSE_MORPHS=0
+CLOSE_GEOMETRY_DELTA=0.00,0.00,0.00,0.00
+```
+
+Why this belongs in `[in.gnu6]` Questlog:
+- the consumer imports a vendored `vendor/in.gnu6` snapshot for live WindowStack/topology
+  presentation;
+- the downstream behavior supplies external evidence that the engine's stable-identity and
+  handoff-oriented model can survive product integration;
+- the consumer must remain free to own product semantics, RuntimeWindow state and UI policy;
+- vendoring creates a provenance/synchronization boundary that should become explicit rather than
+  silently drifting.
+
+Known boundary debt discovered during downstream qualification:
+- `gnu6.live` repository-global `format:check` currently reports 7 import-order findings entirely
+  under `vendor/in.gnu6/`;
+- `gnu6.live` repository-global lint also reports project-service/parser findings for vendored
+  `[in.gnu6]` files plus unrelated pre-existing React/compiler findings;
+- Experience 6.7.4 itself has **zero `vendor/in.gnu6` delta**;
+- these findings were deliberately not repaired inside the isolated Experience 6.7.4 slice.
+
+Priority:
+- authority: OPERATOR
+- suggested_value: high
+- operator_priority: UNSET
+- urgency: medium
+
+Scope:
+- reads:
+  - autonomous `in.gnu6` source/release state;
+  - `gnu6.live/vendor/in.gnu6`;
+  - consumer adapters under `gnu6.live/app/experience/engine`;
+  - downstream Experience evidence receipts.
+- writes:
+  - provenance/sync contract;
+  - deterministic consumer compatibility gate;
+  - optional import/update mechanism if operator authorizes it.
+- forbidden:
+  - moving RuntimeWindow/business semantics into `[in.gnu6]`;
+  - making `gnu6.live` a semantic-engine fork;
+  - auto-updating the vendored engine without revision-bound evidence;
+  - reopening MQ-15 merely because downstream work continued.
+
+Completion contract:
+- exact autonomous-engine revision represented by the consumer is reconstructible;
+- vendored bytes or package/source dependency have one explicit source-of-truth rule;
+- consumer-specific adapter code is separated from engine code;
+- sync/update is deterministic and reviewable;
+- downstream compatibility suite proves identity, ownership and no-cutoff invariants after an engine
+  update;
+- lint/format tooling has an explicit policy for vendored sources rather than accidental project
+  inclusion/exclusion;
+- any future replacement of vendoring preserves the same bounded authority contract.
+
+Provenance:
+- discovered_by: downstream Experience 6.7.4 qualification
+- discovered_at: 2026-10-07
+- discovered_in: gnu6.live
+- source_revision: `3e612ed0f14205589d6e94e9c308739067e6d5ec`
+- derived_from:
+  - project: gnu6.live
+  - quest: Experience 6.7.4 causal handoff continuity
+  - relation: DISCOVERED_DURING
+
+Disposition:
+**OPEN — DOWNSTREAM CONSUMER EVIDENCE CAPTURED / OPERATOR PRIORITY UNSET**
+
 # Side Quest template
 
 Append new Side Quests using this form:
@@ -1394,9 +1526,13 @@ Any future mandatory work must come from:
 - a Side Quest explicitly promoted because evidence makes it causally required;
 - or an operator-defined mandate extension.
 
-Current optional high-value Side Quest:
+Current optional high-value Side Quests:
 
 > SQ-003 — reconstruct blob.in donor truth.
+
+> SQ-009 — formalize gnu6.live Experience consumer integration / vendored-runtime provenance.
+
+SQ-009 is supported by fresh downstream Experience 6.7.4 evidence and is **NON_CAUSAL** to the already-ratified MQ-15 completeness claim. It does not reopen the Main Questline.
 
 Operator may reprioritize Side Quests at any time.
 
