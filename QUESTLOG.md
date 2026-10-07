@@ -670,12 +670,23 @@ The renderer contract is sufficient to implement at least two materially differe
 
 ## MQ-12 — Reference browser renderer
 
-State: **UNKNOWN / PROVIDER UNDECIDED**
+State: **IMPLEMENTING — PIXIJS SELECTED BY OPERATOR**
+
+### Provider decision
+
+The operator selected **PixiJS latest** as the first reference browser renderer provider.
+
+This selects a projection provider, not a new semantic engine.
+
+PixiJS remains downstream from the ratified MQ-11 renderer contract and may not acquire:
+- semantic identity authority;
+- scene clock authority;
+- topology ownership;
+- interaction authority;
+- product/business state.
 
 ### Minimum completeness requirement
 `[in.gnu6]` ultimately needs at least one browser renderer capable of demonstrating its defining behaviors live.
-
-This is not permission to choose PixiJS now.
 
 ### Must demonstrate
 - deck overlap/occlusion;
@@ -947,13 +958,19 @@ Question: Which blob.in mechanics are real reusable topology/dynamics capital, a
 Expected output: revision-bound donor receipt + extracted laws/fixtures.
 
 ## SQ-004 — PixiJS renderer/vendor study
-State: **HYPOTHESIS**
+State: **CLOSED — OPERATOR DECISION**
 Suggested priority: medium
-Operator priority: **UNSET**
+Operator priority: **DONE**
 
 Question: Can PixiJS serve as a replaceable browser renderer for high-cardinality cards/topology without acquiring semantic authority?
 
-Not authorized: adding PixiJS as a production dependency solely because it is promising.
+Operator disposition:
+- **PixiJS latest selected for MQ-12 reference browser renderer**;
+- selection is provider-level only;
+- MQ-11 semantic/authority boundaries remain binding;
+- actual suitability remains subject to MQ-12 browser falsification.
+
+Disposition: **CLOSED / PROVIDES_FOR MQ-12**.
 
 ## SQ-005 — Repository/toolchain ergonomics
 State: **DISCOVERED**
@@ -977,6 +994,52 @@ Operator priority: **UNSET**
 Scope: identify stale/false claims in related docs when they materially confuse `[in.gnu6]` provenance or ontology.
 
 Not automatically authorized: rewriting unrelated repositories.
+
+## SQ-007 — Future WebGPU renderer/backend path
+
+Kind: side
+Category: CAPITAL
+State: **HYPOTHESIS**
+Suggested priority: high
+Operator priority: **LATER**
+
+Intent:
+Evaluate a future WebGPU-first rendering path after the PixiJS reference renderer has produced a qualified visual baseline.
+
+Relation to Main Quest:
+- quest: MQ-12 / MQ-14
+- causal_status: NON_CAUSAL for current MQ-12 closure
+- evidence: operator explicitly selected PixiJS latest for the current reference renderer and requested WebGPU as a future quest proposition.
+
+Typed quest relations:
+- relation: PROVIDES_FOR
+- target_project: in.gnu6
+- target_quest: future renderer/backend evolution
+- evidence: compare against the qualified PixiJS visual/performance baseline.
+
+Candidate scope:
+- PixiJS WebGPU backend qualification;
+- native/custom WebGPU renderer prototype;
+- shader/deformation pipeline;
+- render graph and batching model;
+- memory/upload strategy;
+- feature parity with the MQ-12/MQ-13 reference cases;
+- performance comparison under MQ-14 workloads.
+
+Non-goals:
+- do not block current MQ-12;
+- do not replace PixiJS by assumption;
+- do not move scene/topology/clock/interaction authority into GPU code.
+
+Completion contract:
+- same RendererFrame contract or an explicitly ratified successor;
+- exact semantic identity preservation;
+- reference-case parity;
+- browser support evidence;
+- measured performance/complexity tradeoff;
+- causal proof for any claimed advantage.
+
+Disposition: **OPEN — FUTURE / OPERATOR LATER**.
 # Side Quest template
 
 Append new Side Quests using this form:
@@ -1112,9 +1175,11 @@ Current program position:
 - MQ-06: RATIFIED
 - MQ-07: RATIFIED
 - MQ-08: RATIFIED
-- MQ-09: DISCOVERED
-- MQ-10: IMPLEMENTING
-- MQ-11..14: open
+- MQ-09: RATIFIED
+- MQ-10: RATIFIED
+- MQ-11: RATIFIED
+- MQ-12: IMPLEMENTING — PixiJS latest selected by operator
+- MQ-13..14: open
 - MQ-15: blocked by remaining mandatory quests
 
 Next mandatory movement:
