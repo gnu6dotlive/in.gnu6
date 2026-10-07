@@ -18,7 +18,7 @@ It computes the world. Renderers project that world.
 - Renderer providers remain replaceable under the MQ-11 contract.
 - Future WebGPU work is tracked separately as **SQ-007** and does not redefine the current engine ontology.
 - Docklab and the SP Joaillerie deck harness are **proven independent consumers** of the same semantic core.
-- Main Quests MQ-00 through MQ-14 are ratified; MQ-15 is the contradiction-oriented completeness evaluation.
+- Main Quests MQ-00 through MQ-15 are ratified; current verdict: **RATIFIED COMPLETE FOR CURRENT MANDATE**.
 - Product consumers do not own engine semantics.
 
 ## Governing boundary

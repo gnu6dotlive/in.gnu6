@@ -32,7 +32,7 @@ const readme = text("README.md");
 const contract = text("CONTRACT.md");
 const pkg = json("package.json");
 
-for (let index = 0; index <= 14; index += 1) {
+for (let index = 0; index <= 15; index += 1) {
   const id = String(index).padStart(2, "0");
   const block = questBlock(questlog, id);
 
@@ -72,6 +72,7 @@ const requiredEvidence = [
   "mq-12-pixi-browser-2026-10-07.md",
   "mq-13-motion-continuity-2026-10-07.md",
   "mq-14-performance-envelope-2026-10-07.md",
+  "mq-15-completeness-evaluation-2026-10-07.md",
 ];
 
 for (const receipt of requiredEvidence) {
@@ -246,10 +247,10 @@ gate(
 );
 
 gate(
-  "current program points to MQ-15",
-  questlog.includes("MQ-15: READY FOR COMPLETENESS EVALUATION") &&
-    questlog.includes("Execute MQ-15"),
-  "Questlog must describe the current program position truthfully",
+  "current program is complete for current mandate",
+  questlog.includes("MQ-15: RATIFIED COMPLETE FOR CURRENT MANDATE") &&
+    questlog.includes("No mandatory Main Quest remains under the current ratified mandate."),
+  "Questlog must describe the completed Main Questline truthfully",
 );
 
 const result = {

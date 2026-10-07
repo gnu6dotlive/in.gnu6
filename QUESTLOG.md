@@ -855,7 +855,7 @@ A documented performance envelope exists for representative Docklab and SPJ work
 
 ## MQ-15 — Engine completeness evaluation
 
-State: **BLOCKED BY MQ-01..14**
+State: **RATIFIED COMPLETE FOR CURRENT MANDATE**
 
 This is the final Main Quest. It is not a feature implementation quest. It is a contradiction-oriented evaluation.
 
@@ -881,6 +881,27 @@ Can `[in.gnu6]` honestly be called complete for the currently ratified mandate?
 - `MANDATE REDEFINED BY OPERATOR`
 
 Completion does not mean frozen forever. It means the current completeness claim is causally supported.
+
+### Ratified evidence
+- MQ-00 through MQ-14 individually RATIFIED;
+- deterministic completeness gate verifies required states, receipts, evidence surfaces, consumer proofs and provider boundaries;
+- completeness gate causal mutation reclassifying MQ-14 produced exactly one RED failure;
+- static/core restored-state gate: **29 files / 119 tests PASS**;
+- Pixi qualification build: PASS;
+- Playwright browser continuity: **2/2 PASS**;
+- fresh core and browser performance characterization tied to clean source HEAD `832e0611273862f2ed93d038a7d6feaa9ff1936b`;
+- runtime npm audit: **0 vulnerabilities**;
+- stale README / CONTRACT / Questlog truth repaired during evaluation;
+- no unresolved mandatory contradiction remained after rerun.
+
+Receipt:
+`docs/evidence/mq-15-completeness-evaluation-2026-10-07.md`
+
+### Exit-gate decision
+
+**RATIFIED COMPLETE FOR CURRENT MANDATE**
+
+Open Side Quests remain operator-prioritized and do not invalidate Main Quest completion unless future evidence promotes one into mandatory scope.
 
 # Side Quest Registry
 
@@ -1364,11 +1385,14 @@ Current program position:
 - MQ-12: RATIFIED — PixiJS 8.22.0 / WebGL reference
 - MQ-13: RATIFIED
 - MQ-14: RATIFIED
-- MQ-15: READY FOR COMPLETENESS EVALUATION
+- MQ-15: RATIFIED COMPLETE FOR CURRENT MANDATE
 
-Next mandatory movement after the required human continuity checkpoint:
+No mandatory Main Quest remains under the current ratified mandate.
 
-> Execute MQ-15 — contradiction-oriented engine completeness evaluation — against the entire ratified Main Questline. Do not add features merely to obtain a passing result; report any remaining gap as NOT COMPLETE.
+Any future mandatory work must come from:
+- a newly ratified Main Quest;
+- a Side Quest explicitly promoted because evidence makes it causally required;
+- or an operator-defined mandate extension.
 
 Current optional high-value Side Quest:
 
