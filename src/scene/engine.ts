@@ -1,5 +1,5 @@
 import { assertSceneLaws } from "../algebra/laws";
-import { integrateScalar } from "../dynamics/math";
+import { integrateScalar, zeroVelocity } from "../dynamics/math";
 import type {
   EntityId,
   Pose2,
@@ -15,6 +15,20 @@ export interface SceneMutation {
   relations?: readonly SceneRelation[];
   targets?: readonly PoseTarget[];
 }
+
+export interface SettleThresholds {
+  position: number;
+  rotation: number;
+  scale: number;
+  velocity: number;
+}
+
+const DEFAULT_SETTLE_THRESHOLDS: SettleThresholds = {
+  position: 0.001,
+  rotation: 0.001,
+  scale: 0.001,
+  velocity: 0.001,
+};
 
 /**
  * SceneEngine owns time integration, not product intent.
@@ -113,6 +127,82 @@ export class SceneEngine {
     const targets = new Map(this.state.targets);
     targets.delete(id);
     const next = { ...this.state, targets };
+    assertSceneLaws(next);
+    this.state = next;
+    return next;
+  }
+
+  /**
+   * Settled is a relation between current dynamic state and its exact target.
+   *
+   * Elapsed time is not evidence of sleep.
+   *
+   * An entity is settled only when:
+   * - positional error is small;
+   * - rotational error is small;
+   * - scale error is small;
+   * - every velocity component is small.
+   */
+  isTargetSettled(id: EntityId, thresholds: SettleThresholds = DEFAULT_SETTLE_THRESHOLDS): boolean {
+    const entity = this.state.entities.get(id);
+    const target = this.state.targets.get(id);
+    if (!entity || !target) return false;
+
+    const positionError = Math.hypot(
+      entity.pose.position.x - target.pose.position.x,
+      entity.pose.position.y - target.pose.position.y,
+    );
+    const scaleError = Math.max(
+      Math.abs(entity.pose.scale.x - target.pose.scale.x),
+      Math.abs(entity.pose.scale.y - target.pose.scale.y),
+    );
+    const velocity = Math.max(
+      Math.abs(entity.velocity.linear.x),
+      Math.abs(entity.velocity.linear.y),
+      Math.abs(entity.velocity.angular),
+      Math.abs(entity.velocity.scale.x),
+      Math.abs(entity.velocity.scale.y),
+    );
+
+    return (
+      positionError <= thresholds.position &&
+      Math.abs(entity.pose.rotation - target.pose.rotation) <= thresholds.rotation &&
+      scaleError <= thresholds.scale &&
+      velocity <= thresholds.velocity
+    );
+  }
+
+  /**
+   * Direct settle is a traversal policy, not a different destination.
+   *
+   * Reduced-motion consumers may choose this path:
+   *
+   *   current pose -> exact target pose
+   *
+   * while preserving the same target declaration in scene state.
+   */
+  settleTarget(id: EntityId): SceneState {
+    const entity = this.state.entities.get(id);
+    const target = this.state.targets.get(id);
+    if (!entity) throw new Error("Unknown scene entity: " + id);
+    if (!target) throw new Error("Scene entity has no target: " + id);
+
+    const entities = new Map(this.state.entities);
+    entities.set(id, {
+      ...entity,
+      pose: {
+        position: { ...target.pose.position },
+        rotation: target.pose.rotation,
+        scale: { ...target.pose.scale },
+      },
+      velocity: zeroVelocity(),
+    });
+
+    const next = {
+      ...this.state,
+      entities,
+    };
+
     assertSceneLaws(next);
     this.state = next;
     return next;
