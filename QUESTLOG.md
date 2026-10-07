@@ -1596,6 +1596,45 @@ Backflow evidence:
 Disposition:
 **CLOSED — REAL CONSUMER NEED → MINIMAL ENGINE CAPABILITY → EXACT PROMOTION → LIVE PROOF**
 
+## EXPERIENCE-IN-02 — Live retargeting / unified 6.8.0 baseline
+
+State: **CLOSED — QUALIFIED + LOCAL LIVE**
+Category: PRODUCT_INTEGRATION
+Operator priority: **DONE**
+
+Problem:
+Queued handoffs retained historical geometry, and an active destination could change during transfer.
+
+Engine:
+- `2602d30 feat(topology): retarget canonical rect handoffs`, promoted on main;
+- stable generic subject/source/sequence, monotone generation, retarget count;
+- no product or renderer authority added;
+- 32 files / 129 tests PASS; Pixi build PASS; browser 2/2 PASS;
+- equal-generation causal mutation RED, restored-state check GREEN.
+
+Consumer:
+- `7ae403c feat(experience): consolidate qualified v6.8.0 retarget baseline`;
+- exact source tag `experience-v6.8.0`;
+- `c7b2a1b docs(experience): ratify v6.8.0 exact-source local live baseline`;
+- semantic request queue + activation-time resolution + same-token retarget;
+- provider continues an expanding Restore without replaying the Card;
+- global quality debts repaired without suppressions;
+- 357 Vitest PASS + 3 skips; portal 67 PASS + 5 mobile exclusions;
+- Experience Chromium 69/69 PASS; deployed causal scenarios 7/7 PASS;
+- immutable Git-archive image healthy at `gnu6.local/work`;
+- live capture generation 1→2 and Restore 3→4, same subject/token/node;
+- four causal RED findings preserved, including strengthened silhouette oracle.
+
+Backflow:
+`docs/evidence/experience-in-02-consumer-qualification-2026-10-07.md`
+
+Disposition:
+**EXPERIENCE-6.8.0 RATIFIED AS CURRENT LOCAL PRODUCT BASELINE.**
+Shared consumer npm audit has 19 findings, including one critical; advisory remediation remains open.
+Initial deployment-swap HTTP 404 is recorded; zero-downtime routing is not qualified.
+Neither concern is disguised as a source/functional PASS or an engine completeness failure.
+No next slice or public deployment is automatically authorized.
+
 # Current next movement
 
 Current program position:
@@ -1627,10 +1666,11 @@ Operator-approved Side Quest batch:
 - SQ-003 — **CLOSED**: blob.in donor truth reconstructed and reusable laws harvested;
 - SQ-009 — **CLOSED**: gnu6.live consumer provenance/sync boundary formalized and falsified.
 
-No currently operator-approved Side Quest remains in execution.
+No Side Quest from the SQ-003 / SQ-009 approved batch remains in execution.
 
 Most recent Product/Integration Slice:
-- EXPERIENCE-IN-01 — **CLOSED / QUALIFIED + LOCAL LIVE**.
+- EXPERIENCE-IN-02 — **CLOSED / QUALIFIED + LOCAL LIVE**.
+- Current consumer baseline: **EXPERIENCE-6.8.0**, exact source tag `experience-v6.8.0`.
 
 No Product/Integration Slice is currently active. The next slice should originate from a concrete
 consumer/product problem, not from automatic backlog traversal.
