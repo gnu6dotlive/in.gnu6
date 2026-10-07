@@ -482,7 +482,7 @@ The engine can explain why a target is admissible, adjusted or rejected.
 
 ## MQ-08 — Picking, interaction projection and authority handoff
 
-State: **DISCOVERED**
+State: **RATIFIED**
 
 ### Required capabilities
 - scene-space picking;
@@ -493,8 +493,27 @@ State: **DISCOVERED**
 - transfer requests between topology owners;
 - no authority amplification from renderer events.
 
+### Ratified evidence
+- provider observation → World projection → exact subject → semantic trajectory;
+- World-space and local-SpatialFrame providers resolve the same semantic result;
+- exact topmost identity with provider provenance kept separate;
+- monotonic pointer sequence + trajectory observations;
+- handoff request creation does not mutate ownership;
+- explicit handoff route/degree allowlist;
+- disallowed routes and degree amplification rejected;
+- causal mutation removing degree allowlist produced **1 RED test**;
+- restored-state gates: **21 files / 87 tests PASS**, format/lint/typecheck PASS.
+
+Implementation:
+`1406c15 feat: add bounded interaction projection and handoff authority`
+
+Receipt:
+`docs/evidence/mq-08-interaction-authority-2026-10-06.md`
+
 ### Exit gate
 At least two renderer/harness environments can submit equivalent pointer observations and resolve the same semantic subject/interaction result.
+
+**Disposition: RATIFIED.**
 
 ## MQ-09 — Introspection and explainable scene frames
 
