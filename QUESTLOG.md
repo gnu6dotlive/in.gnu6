@@ -627,7 +627,7 @@ The same `[in.gnu6]` core supports both consumers with adapters/configuration ra
 
 ## MQ-11 — Renderer contract
 
-State: **DISCOVERED**
+State: **RATIFIED**
 
 ### Required invariants
 - renderer is replaceable;
@@ -646,8 +646,27 @@ State: **DISCOVERED**
 
 No candidate is ratified by this list.
 
+### Ratified evidence
+- deeply frozen renderer frame;
+- exact identity partition validation;
+- accessibility metadata keyed by existing semantic identity;
+- renderer sequence + motion mode excluded from semantic digest;
+- deterministic nonvisual CommandRenderer;
+- deterministic pure SVG-string adapter;
+- renderer mutation cannot alter scene truth;
+- causal mutation allowing invented renderer identity produced **1 RED test**;
+- restored-state gates: **26 files / 102 tests PASS**, format/lint/typecheck PASS.
+
+Implementation:
+`93db694 feat: add bounded replaceable renderer contract`
+
+Receipt:
+`docs/evidence/mq-11-renderer-contract-2026-10-06.md`
+
 ### Exit gate
 The renderer contract is sufficient to implement at least two materially different rendering adapters or one adapter plus one deterministic nonvisual renderer without changing core ontology.
+
+**Disposition: RATIFIED.**
 
 ## MQ-12 — Reference browser renderer
 
@@ -1100,7 +1119,7 @@ Current program position:
 
 Next mandatory movement:
 
-> Implement and falsify MQ-11 — renderer contract — while keeping renderer/provider authority strictly downstream from semantic scene truth.
+> Implement and observe MQ-12 — a reference browser renderer — as a qualification surface only, without turning its provider into the engine ontology.
 
 Current optional high-value Side Quest:
 
