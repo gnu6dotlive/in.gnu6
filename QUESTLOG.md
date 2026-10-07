@@ -150,7 +150,7 @@ A deterministic law suite can generate, mutate, query and reject scene graphs wi
 
 ## MQ-02 — Spatial frames and concurrent topology instances
 
-State: **RATIFIED DESIGN / NOT YET IMPLEMENTED**
+State: **RATIFIED**
 
 ### Ratified principle
 Different topology systems may coexist in the same World.
@@ -230,8 +230,17 @@ Therefore a Dock may be edge-attached while internally behaving like a hand of c
 - legal disjoint ownership must GREEN;
 - topology handoff must preserve identity and velocity where applicable.
 
+### Evidence
+- implementation: `40edfa1 feat: add composable spatial frames and topology ownership`;
+- receipt: `docs/evidence/mq-02-spatial-topology-2026-10-06.md`;
+- full restored-state gate: **6 files / 32 tests PASS**;
+- causal mutation: disabling double-ownership protection produced **2 RED ownership tests**, then byte-exact restoration PASS.
+
 ### Exit gate
 The engine can host at least two materially different topology systems concurrently without consumer-specific branching in the core.
+
+**Disposition: RATIFIED.**
+
 ## MQ-03 — Deterministic scene time and dynamics
 
 State: **IMPLEMENTING**
