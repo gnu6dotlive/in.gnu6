@@ -1035,7 +1035,8 @@ Quick wins completed without preempting the Main Quest:
 - Playwright/Vite harness separation;
 - Biome generated-artifact boundary;
 - idempotent `check -> build -> browser -> check` cycle;
-- explicit Playwright/Vite graceful shutdown to remove qualification-server teardown races.
+- explicit Playwright/Vite graceful shutdown to remove qualification-server teardown races;
+- isolated qualification port via `IN_GNU6_QUALIFICATION_PORT`, proven on alternate port 4188.
 
 These completed mechanics do not close SQ-005 as a whole.
 

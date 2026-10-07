@@ -20,7 +20,7 @@ export default defineConfig({
   webServer: {
     command: "mise exec node@24 -- corepack npx vite --config qualification/pixi/vite.config.ts",
     url: "http://127.0.0.1:4176",
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     gracefulShutdown: {
       signal: "SIGTERM",
       timeout: 2_000,
