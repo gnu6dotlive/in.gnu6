@@ -113,7 +113,7 @@ Satisfied.
 
 ## MQ-01 — Formal scene ontology
 
-State: **IMPLEMENTING**
+State: **RATIFIED**
 
 ### Goal
 Define the smallest ontology capable of describing scene truth without assuming Dock, SP Joaillerie, React, PixiJS or any other consumer/provider.
@@ -138,15 +138,28 @@ Define the smallest ontology capable of describing scene truth without assuming 
 - shapes;
 - targets.
 
-### Still required
-- explicit scene query algebra;
-- typed relation families where justified by repeated evidence;
-- ownership model for independent degrees of freedom;
-- lifecycle semantics for insertion/removal/transfer;
-- exact observation frame format.
+### Ratified evidence
+- explicit serializable finite-set scene query algebra;
+- typed relation vocabulary with core `attached` plus explicit `ext:<name>` namespace;
+- relation-set uniqueness law;
+- hierarchy acyclicity enforced at scene admission;
+- lifecycle set semantics for birth/persistence/termination;
+- transactional lifecycle failure;
+- independent degree-of-freedom ownership inherited from ratified MQ-02;
+- exact deterministic observation frame inherited from ratified MQ-09;
+- causal mutation removing cycle rejection produced **1 RED admissibility test**;
+- restored-state gates: **29 files / 119 tests PASS**, Pixi build PASS, Playwright **2/2 PASS**.
+
+Implementation:
+`cefa6fb feat: close formal scene ontology gaps`
+
+Receipt:
+`docs/evidence/mq-01-formal-scene-ontology-2026-10-07.md`
 
 ### Exit gate
 A deterministic law suite can generate, mutate, query and reject scene graphs without consumer concepts or renderer dependencies.
+
+**Disposition: RATIFIED.**
 
 ## MQ-02 — Spatial frames and concurrent topology instances
 
@@ -1327,7 +1340,7 @@ A green checkmark without this binding is insufficient for Main Quest closure.
 
 Current program position:
 - MQ-00: RATIFIED
-- MQ-01: IMPLEMENTING
+- MQ-01: RATIFIED
 - MQ-02: RATIFIED
 - MQ-03: RATIFIED
 - MQ-04: RATIFIED
@@ -1341,11 +1354,11 @@ Current program position:
 - MQ-12: RATIFIED — PixiJS 8.22.0 / WebGL reference
 - MQ-13: RATIFIED
 - MQ-14: RATIFIED
-- MQ-15: blocked only by MQ-01 formal ontology closure
+- MQ-15: READY FOR COMPLETENESS EVALUATION
 
 Next mandatory movement after the required human continuity checkpoint:
 
-> Close and falsify MQ-01 — formal scene ontology — by adding the missing explicit query algebra and requalifying lifecycle/ownership/observation semantics against the now-ratified downstream system.
+> Execute MQ-15 — contradiction-oriented engine completeness evaluation — against the entire ratified Main Questline. Do not add features merely to obtain a passing result; report any remaining gap as NOT COMPLETE.
 
 Current optional high-value Side Quest:
 
