@@ -379,7 +379,7 @@ A single entity can continuously evolve between at least three materially differ
 
 ## MQ-06 — Deck / card topology family
 
-State: **IMPLEMENTING**
+State: **RATIFIED**
 
 ### Goal
 Provide generic scene mechanics capable of supporting card/tarot/deck consumers without encoding Gnosix Dock or SPJ product semantics.
@@ -410,17 +410,30 @@ Provide generic scene mechanics capable of supporting card/tarot/deck consumers 
 - reorder preview;
 - hysteresis.
 
-### Still required
-- generic stack topology;
-- insertion/removal dynamics;
-- occlusion model;
-- deck-to-deck transfer;
-- local-frame support from MQ-02;
-- velocity-driven tilt/wobble as optional dynamics;
-- selection/focus relation independent of pointer.
+### Ratified evidence
+- generic stack + spread + tarot fan topology;
+- insertion/removal transition planning;
+- continuous surviving-card reflow through SceneEngine PoseTargets;
+- occlusion-aware stack;
+- deck-to-deck transfer preserving one persistent identity;
+- arbitrary local-frame center projection;
+- optional velocity-derived tilt;
+- focus influence independent from pointer;
+- Docklab and SPJ consume the same core deck projection primitives;
+- consumer harnesses are now included in TypeScript gates;
+- causal mutation duplicating transferred identity produced **1 RED test**;
+- restored-state full gate: **17 files / 70 tests PASS**, format/lint/typecheck PASS.
+
+Implementation:
+`e097d46 feat: complete generic deck topology family`
+
+Receipt:
+`docs/evidence/mq-06-deck-topology-2026-10-06.md`
 
 ### Exit gate
 Docklab and SPJ deck harnesses both consume the same deck/topology primitives while producing distinct spatial behavior.
+
+**Disposition: RATIFIED.**
 
 ## MQ-07 — Constraints, collisions, exclusion and admissibility
 
