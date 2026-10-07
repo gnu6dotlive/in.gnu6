@@ -1,0 +1,217 @@
+import { assertSceneLaws } from "../algebra/laws";
+import { integrateScalar } from "../dynamics/math";
+import type {
+  EntityId,
+  Pose2,
+  PoseTarget,
+  SceneEntity,
+  SceneRelation,
+  SceneState,
+} from "../algebra/types";
+
+export interface SceneMutation {
+  add?: readonly SceneEntity[];
+  remove?: readonly EntityId[];
+  relations?: readonly SceneRelation[];
+  targets?: readonly PoseTarget[];
+}
+
+/**
+ * SceneEngine owns time integration, not product intent.
+ *
+ * It does not know what a "Dock", "menu" or "window" is.
+ * It only knows:
+ *
+ *   - finite identity set E
+ *   - relation set R
+ *   - deterministic order permutation π(E)
+ *   - target map T : E ⇀ P
+ *   - continuous state evolution
+ *
+ * Surface adapters may propose targets, but they may not bypass these laws.
+ */
+export class SceneEngine {
+  private state: SceneState;
+
+  constructor(initial?: Partial<SceneState>) {
+    this.state = {
+      time: initial?.time ?? 0,
+      entities: initial?.entities ?? new Map(),
+      relations: initial?.relations ?? [],
+      order: initial?.order ?? [],
+      targets: initial?.targets ?? new Map(),
+      fields: initial?.fields ?? [],
+    };
+    assertSceneLaws(this.state);
+  }
+
+  snapshot(): SceneState {
+    return this.state;
+  }
+
+  /**
+   * Transactional scene mutation.
+   *
+   * If E is the current identity set:
+   *
+   *   E' = (E ∪ add) \ remove
+   *
+   * The mutation commits only after E', R', order' and T' satisfy all laws.
+   * This makes invalid intermediate graph states unobservable.
+   */
+  mutate(change: SceneMutation): SceneState {
+    const entities = new Map(this.state.entities);
+    const order = [...this.state.order];
+    const targets = new Map(this.state.targets);
+
+    for (const id of change.remove ?? []) {
+      entities.delete(id);
+      targets.delete(id);
+      const index = order.indexOf(id);
+      if (index >= 0) order.splice(index, 1);
+    }
+
+    for (const entity of change.add ?? []) {
+      if (entities.has(entity.id)) {
+        throw new Error("Duplicate scene identity: " + entity.id);
+      }
+      entities.set(entity.id, entity);
+      order.push(entity.id);
+    }
+
+    for (const target of change.targets ?? []) {
+      if (!entities.has(target.entityId)) {
+        throw new Error("Target owner is not in scene: " + target.entityId);
+      }
+      targets.set(target.entityId, target);
+    }
+
+    const relations =
+      change.relations ??
+      this.state.relations.filter(
+        (relation) => entities.has(relation.from) && entities.has(relation.to),
+      );
+
+    const next: SceneState = {
+      ...this.state,
+      entities,
+      order,
+      targets,
+      relations,
+    };
+
+    assertSceneLaws(next);
+    this.state = next;
+    return next;
+  }
+
+  setTarget(target: PoseTarget): SceneState {
+    return this.mutate({ targets: [target] });
+  }
+
+  clearTarget(id: EntityId): SceneState {
+    const targets = new Map(this.state.targets);
+    targets.delete(id);
+    const next = { ...this.state, targets };
+    assertSceneLaws(next);
+    this.state = next;
+    return next;
+  }
+
+  /**
+   * Advance every targeted entity by one bounded simulation step.
+   *
+   * We clamp dt because a suspended tab can resume with an arbitrarily large
+   * wall-clock delta. Physics time is a model choice, not an obligation to
+   * replay seconds of missed integration in one frame.
+   */
+  step(dtSeconds: number): SceneState {
+    const dt = Math.min(1 / 15, Math.max(0, dtSeconds));
+    if (dt === 0) return this.state;
+
+    const entities = new Map(this.state.entities);
+
+    for (const [id, target] of this.state.targets) {
+      const entity = entities.get(id);
+      if (!entity) continue;
+
+      entities.set(id, integrateEntity(entity, target, dt));
+    }
+
+    const next: SceneState = {
+      ...this.state,
+      time: this.state.time + dt,
+      entities,
+    };
+
+    assertSceneLaws(next);
+    this.state = next;
+    return next;
+  }
+}
+
+function integrateEntity(entity: SceneEntity, target: PoseTarget, dt: number): SceneEntity {
+  const law = target.spring;
+
+  const x = integrateScalar(
+    entity.pose.position.x,
+    entity.velocity.linear.x,
+    target.pose.position.x,
+    dt,
+    law.stiffness,
+    law.damping,
+    law.mass,
+  );
+  const y = integrateScalar(
+    entity.pose.position.y,
+    entity.velocity.linear.y,
+    target.pose.position.y,
+    dt,
+    law.stiffness,
+    law.damping,
+    law.mass,
+  );
+  const rotation = integrateScalar(
+    entity.pose.rotation,
+    entity.velocity.angular,
+    target.pose.rotation,
+    dt,
+    law.stiffness,
+    law.damping,
+    law.mass,
+  );
+  const scaleX = integrateScalar(
+    entity.pose.scale.x,
+    entity.velocity.scale.x,
+    target.pose.scale.x,
+    dt,
+    law.stiffness,
+    law.damping,
+    law.mass,
+  );
+  const scaleY = integrateScalar(
+    entity.pose.scale.y,
+    entity.velocity.scale.y,
+    target.pose.scale.y,
+    dt,
+    law.stiffness,
+    law.damping,
+    law.mass,
+  );
+
+  const pose: Pose2 = {
+    position: { x: x.position, y: y.position },
+    rotation: rotation.position,
+    scale: { x: scaleX.position, y: scaleY.position },
+  };
+
+  return {
+    ...entity,
+    pose,
+    velocity: {
+      linear: { x: x.velocity, y: y.velocity },
+      angular: rotation.velocity,
+      scale: { x: scaleX.velocity, y: scaleY.velocity },
+    },
+  };
+}
