@@ -177,3 +177,98 @@ test("PixiJS 8.22 reference renderer preserves [in.gnu6] scene truth in a real b
 
   expect(pageErrors).toEqual([]);
 });
+
+test("MQ-13 no-cutoff ledger proves continuous and terminal browser transitions", async ({
+  page,
+}) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+
+  await page.goto("/");
+  await expect(page.locator("#status")).toContainText("ready");
+
+  const focus = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceFocusDock();
+  });
+  expect(focus.violations).toEqual([]);
+  expect(focus.traces[0]!.samples.length).toBeGreaterThan(10);
+  expect(
+    new Set(
+      focus.traces[0]!.samples.filter((sample) => sample.subject.semanticExists).map(
+        (sample) => sample.subject.handleId,
+      ),
+    ).size,
+  ).toBe(1);
+
+  const reflow = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceDeckReflow();
+  });
+  expect(reflow.violations).toEqual([]);
+  expect(reflow.traces).toHaveLength(5);
+  expect(reflow.traces.every((trace) => trace.samples.length > 10)).toBe(true);
+
+  const morph = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceWindowLikeToCard();
+  });
+  expect(morph.violations).toEqual([]);
+  expect(morph.traces[0]!.samples.length).toBeGreaterThan(20);
+
+  const insertion = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceInsertCard();
+  });
+  expect(insertion.violations).toEqual([]);
+  expect(insertion.traces[0]!.samples[0]!.subject.semanticExists).toBe(false);
+  expect(insertion.traces[0]!.samples.at(-1)!.subject.semanticExists).toBe(true);
+
+  const removal = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceRemoveCard();
+  });
+  expect(removal.violations).toEqual([]);
+  expect(removal.traces[0]!.samples[0]!.subject.semanticExists).toBe(true);
+  expect(removal.traces[0]!.samples.at(-1)!.subject.semanticExists).toBe(false);
+  expect(removal.traces[0]!.samples.at(-1)!.subject.handleId).toBeNull();
+
+  const handoff = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceHandoffToPlayzone();
+  });
+  expect(handoff.violations).toEqual([]);
+  expect(handoff.traces[0]!.samples.length).toBeGreaterThan(20);
+
+  const context = await page.evaluate(() => {
+    return window.__IN_GNU6_PIXI_QUALIFICATION__.traceContextSurfaceLifecycle();
+  });
+  expect(context.violations).toEqual([]);
+  expect(context.result.attachmentObserved).toBe(true);
+
+  const contextSamples = context.traces[0]!.samples;
+  expect(contextSamples[0]!.subject.semanticExists).toBe(false);
+  expect(contextSamples.some((sample) => sample.subject.semanticExists)).toBe(true);
+  expect(contextSamples.at(-1)!.subject.semanticExists).toBe(false);
+  expect(contextSamples.at(-1)!.subject.handleId).toBeNull();
+
+  // Every live semantic sample across every continuous/terminal transition
+  // remained projected, mounted, visible, renderable, opaque and finite.
+  const allTraces = [
+    ...focus.traces,
+    ...reflow.traces,
+    ...morph.traces,
+    ...insertion.traces,
+    ...removal.traces,
+    ...handoff.traces,
+    ...context.traces,
+  ];
+
+  for (const trace of allTraces) {
+    for (const sample of trace.samples) {
+      if (!sample.subject.semanticExists) continue;
+      expect(sample.subject.handleId).not.toBeNull();
+      expect(sample.subject.mounted).toBe(true);
+      expect(sample.subject.visible).toBe(true);
+      expect(sample.subject.renderable).toBe(true);
+      expect(sample.subject.alpha).toBeGreaterThan(0);
+      expect(sample.subject.finiteGeometry).toBe(true);
+    }
+  }
+
+  expect(pageErrors).toEqual([]);
+});

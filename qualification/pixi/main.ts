@@ -21,6 +21,13 @@ import {
   validateRendererResult,
   type RendererMotionMode,
 } from "../../src/renderer/contract";
+import {
+  inspectRendererContinuity,
+  type ContinuitySample,
+  type ContinuityTermination,
+  type ContinuityTrace,
+  type ContinuityViolation,
+} from "../../src/renderer/continuity";
 import { SceneEngine } from "../../src/scene/engine";
 import { SpatialFrameGraph, asFrameId, localToWorld } from "../../src/spatial/frame";
 import { TopologyRegistry, asTopologyId, defineTopology } from "../../src/topology/instance";
@@ -66,6 +73,8 @@ const handIds = [
 ];
 const morphId = asEntityId("morph-surface");
 const insertedId = asEntityId("inserted-card");
+const contextAnchorId = asEntityId("context-anchor");
+const contextSurfaceId = asEntityId("context-surface");
 
 const scene = new SceneEngine();
 const clock = new FixedStepClock({
@@ -230,17 +239,19 @@ let morphTrack: DeformableContourTrack = createDeformableContourTrack(
 
 const handleTokens = new WeakMap<object, string>();
 let nextHandleToken = 1;
+type MutableContinuityTrace = {
+  entityId: string;
+  termination: ContinuityTermination;
+  samples: ContinuitySample[];
+};
+
+let activeContinuityTraces: MutableContinuityTrace[] | null = null;
 
 function accessibility() {
-  return [
-    ...dockIds,
-    ...handIds,
-    morphId,
-    ...(scene.snapshot().entities.has(insertedId) ? [insertedId] : []),
-  ].map((entityId) => ({
-    entityId,
-    role: "button",
-    label: "Scene entity " + entityId,
+  return [...scene.snapshot().entities.values()].map((entity) => ({
+    entityId: entity.id,
+    role: entity.role === "card" || entity.role === "control" ? "button" : "group",
+    label: "Scene entity " + entity.id,
   }));
 }
 
@@ -252,6 +263,7 @@ function renderNow(): void {
   });
   const result = renderer.render(frame);
   validateRendererResult(frame, result);
+  recordContinuitySamples();
 
   status.textContent =
     renderer.diagnostics().rendererName +
@@ -298,6 +310,34 @@ async function focusDock(index = 2): Promise<void> {
   }
 
   await tick(18);
+}
+
+async function reflowDock(): Promise<void> {
+  const reversed = [...dockIds].reverse();
+  const reflowed = layoutTarotFan(reversed, {
+    ...deckSpec,
+    center: { x: 35, y: -18 },
+  }).map((card) => ({
+    ...card,
+    pose: {
+      ...card.pose,
+      position: localToWorld(frames.snapshot(), dockFrame, card.pose.position),
+    },
+  }));
+
+  scene.mutate({
+    targets: deckPoseTargets(reflowed, spring),
+  });
+
+  if (motionMode === "reduced") {
+    for (const card of reflowed) {
+      scene.settleTarget(card.id);
+    }
+    renderNow();
+    return;
+  }
+
+  await tick(24);
 }
 
 async function morphToDiamond(): Promise<void> {
@@ -392,6 +432,123 @@ async function removeCard(): Promise<void> {
   renderNow();
 }
 
+async function contextSurfaceLifecycle(): Promise<{
+  attachmentObserved: boolean;
+}> {
+  if (
+    scene.snapshot().entities.has(contextAnchorId) ||
+    scene.snapshot().entities.has(contextSurfaceId)
+  ) {
+    throw new Error("Context qualification lifecycle already active");
+  }
+
+  const existingRelations = [...scene.snapshot().relations];
+
+  scene.mutate({
+    add: [
+      {
+        id: contextAnchorId,
+        role: "control",
+        pose: {
+          position: { x: 150, y: 150 },
+          rotation: 0,
+          scale: { x: 1, y: 1 },
+        },
+        velocity: zeroVelocity(),
+        shape: {
+          kind: "rect",
+          width: 44,
+          height: 44,
+          radius: 12,
+        },
+        z: 70,
+        visible: true,
+        parent: null,
+      },
+      {
+        id: contextSurfaceId,
+        role: "surface",
+        pose: {
+          position: { x: 20, y: 10 },
+          rotation: 0,
+          scale: { x: 0.08, y: 0.08 },
+        },
+        velocity: zeroVelocity(),
+        shape: {
+          kind: "rect",
+          width: 220,
+          height: 150,
+          radius: 18,
+        },
+        z: 71,
+        visible: true,
+        parent: contextAnchorId,
+      },
+    ],
+    relations: [
+      ...existingRelations,
+      {
+        kind: "attached",
+        from: contextSurfaceId,
+        to: contextAnchorId,
+      },
+    ],
+  });
+  renderNow();
+
+  const attachmentObserved =
+    scene.snapshot().entities.get(contextSurfaceId)?.parent === contextAnchorId &&
+    scene
+      .snapshot()
+      .relations.some(
+        (relation) =>
+          relation.kind === "attached" &&
+          relation.from === contextSurfaceId &&
+          relation.to === contextAnchorId,
+      );
+
+  scene.setTarget({
+    entityId: contextSurfaceId,
+    pose: {
+      position: { x: 135, y: 65 },
+      rotation: 0.03,
+      scale: { x: 1, y: 1 },
+    },
+    spring,
+  });
+
+  if (motionMode === "reduced") {
+    scene.settleTarget(contextSurfaceId);
+    renderNow();
+  } else {
+    await tick(18);
+  }
+
+  scene.setTarget({
+    entityId: contextSurfaceId,
+    pose: {
+      position: { x: 155, y: 78 },
+      rotation: 0.03,
+      scale: { x: 0.08, y: 0.08 },
+    },
+    spring,
+  });
+
+  if (motionMode === "reduced") {
+    scene.settleTarget(contextSurfaceId);
+    renderNow();
+  } else {
+    await tick(16);
+  }
+
+  scene.mutate({
+    remove: [contextSurfaceId, contextAnchorId],
+  });
+  renderNow();
+
+  return { attachmentObserved };
+}
+
 async function handoffToPlayzone(): Promise<void> {
   const subject = handIds[1]!;
   const subjectEntity = scene.snapshot().entities.get(subject);
@@ -457,6 +614,106 @@ async function handoffToPlayzone(): Promise<void> {
   }
 
   await tick(26);
+}
+
+async function traceTransition<T>(
+  entityIds: readonly EntityId[],
+  termination: ContinuityTermination,
+  operation: () => Promise<T>,
+): Promise<{
+  traces: ContinuityTrace[];
+  violations: ContinuityViolation[];
+  result: T;
+}> {
+  if (activeContinuityTraces) {
+    throw new Error("Nested continuity traces are not supported");
+  }
+
+  activeContinuityTraces = entityIds.map((entityId) => ({
+    entityId,
+    termination,
+    samples: [],
+  }));
+
+  recordContinuitySamples();
+
+  try {
+    const result = await operation();
+    recordContinuitySamples();
+
+    const traces: ContinuityTrace[] = activeContinuityTraces.map((trace) => ({
+      entityId: trace.entityId,
+      termination: trace.termination,
+      samples: [...trace.samples],
+    }));
+
+    return {
+      traces,
+      violations: traces.flatMap((trace) => inspectRendererContinuity(trace)),
+      result,
+    };
+  } finally {
+    activeContinuityTraces = null;
+  }
+}
+
+function recordContinuitySamples(): void {
+  if (!activeContinuityTraces) return;
+
+  const state = scene.snapshot();
+
+  for (const trace of activeContinuityTraces) {
+    const entityId = asEntityId(trace.entityId);
+    const semanticExists = state.entities.has(entityId);
+    const provider = renderer.observeProvider(entityId);
+
+    trace.samples.push({
+      index: trace.samples.length,
+      sceneTime: state.time,
+      subject: {
+        semanticExists,
+        handleId: provider.handlePresent ? handleToken(entityId) : null,
+        mounted: provider.mounted,
+        visible: provider.visible,
+        renderable: provider.renderable,
+        alpha: provider.alpha,
+        finiteGeometry: provider.finiteGeometry,
+      },
+    });
+  }
+}
+
+function traceFocusDock() {
+  return traceTransition([dockIds[2]!], "continuous", () => focusDock(2));
+}
+
+function traceDeckReflow() {
+  return traceTransition(dockIds, "continuous", reflowDock);
+}
+
+async function threeTopologyMorph(): Promise<void> {
+  await morphToDiamond();
+  await morphToCard();
+}
+
+function traceWindowLikeToCard() {
+  return traceTransition([morphId], "continuous", threeTopologyMorph);
+}
+
+function traceInsertCard() {
+  return traceTransition([insertedId], "continuous", insertCard);
+}
+
+function traceRemoveCard() {
+  return traceTransition([insertedId], "semantic-termination", removeCard);
+}
+
+function traceHandoffToPlayzone() {
+  return traceTransition([handIds[1]!], "continuous", handoffToPlayzone);
+}
+
+function traceContextSurfaceLifecycle() {
+  return traceTransition([contextSurfaceId], "semantic-termination", contextSurfaceLifecycle);
 }
 
 function setMotionMode(next: RendererMotionMode): void {
@@ -670,6 +927,13 @@ const qualificationApi = {
   removeCard,
   handoffToPlayzone,
   setMotionMode,
+  traceFocusDock,
+  traceDeckReflow,
+  traceWindowLikeToCard,
+  traceInsertCard,
+  traceRemoveCard,
+  traceHandoffToPlayzone,
+  traceContextSurfaceLifecycle,
   snapshot,
   compareMotionParity,
   ids: {
@@ -677,6 +941,8 @@ const qualificationApi = {
     hand: handIds,
     morph: morphId,
     inserted: insertedId,
+    contextAnchor: contextAnchorId,
+    contextSurface: contextSurfaceId,
   },
 };
 

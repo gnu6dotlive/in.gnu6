@@ -27,6 +27,15 @@ export interface PixiBrowserRendererDiagnostics {
   canvasHeight: number;
 }
 
+export interface PixiProviderObservation {
+  handlePresent: boolean;
+  mounted: boolean;
+  visible: boolean;
+  renderable: boolean;
+  alpha: number;
+  finiteGeometry: boolean;
+}
+
 /**
  * PixiJS projection adapter for the MQ-11 RendererFrame contract.
  *
@@ -158,6 +167,42 @@ export class PixiBrowserRenderer implements RendererAdapter<HTMLCanvasElement> {
 
   getHandle(entityId: EntityId): Graphics | null {
     return this.graphics.get(entityId) ?? null;
+  }
+
+  observeProvider(entityId: EntityId): PixiProviderObservation {
+    const graphics = this.graphics.get(entityId);
+    if (!graphics) {
+      return {
+        handlePresent: false,
+        mounted: false,
+        visible: false,
+        renderable: false,
+        alpha: 0,
+        finiteGeometry: false,
+      };
+    }
+
+    const bounds = graphics.getBounds();
+    const finiteGeometry = [
+      graphics.position.x,
+      graphics.position.y,
+      graphics.scale.x,
+      graphics.scale.y,
+      graphics.rotation,
+      bounds.minX,
+      bounds.minY,
+      bounds.maxX,
+      bounds.maxY,
+    ].every(Number.isFinite);
+
+    return {
+      handlePresent: true,
+      mounted: graphics.parent !== null,
+      visible: graphics.visible,
+      renderable: graphics.renderable,
+      alpha: graphics.alpha,
+      finiteGeometry,
+    };
   }
 
   diagnostics(): PixiBrowserRendererDiagnostics {
