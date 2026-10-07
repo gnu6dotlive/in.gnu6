@@ -170,7 +170,7 @@ export function previewDeckOrder(
 
   let index = previousIndex ?? 0;
 
-  if (previousIndex == null) {
+  if (previousIndex === null) {
     index = 0;
     for (let i = 0; i < slotCenters.length; i += 1) {
       const center = slotCenters[i]!;

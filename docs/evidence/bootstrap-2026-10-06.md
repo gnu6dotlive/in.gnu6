@@ -66,3 +66,25 @@ The engine must be consumed by at least two meaningfully different harnesses wit
 Planned falsification consumers:
 1. Docklab
 2. SP Joaillerie deck harness
+
+## Bootstrap hardening after initial remote creation
+
+The first remote push exposed two bootstrap-tooling facts that were corrected before further engine work:
+
+1. Biome's migration command had converted the deprecated lint flag into `preset: "none"`.
+   That would have made a green lint gate epistemically weak.
+2. The pinned Vitest 4.1.10 toolchain carried two moderate dev-only vulnerabilities through `@vitest/mocker`.
+
+Corrective action:
+- Biome now runs `correctness`, `suspicious` and `security` groups as errors;
+- style preferences are not promoted into semantic authority;
+- one ambiguous `== null` comparison was made exact;
+- one implicitly evolving hierarchy array was explicitly typed;
+- Vitest was raised to **4.1.11**.
+
+Fresh result:
+- `npm run check`: PASS;
+- seed laws/tests: **18/18 PASS**;
+- full `npm audit`: **0 vulnerabilities**.
+
+These changes harden the repository harness; they do not add new engine capability.

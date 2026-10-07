@@ -63,7 +63,7 @@ export function composePose(parent: Pose2, child: Pose2): Pose2 {
 export function worldPose(state: SceneState, id: EntityId): Pose2 {
   assertAcyclicHierarchy(state);
 
-  const chain = [];
+  const chain: Pose2[] = [];
   let cursor = state.entities.get(id);
   if (!cursor) throw new Error("Unknown scene entity " + id);
 

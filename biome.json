@@ -1,11 +1,21 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
-  "files": { "includes": ["**", "!node_modules", "!coverage"] },
+  "files": {
+    "includes": ["**", "!node_modules", "!coverage"]
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 100
   },
-  "linter": { "enabled": true, "rules": { "preset": "none" } }
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "none",
+      "correctness": "error",
+      "suspicious": "error",
+      "security": "error"
+    }
+  }
 }
