@@ -1277,9 +1277,9 @@ Current program position:
 - MQ-14: DISCOVERED
 - MQ-15: blocked by remaining mandatory quests
 
-Next mandatory movement:
+Next mandatory movement after the required human continuity checkpoint:
 
-> Implement and falsify MQ-13 — motion continuity / no-cutoff — across the ratified PixiJS browser reference path, including renderer mount/unmount behavior and explicit semantic-termination cases.
+> Implement and measure MQ-14 — performance and scale envelope — without weakening any ratified semantic or continuity invariant.
 
 Current optional high-value Side Quest:
 
