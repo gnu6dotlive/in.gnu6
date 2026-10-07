@@ -1101,11 +1101,20 @@ These completed mechanics do not close SQ-005 as a whole.
 Promotion rule: only if repeated mechanics justify deterministic tooling.
 
 ## SQ-006 — Historical documentation truth cleanup
-State: **DISCOVERED**
+State: **DISCOVERED — MQ-15 CAUSAL SUBSET REPAIRED**
 Suggested priority: low
 Operator priority: **UNSET**
 
 Scope: identify stale/false claims in related docs when they materially confuse `[in.gnu6]` provenance or ontology.
+
+MQ-15 promoted one bounded subset to `CAUSAL_REQUIRED`:
+- README still said renderer choice was undecided and PixiJS was merely a candidate;
+- README still described Docklab/SPJ as planned rather than proven;
+- CONTRACT bootstrap wording could be misread as a present-day ban rather than a repository-creation boundary.
+
+That subset was repaired before MQ-15 completeness evaluation.
+
+Remaining historical/external documentation cleanup stays optional and operator-prioritized.
 
 Not automatically authorized: rewriting unrelated repositories.
 
