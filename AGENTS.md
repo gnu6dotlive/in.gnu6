@@ -4,9 +4,10 @@ Before durable work in this repository:
 
 1. Read `contracts/TRONC_COMMUN.md`.
 2. Read `CONTRACT.md`.
-3. Read `docs/provenance/seed-b07be20.md`.
-4. Reconstruct current HEAD and tree state.
-5. Run the smallest falsification gate relevant to the intended change.
+3. Read `QUESTLOG.md`.
+4. Read `docs/provenance/seed-b07be20.md`.
+5. Reconstruct current HEAD and tree state.
+6. Run the smallest falsification gate relevant to the intended change.
 
 Core reminders:
 - Truth before success.

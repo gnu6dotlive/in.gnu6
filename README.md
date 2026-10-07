@@ -34,4 +34,5 @@ The engine must remain usable by more than one consumer. Docklab and an SP Joail
 See:
 - `contracts/TRONC_COMMUN.md`
 - `CONTRACT.md`
+- `QUESTLOG.md`
 - `docs/provenance/seed-b07be20.md`

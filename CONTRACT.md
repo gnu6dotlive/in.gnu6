@@ -121,3 +121,11 @@ The first gate is simple:
 > The same 18 seed laws/tests must pass in this repository before new capability work starts.
 
 No Dock wiring, renderer selection, PixiJS dependency or public API is authorized by repository creation.
+
+## 12. Questlog authority
+
+`QUESTLOG.md` defines the current Main Questline completeness contract and the operator-prioritized Side Quest registry.
+
+The Main Questline may expand when reality reveals missing necessary invariants. It must not be shortened merely to make completion easier.
+
+Side Quests remain optional unless explicitly promoted because evidence shows they are causally necessary for a Main Quest exit gate.
