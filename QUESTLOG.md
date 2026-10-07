@@ -1163,6 +1163,28 @@ quest requalification
 
 An agent therefore receives not only a task, but a position inside a durable causal history of work.
 
+# Human continuity checkpoint rule
+
+A Main Quest transition has a human-facing continuity boundary.
+
+After a Main Quest is closed or materially requalified, the agent must return a visible checkpoint to the active human session before entering the next Main Quest.
+
+The checkpoint must state:
+- Main Quest disposition;
+- implementation/evidence state;
+- falsification result;
+- known non-claims or remaining dependencies;
+- next mandatory Main Quest.
+
+This is an entropy-reduction mechanism for human continuity and persistence.
+
+It does **not** mean:
+- every ordinary implementation step requires approval;
+- the agent should stop from fear after ordinary RED results;
+- Side Quests automatically preempt the Main Quest.
+
+The agent may continue after the checkpoint unless a new authority or operator-reserved decision is required.
+
 # Main Quest extension rule
 
 The Main Questline is extendable.
