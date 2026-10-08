@@ -18,14 +18,14 @@
 | Suffixe `4603aed` | non résolu en objet Git; le snapshot n'est pas un dépôt Git (`git rev-parse` échoue) | UNKNOWN |
 | Nombre de fichiers | 95 (`find -type f`, 2026-10-08) | VERIFIED_NOW, égal au receipt |
 | Digest du receipt | `5a7831ec1293c0dd810cef11c4b953bba6a891c2065b24ac63b43f4f40218b2d` | HISTORICAL_RECEIPT |
-| Recalcul du digest | **non reproduit**: la méthode exacte (« SHA-256 of sorted per-file SHA-256 manifest ») n'est pas spécifiée; une dizaine de canonicalisations plausibles (tri par chemin ou par hash, avec/sans chemins, préfixe `./`, newline final) ont donné des digests différents | NOT_PROVEN (méthode inconnue, pas un échec démontré du snapshot) |
+| Recalcul du digest | **reproduit** par B01 et l'intégrateur avec `find . -type f -print0 \| sort -z \| xargs -0 sha256sum \| sha256sum` depuis le snapshot: 95 fichiers, digest exact | VERIFIED_NOW (méthode empirique compatible avec le reçu, recette historique non spécifiée) |
 
-Le contenu du snapshot ayant pu changer n'est donc pas exclu par ce dossier; seul le nombre de fichiers concorde. Action ouverte: obtenir la méthode de calcul du digest auprès de l'auteur du receipt.
+B01 et l'intégrateur ont recomputé le digest de façon indépendante, avant et après lecture: `5a7831ec1293c0dd810cef11c4b953bba6a891c2065b24ac63b43f4f40218b2d`. La recette est **empiriquement reproduite**, sans prouver que `4603aed` désigne un commit Git vivant.
 
 ## Version, licence, metadata (déclaratives)
 
-- Version `0.14.0`: `Cargo.toml` workspace, tous les crates, et `readiness.md` (« engine + spec are versioned together at 0.14.0 »).
-- Licence `GPL-3.0-or-later`: déclarée dans `[workspace.package]`, `blobin-core`, `blobin-gen`, `blobin-golden`, `blobin-gpui`. Absente des manifestes `blobin-bench` et `blobin-cxxqt`. Aucun fichier `LICENSE*`/`COPYING*` dans le snapshot (`find`, 2026-10-08).
+- Version workspace Rust: `0.14.0` (Cargo/readiness); version de `tokens.json`: `0.20.0` (TOKEN_AUTHORITY_REPORT). Les deux déclarations existent; leur rôle respectif dans la version produit n'est pas ratifié.
+- Licence déclarative **contradictoire**: `GPL-3.0-or-later` dans Cargo, `AGPL-3.0` dans `components.toml` du baseline parent et texte AGPL-3.0 dans `LICENSE` du parent. Aucun fichier `LICENSE`/`COPYING` dans le sous-répertoire blob.in; aucune conclusion juridique ou droit de redistribution ne découle de ce constat.
 - Repository: `https://github.com/gnu-in-labs/blob.in` (metadata `repository`), état non qualifié.
 - `rust-version = 1.82` (`blobin-core`); `edition = 2021`.
 - Dépendances notables: `lyon 1.0`, `glam 0.27`, `cxx 1.0`, `rayon 1.10` (optionnel), `cxx-qt 0.8`, `png 0.17`, `criterion 0.5`, `serde 1.0`, `gpui` (git Zed, rev épinglé).
