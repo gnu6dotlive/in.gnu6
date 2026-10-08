@@ -1,0 +1,6 @@
+CUDA02_CASE_PASS requested=auto backend=cuda primitives=16 dpr=1 pixels=49152 authority_epoch=0 authority_digest=b4fdb097b45a9772 left_id=2970288129 right_id=2970288130 max_field=0.000000060 max_normal=0.000035655 max_coverage=0.000000715 mismatches=0 boundary_mismatches=0 cpu_oracle_ms=33.681520 backend_end_to_end_ms=521.122132
+CUDA02_PASS requested=auto primitives=16 dpr=1 verified_providers=1 negative_numeric=PASS f2_authority=PASS
+CUDA02_CASE_PASS requested=auto backend=vulkan primitives=16 dpr=1 pixels=49152 authority_epoch=0 authority_digest=b4fdb097b45a9772 left_id=2970288129 right_id=2970288130 max_field=0.000000119 max_normal=0.000067443 max_coverage=0.000005323 mismatches=0 boundary_mismatches=0 cpu_oracle_ms=31.820606 backend_end_to_end_ms=168.871178
+CUDA02_PASS requested=auto primitives=16 dpr=1 verified_providers=1 negative_numeric=PASS f2_authority=PASS
+CUDA02_CASE_PASS requested=auto backend=cpu primitives=16 dpr=1 pixels=49152 authority_epoch=0 authority_digest=b4fdb097b45a9772 left_id=2970288129 right_id=2970288130 max_field=0.000000000 max_normal=0.000000000 max_coverage=0.000000000 mismatches=0 boundary_mismatches=0 cpu_oracle_ms=36.334534 backend_end_to_end_ms=40.591370
+CUDA02_PASS requested=auto primitives=16 dpr=1 verified_providers=1 negative_numeric=PASS f2_authority=PASS
