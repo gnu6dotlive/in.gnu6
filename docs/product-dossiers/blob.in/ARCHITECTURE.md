@@ -1,52 +1,54 @@
-# blob.in — Architecture des composants (interne)
+# blob.in — Architecture (interne)
 
-**Statut:** `DRAFT_INTERNAL / HISTORICAL_SNAPSHOT`. Les descriptions proviennent du snapshot `appstack-b3-baseline-4603aed`, `engine/blob.in` et du receipt `SQ-003`; elles ne sont pas un relevé du HEAD actuel d'un dépôt amont.
+**Statut:** `DRAFT_INTERNAL / PUBLICATION_NOT_AUTHORIZED / HISTORICAL_SNAPSHOT`
 
-## Chaîne des responsabilités
+Source de tout ce document: snapshot `/mnt/workbench/build/appstack-b3-baseline-4603aed/engine/blob.in` (lecture seule) et le receipt `docs/provenance/donor-blobin-appstack-b3-4603aed.md`. Les chemins entre backticks sont relatifs au snapshot. Ce n'est pas un relevé d'un HEAD amont. Retour: [README](README.md).
+
+## Diagramme
 
 ```text
-tokens.json ── blobin-gen ──> tokens.rs / Rust + C++ + GPUI themes
-                                   |
-geometry/path + solver/state ──> blobin-core (Rust)
-                                   |
-                      mesh/flat buffer + cxx bridge
-                                   |
-                  Qt6 C++ / QSG / shaders (projection)
-                                   |
-                         scène native consommateur
+tokens.json ──blobin-gen──> blobin-core/src/tokens.rs        (constantes solveur)
+                       ├──> gen/gnu_theme.rs                  (consommateurs Rust)
+                       ├──> gen/gnu_theme.h                   (C++ constexpr)
+                       └──> gen/gnu_theme.gpui.rs             (palette GPUI)
 
-blobin-golden: oracles CPU + images de référence + parité
-blobin-bench: mesures spécialisées (pas qualification live par défaut)
-blobin-gpui: adapter consommateur présent, mais dépendance non disponible
+                 blobin-core  (Rust, staticlib + rlib)
+   path / blob / group ─> tessellate (lyon) ─> engine / pool (scheduler)
+   solve (easing, ressort)  state (mascotte)  material  raster/diff (oracle CPU)
+                       │
+                  ffi.rs  #[cxx::bridge]   FfiVertex / FfiMaterial (#[repr(C)])
+                       │      buffers plats vertices/indices/material
+        ┌──────────────┴───────────────┐
+   blobin-qt (C++/CMake, Corrosion)   blobin-cxxqt (CXX-Qt 0.8)
+   QQuickItem, QSGGeometry,           objets réactifs Mascot / Bloom
+   QSGMaterial, shaders .qsb          (Q_PROPERTY + signaux)
+                       │
+              scène Qt Quick (consommateur)
+
+   blobin-gpui ──> blobin-core + gnosis-gpui-theme (ABSENT) + gpui (Zed, rev épinglé)
+
+   blobin-golden : raster CPU vs PNG de référence (pixel-diff + SSIM)
+   blobin-bench  : Criterion (frame_budget, scheduler_throughput)
 ```
 
-## Crates et modules
+## Crates et composants
 
-| Module | Responsabilité observée dans la source | Limite de l'assertion |
+| Composant | Rôle (source) | Limite de l'assertion |
 |---|---|---|
-| `blobin-core` | `Path/Contour`, `RectBlob`, `SuperBlob`, `Inverted`, transforms glam, Lyon fill/tessellation | Core indépendant validé historiquement |
-| `blobin-core` dynamics | Damped spring, easing cubic-Bézier, interpolation d'état, scheduler/dirty/cold | Causalité runtime à requalifier si changement |
-| `blobin-core::ffi` | `#[cxx::bridge]` pour exporter les buffers vers la projection | Ne prouve pas un FFI universel ou stable |
-| `blobin-qt` | QQuickItem, QSGGeometry/QSGMaterial, Qt RHI et shaders | Build de copie reconstruite historiquement PASS |
-| `blobin-cxxqt` | Objets réactifs de surface | Test isolé historiquement PASS |
-| `blobin-gen` | Production des tokens de thèmes et constantes depuis `tokens.json` | Vérifier la synchronisation sur toute nouvelle source |
-| `blobin-golden` | Référence de rendu CPU, oracles pixel/SSIM | Parité historique ≠ nouveau run matériel |
-| `blobin-bench` | Harnais Criterion pour métriques | Requiert machine, protocole et runs datés |
-| `blobin-gpui` | Adaptateur/consommateur GPUI | Workspace parent incomplet dans l'export préservé |
+| `blobin-core` | Moteur: `path.rs` (Bézier cubique), `blob.rs` (`RectBlob`, `SuperBlob`, `Inverted`), `group.rs` (affine glam), `tessellate.rs` (lyon), `solve.rs`, `material.rs`, `raster.rs`, `diff.rs`, `state.rs`, `engine.rs`, `bloom.rs`, `pool.rs`, `backend.rs`, `ffi.rs`, `tokens.rs` (généré). Crate-type `staticlib` + `rlib`; feature `threaded-solver` (rayon) par défaut. `rust-version = 1.82`. | Présence du code OBSERVÉE; comportement = receipts historiques |
+| `blobin-core::ffi` | Seul pont chaud: `#[cxx::bridge]` exposant `EngineHandle`, `SchedulerHandle`, `BloomHandle`, `FfiVertex`, `FfiMaterial`, `backend_from_env()` | Ne prouve ni FFI stable ni ABI publique |
+| `blobin-qt` | Shim C++ (CMake + Corrosion, pas de `Cargo.toml`): `blobin_item.*`, `blobin_material.*`, `blobin_bloom_item.*`, `shaders/blob.{vert,frag}`, harnais `tests/render_goldens` | Garde LoC: 282/300 (VERIFIED_NOW, voir VERIFICATION) |
+| `blobin-cxxqt` | Surface réactive CXX-Qt (`mascot.rs`, `bloom.rs`), crate `staticlib` | 1 test, historique |
+| `blobin-gen` | Binaire: `tokens.json` → Rust, thèmes Rust/C++/GPUI (serde) | 7 tests, historique |
+| `blobin-golden` | Goldens matériaux + binaire `diff-png`; preuves GPU archivées sous `r8-hardware/` | 4 tests, historique |
+| `blobin-bench` | Benchmarks Criterion 0.5 | NOT_RUN |
+| `blobin-gpui` | Adaptateur GPUI (`canvas.rs`, `orb.rs`); dépend de `gnosis-gpui-theme` (chemin `../../gnosis-gpui-theme`) et de `gpui` (git zed-industries/zed, rev `00bd72e7838f4b875a913cd112b47a0ebe1ca62b`) | Non buildable dans l'export: dépendance locale absente |
 
-## Distinctions nécessaires
+## Ownership (qui possède quoi)
 
-**Le cœur géométrique Rust n'est pas la projection Qt.** L'interface peut exposer des buffers de maillage plats sans transférer toute la dynamique ni toute la gestion d'état à QSG.
-
-**Les tokens sont une source déclarative.** Évaluer séparément les garanties réelles de synchronisation entre `tokens.json`, sorties générées et consommateurs. Les anciens choix QML/Dart sont retirés selon la documentation historique: ne pas les présenter comme des cibles actuelles garanties.
-
-**Backend C++:** le nom de variable `BLOBIN_BACKEND=cpp` est documenté, mais le code et le receipt ne prouvent pas un fallback C++ complet. Pas de diagramme donnant ce chemin comme `AVAILABLE`.
-
-**Lien avec `in.gnu6`:** seules des lois donor et des fixtures ont été récoltées (`tests/fixtures/blobin-donor.ts`, `tests/model/blobin-donor-laws.test.ts`). `in.gnu6` possède sa propre ontologie scène/topologie/temps. Il ne faut pas fusionner silencieusement ces deux moteurs.
-
-## Prochaines preuves
-
-1. Identifier un HEAD blob.in vivant et sa provenance si disponible, sans remplacer le snapshot historique par supposition.
-2. Résoudre la frontière GPUI d'une manière non intrusive (copie de qualification, pas patch direct du donor).
-3. Requalifier les chemins de rendu et les écarts GPU à la demande sur machine instrumentée.
-4. Reconstituer le statut R10 et les décisions de release avant toute publication.
+| Sujet | Propriétaire dans la source | Ce qui n'est PAS transféré |
+|---|---|---|
+| Géométrie, tessellation, solveurs, état, ordonnancement, matériau (mathématique) | `blobin-core` (Rust) | Qt ne recalcule rien; il reçoit des buffers plats |
+| Projection de scène (nœuds, géométrie GPU, shader) | `blobin-qt` (C++), budget ≤ 300 LoC | La sémantique des états reste côté Rust |
+| Constantes de mouvement/couleur | `tokens.json` (source déclarative unique) | Les sorties générées sont des dérivés; leur synchro = garde R1 |
+| Surface réacti
