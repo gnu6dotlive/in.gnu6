@@ -1,0 +1,9 @@
+sample	dpr	reduced	backend	damage_x	damage_y	damage_w	damage_h	changed_pixels	explicit_submits	workgroups	wall_ms	semantic_digest
+0	1	false	cpu	23	19	12	10	120	0	0	0.000054	b4fdb097b45a9772
+1	1	false	cpu	23	19	12	10	120	0	0	0.000027	b4fdb097b45a9772
+2	1	false	cpu	23	19	12	10	120	0	0	0.000015	b4fdb097b45a9772
+3	1	false	cpu	23	19	12	10	120	0	0	0.000015	b4fdb097b45a9772
+4	1	false	cpu	23	19	12	10	120	0	0	0.000014	b4fdb097b45a9772
+5	1	false	cpu	23	19	12	10	120	0	0	0.000014	b4fdb097b45a9772
+6	1	false	cpu	23	19	12	10	120	0	0	0.000013	b4fdb097b45a9772
+7	1	false	cpu	23	19	12	10	120	0	0	0.000049	b4fdb097b45a9772
