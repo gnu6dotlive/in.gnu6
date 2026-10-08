@@ -55,3 +55,14 @@ blob.in est un produit à part entière. Sa relation avec `in.gnu6` (donor de lo
 - Il décrit un **snapshot historique**, pas le HEAD d'un dépôt amont vivant (non identifié).
 - Les faits vérifiables de B01 sont désormais **réconciliés** dans [VERIFICATION.md](VERIFICATION.md) avec contre-vérification de l'intégrateur. Les contradictions C1–C4 restent ouvertes; B01 et B02 demeurent des rapports indépendants. Voir [B01](../../agent-results/par-01/blobin-research.md).
 - Il ne modifie ni le snapshot, n
+## New product direction — GPU-first Rust engine (design, not a release)
+
+This internal product dossier now includes a future-facing, independently authored research program. These specifications do **not** ratify a license or modify the preserved blob.in snapshot:
+
+- [GPU-first/CPU-complete engine architecture](FUTURE_ENGINE.md)
+- [16 challenging topology and UX experiences](EXPERIENCE_ATLAS.md)
+- [Technology selection radar](TECH_RADAR.md)
+- [Machine-readable experiment catalogue](experiments.json)
+- [Parallel clean-room R&D contracts](../../../contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/README.md) (see root-level contracts path; editorial cross-reference)
+
+Target: GPU accelerated offscreen Rust renderer, CPU functionally complete reference, verified semantic and pixel parity, graceful GPU-loss behavior. The historical donor remains read-only and publication is not authorized.
