@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "batch_id": "IN-GNU6-PAR-01",
+  "state": "CONTRACTS_READY_WORKERS_NOT_STARTED",
+  "created_at": "2026-10-08",
+  "repository": "tension-atoi/in.gnu6",
+  "visibility": "private",
+  "creation_base_sha": "d160639e804c244a84197d8dc4906ffa2df313e8",
+  "worker_base_policy": "derive from commit containing this dispatch manifest; do not use stale creation SHA",
+  "common_contract": "contracts/agent-batches/2026-10-08/00-BASE.md",
+  "integrator_contract": "contracts/agent-batches/2026-10-08/09-INTEGRATION.md",
+  "worker_worktree_root": "/mnt/workbench/workspaces/gnu.in.labs/.worktrees/",
+  "repository_worktree_template": "in-gnu6-par-01-{id}",
+  "launch_policy": {
+    "create_worktrees_per_worker": true,
+    "execute_agents": false,
+    "common_read_only_except_allowlisted_writes": true,
+    "merge": "single_integrator",
+    "push": false,
+    "publish": false,
+    "modify_production": false
+  },
+  "workers": [
+    {
+      "id": "A01",
+      "contract": "contracts/agent-batches/2026-10-08/01-ONTOLOGY.md",
+      "purpose": "in.gnu6 core source atlas",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/engine-ontology.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "A02",
+      "contract": "contracts/agent-batches/2026-10-08/02-RENDERERS.md",
+      "purpose": "renderer contract/projection evidence",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/renderer-envelope.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "A03",
+      "contract": "contracts/agent-batches/2026-10-08/03-CONSUMERS.md",
+      "purpose": "qualified consumers/handoffs",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/consumer-bridges.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "A04",
+      "contract": "contracts/agent-batches/2026-10-08/04-GNOSUX.md",
+      "purpose": "read-only Gnosix/gnos.ux interop survey",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/gnosux-compatibility.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "A05",
+      "contract": "contracts/agent-batches/2026-10-08/05-PERFORMANCE.md",
+      "purpose": "performance/introspection truth",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/observation-performance.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "A06",
+      "contract": "contracts/agent-batches/2026-10-08/06-DOCS-BRIDGE.md",
+      "purpose": "public docs candidate review, no publication",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/public-docs-candidates.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "B01",
+      "contract": "contracts/agent-batches/2026-10-08/07-BLOBIN-RESEARCH.md",
+      "purpose": "blob.in independent source archaeology",
+      "exclusive_write_set": [
+        "docs/agent-results/par-01/blobin-research.md"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    },
+    {
+      "id": "B02",
+      "contract": "contracts/agent-batches/2026-10-08/08-BLOBIN-DOCS.md",
+      "purpose": "blob.in docs authoring from qualified historical baseline",
+      "exclusive_write_set": [
+        "docs/product-dossiers/blob.in/"
+      ],
+      "parallel_start": true,
+      "requires": [
+        "repo contracts and current HEAD verification"
+      ],
+      "handoff": "local commit + evidence + status"
+    }
+  ],
+  "handoff_rule": "B01 research and B02 docs run concurrently; reconciliation after both report; disputed claims remain UNKNOWN",
+  "global_forbidden": [
+    "git push",
+    "public package/npm/CDN release",
+    "VPS/Coolify deployments",
+    "mutate source snapshot",
+    "modify other worker worktree",
+    "alter AGENTS.md/CONTRACT.md/QUESTLOG.md",
+    "reopen SQ-003 automatically",
+    "invent public APIs"
+  ]
+}
