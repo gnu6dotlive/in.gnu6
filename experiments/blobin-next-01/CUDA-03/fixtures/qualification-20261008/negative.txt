@@ -1,0 +1,5 @@
+CUDA03_EXPECTED_FAIL case=required_lib exit=1
+CUDA03_EXPECTED_FAIL case=absent_lib exit=1
+CUDA03_EXPECTED_FAIL case=bad_iterations exit=1
+CUDA03_EXPECTED_FAIL case=bad_count exit=1
+CUDA03_EXPECTED_FAIL case=missing_vulkan exit=1
