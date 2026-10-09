@@ -1,0 +1,16 @@
+{
+  "baseline_control": "PASS",
+  "distinct_service_identity_gate": "NOT_QUALIFIED",
+  "limits": "No second host service UID; no cross-UID access proof; no physical GPU fault",
+  "namespace_distinct_host_uid": false,
+  "namespace_inside_root": true,
+  "namespace_root_probe": "OBSERVED",
+  "observed_utc": "2026-10-09T22:51:04.337441+00:00",
+  "production_authorization": "DENIED",
+  "protocol_commit": "ee0ea36bae0950c04e13100c7f53cf7e643c82c4",
+  "raw_sha256": "b7fc1202b003c70418071815f1bd37dd6eed45a7f96b5f05c03866756083a4bf",
+  "schema": "CUDA05D.PUBLIC.v1",
+  "source_visibility": "experiment source not necessarily publicly accessible",
+  "subordinate_mapping": "mapping_or_connect_unavailable",
+  "subordinate_peer_distinct_host_uid": false
+}

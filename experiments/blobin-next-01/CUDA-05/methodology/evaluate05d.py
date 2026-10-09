@@ -45,7 +45,12 @@ def main():
     raw_bytes=(EVID/"identity-observations.json").read_bytes()
     raw=json.loads(raw_bytes)
     result=analyze(raw)
-    parent_commit=subprocess.check_output(["git","-C",str(BASE),"rev-parse","HEAD"],text=True).strip()
+    # Pin the FIRST committed protocol introduction, not the mutable branch HEAD.
+    rel="05D-PREREG.md"
+    revisions=subprocess.check_output(["git","-C",str(BASE),"log","--diff-filter=A",
+        "--format=%H","--",rel],text=True).strip().splitlines()
+    if len(revisions)!=1: raise RuntimeError("CUDA05D FROZEN PROTOCOL COMMIT UNRESOLVED")
+    parent_commit=revisions[0]
     result["protocol_commit"]=parent_commit
     result["raw_sha256"]=hashlib.sha256(raw_bytes).hexdigest()
     (EVID/"interpretation.json").write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")

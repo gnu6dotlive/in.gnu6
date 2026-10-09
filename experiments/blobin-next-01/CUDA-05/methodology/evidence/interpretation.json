@@ -1,0 +1,19 @@
+{
+  "baseline_control": "PASS",
+  "distinct_service_identity_gate": "NOT_QUALIFIED",
+  "methodological_decision": "INCOMPLETE_EVIDENCE_DO_NOT_PROMOTE",
+  "namespace_distinct_host_uid": false,
+  "namespace_inside_root": true,
+  "namespace_root_probe": "OBSERVED",
+  "observed_not_proved": [
+    "No supervisor process with a second host UID was executed.",
+    "No cross-UID authorized and unauthorized socket paths were exercised.",
+    "No GPU fault, driver reset or production service configuration was changed."
+  ],
+  "production_authorization": "DENIED",
+  "protocol_commit": "ee0ea36bae0950c04e13100c7f53cf7e643c82c4",
+  "raw_sha256": "b7fc1202b003c70418071815f1bd37dd6eed45a7f96b5f05c03866756083a4bf",
+  "schema": "CUDA05D.ANALYSIS.v1",
+  "subordinate_mapping": "mapping_or_connect_unavailable",
+  "subordinate_peer_distinct_host_uid": false
+}

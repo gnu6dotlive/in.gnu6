@@ -1,0 +1,67 @@
+{
+  "host_egid": 1000,
+  "host_euid": 1000,
+  "limitations": [
+    "SO_PEERCRED from host user namespace, not hardware attestation",
+    "Client self-report is informational and may be forged",
+    "No distinct host account created or service ownership delegated",
+    "A successful namespace mapping alone cannot establish agent authorization"
+  ],
+  "platform": {
+    "kernel_release": "7.2.9-1-cachyos-bore-lto",
+    "python": "3.14.7"
+  },
+  "recorded_utc": "2026-10-09T22:51:04.337441+00:00",
+  "runs": {
+    "baseline": {
+      "client_claim": {
+        "self_egid": 1000,
+        "self_euid": 1000
+      },
+      "command_kind": "baseline",
+      "kernel_peer": {
+        "gid": 1000,
+        "pid": 741268,
+        "uid": 1000
+      },
+      "process": {
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "",
+        "timeout": false
+      }
+    },
+    "namespace_root": {
+      "client_claim": {
+        "self_egid": 0,
+        "self_euid": 0
+      },
+      "command_kind": "namespace-root",
+      "kernel_peer": {
+        "gid": 1000,
+        "pid": 741273,
+        "uid": 1000
+      },
+      "process": {
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "",
+        "timeout": false
+      }
+    },
+    "subordinate_auto": {
+      "client_claim": null,
+      "command_kind": "subordinate-auto",
+      "kernel_peer": null,
+      "process": {
+        "exit_code": 1,
+        "stderr": "newuidmap: Could not set caps\n",
+        "stdout": "",
+        "timeout": false
+      }
+    }
+  },
+  "schema": "CUDA05D.IDENTITIES.v1",
+  "socket_directory_mode": "0o700",
+  "socket_mode": "0o600"
+}
