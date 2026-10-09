@@ -1,0 +1,10 @@
+[package]
+name = "blobin-cuda05-ingress"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+blobin-cuda04-bridge = { path = "../CUDA-04" }
+blobin-cuda02-provider = { path = "../CUDA-02" }
+blobin-f2-topology = { path = "../F2" }
