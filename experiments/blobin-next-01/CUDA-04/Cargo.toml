@@ -1,0 +1,10 @@
+[package]
+name = "blobin-cuda04-bridge"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+blobin-cuda02-provider = { path = "../CUDA-02" }
+sha2 = "=0.10.9"
+blobin-f2-topology = { path = "../F2" }
