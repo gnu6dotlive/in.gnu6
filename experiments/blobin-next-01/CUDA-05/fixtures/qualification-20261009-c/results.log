@@ -1,0 +1,60 @@
+CUDA05C_NORMAL_PASS backend=cuda index=0 command=STATUS response=STATE generation=None launches=0 peer_uid=1000
+CUDA05C_NORMAL_PASS backend=cuda index=1 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_NORMAL_PASS backend=cuda index=2 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_NORMAL_PASS backend=cuda index=3 command=RENDER response=RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_NORMAL_PASS backend=cuda index=4 command=REVOKE response=REVOKED peer_uid=1000
+CUDA05C_NORMAL_PASS backend=cuda index=5 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_NORMAL_PASS backend=cuda index=6 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_NORMAL_PASS backend=cuda index=7 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_NORMAL_PASS backend=cuda index=8 command=STATUS response=STATE generation=Some(2) launches=4 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=0 command=STATUS response=STATE generation=None launches=0 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=1 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=2 command=RENDER response=DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=3 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=4 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=5 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=crash index=6 command=STATUS response=STATE generation=Some(2) launches=4 peer_uid=1000
+CUDA05C_FAULT_PASS backend=cuda fault=crash revoked=PASS recovered=PASS
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=0 command=STATUS response=STATE generation=None launches=0 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=1 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=2 command=RENDER response=DENIED reason=CUDA05C_WORKER_TIMEOUT_KILLED
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=3 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=4 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=5 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=cuda fault=hang index=6 command=STATUS response=STATE generation=Some(2) launches=4 peer_uid=1000
+CUDA05C_FAULT_PASS backend=cuda fault=hang revoked=PASS recovered=PASS
+CUDA05C_DENY_PASS backend=cuda configured_wrong_uid=REJECTED
+CUDA05C_NORMAL_PASS backend=vulkan index=0 command=STATUS response=STATE generation=None launches=0 peer_uid=1000
+CUDA05C_NORMAL_PASS backend=vulkan index=1 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_NORMAL_PASS backend=vulkan index=2 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_NORMAL_PASS backend=vulkan index=3 command=RENDER response=RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_NORMAL_PASS backend=vulkan index=4 command=REVOKE response=REVOKED peer_uid=1000
+CUDA05C_NORMAL_PASS backend=vulkan index=5 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_NORMAL_PASS backend=vulkan index=6 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_NORMAL_PASS backend=vulkan index=7 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_NORMAL_PASS backend=vulkan index=8 command=STATUS response=STATE generation=Some(2) launches=4 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=0 command=STATUS response=STATE generation=None launches=0 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=1 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=2 command=RENDER response=DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=3 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=4 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=5 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=crash index=6 command=STATUS response=STATE generation=Some(2) launches=4 peer_uid=1000
+CUDA05C_FAULT_PASS backend=vulkan fault=crash revoked=PASS recovered=PASS
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=0 command=STATUS response=STATE generation=None launches=0 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=1 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=2 command=RENDER response=DENIED reason=CUDA05C_WORKER_TIMEOUT_KILLED
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=3 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=4 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=5 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_FAULT_STEP_PASS backend=vulkan fault=hang index=6 command=STATUS response=STATE generation=Some(2) launches=4 peer_uid=1000
+CUDA05C_FAULT_PASS backend=vulkan fault=hang revoked=PASS recovered=PASS
+CUDA05C_DENY_PASS backend=vulkan configured_wrong_uid=REJECTED
+CUDA05C_TAMPER_STEP_PASS index=0 command=ACQUIRE response=READY generation=1 peer_uid=1000
+CUDA05C_TAMPER_STEP_PASS index=1 command=RENDER response=RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_TAMPER_STEP_PASS index=2 command=RENDER response=DENIED reason=CUDA05C_WORKER_HASH_NOT_APPROVED
+CUDA05C_TAMPER_STEP_PASS index=3 command=RENDER response=DENIED reason=CUDA05C_NO_ACTIVE_GRANT
+CUDA05C_TAMPER_STEP_PASS index=4 command=ACQUIRE response=READY generation=2 peer_uid=1000
+CUDA05C_TAMPER_STEP_PASS index=5 command=RENDER response=RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000
+CUDA05C_TAMPER_PASS backend=cuda same_path_worker=REJECTED restored=PASS
+CUDA05C_ALL_PASS real_backends=2 normal_socket_ops=18 fault_ops=28 worker_tamper_ops=6 injected_crashes=2 injected_timeouts=2 wrong_uid=2 no_gpu_reset=PASS

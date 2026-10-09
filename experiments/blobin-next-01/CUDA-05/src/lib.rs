@@ -7,6 +7,7 @@ use blobin_cuda04_bridge::{
     Device,
 };
 use std::{fs::File, io::Read, path::PathBuf};
+pub mod isolation;
 pub mod socket;
 pub mod supervisor;
 

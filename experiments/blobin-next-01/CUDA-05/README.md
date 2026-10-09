@@ -26,3 +26,18 @@ bash scripts/reproduce05b.sh
 Peer credentials confirm a Linux UID, **not individual agents**. This lab used the same UID for the service and authorized client; a genuinely distinct service principal and production socket provisioning are future work. The CUDA hash was derived from the locally compiled lab binary and does not attest release origin. Each GPU challenge proves working execution **at that instant only**, not resilience to asynchronous loss. Native `dlopen` is not sandboxed. The challenge allocates a fresh GPU resident session per request and has no optimized hot-path guarantee.
 
 See `docs/agent-results/blobin-next-01/CUDA-05B.md` for evidence and next boundaries.
+
+## CUDA-05C — Disposable worker fault isolation
+
+`isolation.rs` owns a finite parent-side generation gate and launches a **fresh GPU worker process** per authorization or render request. `bin/worker05c.rs` performs the fixed real CUDA/Vulkan oracle-qualified workload. `bin/supervise05c.rs` exposes only the bounded local socket commands; it has no GPU context of its own. A worker crash, timeout, or substituted worker executable SHA-256 revokes the grant. CLI-only crash/hang injection is for laboratory testing; the client protocol cannot request arbitrary commands or faults.
+
+Reproduce all ten Rust crates, release worker compilation, actual GPU child-fault tests and the independent offline ledger check:
+
+```bash
+cd experiments/blobin-next-01/CUDA-05
+bash scripts/reproduce05c.sh
+```
+
+The fixed native CUDA-03 library from CUDA-04D must be available at `/mnt/workbench/build/blobin-cuda04d/libblobin_cuda03.so`. Evidence lives in `fixtures/qualification-20261009-c/`.
+
+**This is not host-UID isolation.** User namespace root still maps to host UID 1000; subordinate UID auto-mapping failed because `newuidmap` lacked required capabilities. The service and client therefore run under the same host account in this qualification. Worker executable and CUDA library hashes are derived from local test builds, not trusted provenance. No actual GPU driver/device reset was attempted. The parent kills and reaps the direct child but has no hardened cgroup/namespace/sandbox boundary. See `docs/agent-results/blobin-next-01/CUDA-05C.md`.
