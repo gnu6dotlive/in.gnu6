@@ -76,10 +76,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "blobin-cuda03-resident"
+version = "0.0.0"
+dependencies = [
+ "blobin-cuda02-provider",
+ "blobin-f2-topology",
+ "pollster",
+ "wgpu",
+]
+
+[[package]]
 name = "blobin-cuda04-bridge"
 version = "0.0.0"
 dependencies = [
  "blobin-cuda02-provider",
+ "blobin-cuda03-resident",
  "blobin-f2-topology",
  "sha2",
 ]

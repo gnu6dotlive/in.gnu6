@@ -7,4 +7,5 @@ publish = false
 [dependencies]
 blobin-cuda02-provider = { path = "../CUDA-02" }
 sha2 = "=0.10.9"
+blobin-cuda03-resident = { path = "../CUDA-03" }
 blobin-f2-topology = { path = "../F2" }
