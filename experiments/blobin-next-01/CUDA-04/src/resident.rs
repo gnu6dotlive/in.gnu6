@@ -2,7 +2,7 @@
 use crate::{geometry_id, Device, GeometryId, Output};
 use blobin_cuda02_provider::{Request, Sample};
 use blobin_cuda03_resident::{cuda, vulkan};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 enum Session {
     Cuda(cuda::Resident),
@@ -40,6 +40,7 @@ pub struct ResidentBridge {
     shape: Option<((u32, u32), usize)>,
     stamp: Option<GeometryId>,
     cached: Option<Vec<Sample>>,
+    cuda_path: Option<PathBuf>,
 }
 impl ResidentBridge {
     pub fn new(device: Device) -> Result<Self, String> {
@@ -52,6 +53,7 @@ impl ResidentBridge {
             shape: None,
             stamp: None,
             cached: None,
+            cuda_path: None,
         })
     }
     pub fn invalidate(&mut self) {
@@ -59,6 +61,7 @@ impl ResidentBridge {
         self.shape = None;
         self.stamp = None;
         self.cached = None;
+        self.cuda_path = None;
     }
     pub fn resident_bytes(&self) -> u64 {
         self.session.as_ref().map_or(0, Session::bytes)
@@ -66,6 +69,14 @@ impl ResidentBridge {
     pub fn evaluate(&mut self, req: &Request, library: Option<&Path>) -> Result<Output, String> {
         let id = geometry_id(req)?;
         let shape = (req.dimensions(), req.primitives().len());
+        if self.device == Device::Cuda && library.is_none() {
+            self.invalidate();
+            return Err("CUDA04C CUDA LIBRARY REQUIRED ON EACH REQUEST".into());
+        }
+        let provider_changed = self.device == Device::Cuda && self.cuda_path.as_deref() != library;
+        if provider_changed {
+            self.invalidate();
+        }
         if self.stamp == Some(id) {
             if let (Some(_), Some(samples)) = (&self.session, &self.cached) {
                 return Ok(Output {
@@ -93,6 +104,11 @@ impl ResidentBridge {
             };
             self.session = Some(created);
             self.shape = Some(shape);
+            self.cuda_path = if self.device == Device::Cuda {
+                library.map(Path::to_path_buf)
+            } else {
+                None
+            };
             Ok(())
         } else {
             self.session.as_mut().expect("session").update(req)

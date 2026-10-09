@@ -1,0 +1,134 @@
+CUDA04C_NEGATIVE_PASS absent=PASS switched=PASS recovered=PASS revoked=PASS
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=0 host_ms=0.328361
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=1 host_ms=0.327086
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=2 host_ms=0.334390
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=3 host_ms=0.323968
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=4 host_ms=0.328035
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=5 host_ms=0.326514
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=6 host_ms=0.352453
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=7 host_ms=0.334744
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=8 host_ms=0.338301
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=1 index=9 host_ms=0.328250
+CUDA04C_CASE_PASS backend=cuda count=16 dpr=1 iterations=10 cold_ms=87.335786 cached_ms=0.033814 edited_ms=0.336812 update_p50_ms=0.328250 update_p95_ms=0.352453 rebuild_ms=149.413425 resident_bytes=786688 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=0 host_ms=0.488610
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=1 host_ms=0.588693
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=2 host_ms=0.438381
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=3 host_ms=0.441952
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=4 host_ms=0.411383
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=5 host_ms=0.371724
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=6 host_ms=0.364101
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=7 host_ms=0.352725
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=8 host_ms=0.476813
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=1 index=9 host_ms=0.382649
+CUDA04C_CASE_PASS backend=vulkan count=16 dpr=1 iterations=10 cold_ms=112.237339 cached_ms=0.040426 edited_ms=0.675402 update_p50_ms=0.411383 update_p95_ms=0.588693 rebuild_ms=136.069330 resident_bytes=786704 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=0 host_ms=2.116446
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=1 host_ms=2.710583
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=2 host_ms=2.532957
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=3 host_ms=2.055722
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=4 host_ms=2.524051
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=5 host_ms=2.491905
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=6 host_ms=2.238483
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=7 host_ms=2.225449
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=8 host_ms=2.019762
+CUDA04C_ITER_PASS backend=cuda count=16 dpr=2 index=9 host_ms=1.898545
+CUDA04C_CASE_PASS backend=cuda count=16 dpr=2 iterations=10 cold_ms=74.938640 cached_ms=0.197353 edited_ms=2.102468 update_p50_ms=2.225449 update_p95_ms=2.710583 rebuild_ms=134.439666 resident_bytes=3145984 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=0 host_ms=2.244884
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=1 host_ms=2.336047
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=2 host_ms=2.306147
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=3 host_ms=2.982507
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=4 host_ms=2.234579
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=5 host_ms=2.193635
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=6 host_ms=2.197614
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=7 host_ms=2.149898
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=8 host_ms=2.067341
+CUDA04C_ITER_PASS backend=vulkan count=16 dpr=2 index=9 host_ms=2.182489
+CUDA04C_CASE_PASS backend=vulkan count=16 dpr=2 iterations=10 cold_ms=113.371147 cached_ms=0.265601 edited_ms=2.431302 update_p50_ms=2.197614 update_p95_ms=2.982507 rebuild_ms=132.517420 resident_bytes=3146000 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=0 host_ms=0.429695
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=1 host_ms=0.410386
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=2 host_ms=0.402154
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=3 host_ms=0.411202
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=4 host_ms=0.406317
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=5 host_ms=0.539446
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=6 host_ms=0.509922
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=7 host_ms=0.515133
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=8 host_ms=0.521972
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=1 index=9 host_ms=0.552275
+CUDA04C_CASE_PASS backend=cuda count=64 dpr=1 iterations=10 cold_ms=76.836195 cached_ms=0.056439 edited_ms=0.455910 update_p50_ms=0.429695 update_p95_ms=0.552275 rebuild_ms=208.906200 resident_bytes=787456 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=0 host_ms=1.054631
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=1 host_ms=0.666355
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=2 host_ms=0.695139
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=3 host_ms=0.614491
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=4 host_ms=0.744938
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=5 host_ms=0.662812
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=6 host_ms=0.559473
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=7 host_ms=0.769688
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=8 host_ms=0.749148
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=1 index=9 host_ms=0.612475
+CUDA04C_CASE_PASS backend=vulkan count=64 dpr=1 iterations=10 cold_ms=128.208822 cached_ms=0.056109 edited_ms=0.800098 update_p50_ms=0.666355 update_p95_ms=1.054631 rebuild_ms=154.073352 resident_bytes=787472 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=0 host_ms=2.827843
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=1 host_ms=2.631895
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=2 host_ms=3.777315
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=3 host_ms=2.600798
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=4 host_ms=2.693649
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=5 host_ms=3.234490
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=6 host_ms=3.828086
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=7 host_ms=3.201034
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=8 host_ms=3.422908
+CUDA04C_ITER_PASS backend=cuda count=64 dpr=2 index=9 host_ms=3.435866
+CUDA04C_CASE_PASS backend=cuda count=64 dpr=2 iterations=10 cold_ms=86.338999 cached_ms=0.454189 edited_ms=2.886051 update_p50_ms=3.201034 update_p95_ms=3.828086 rebuild_ms=188.407576 resident_bytes=3146752 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=0 host_ms=2.610530
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=1 host_ms=3.551181
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=2 host_ms=2.844217
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=3 host_ms=2.784698
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=4 host_ms=2.872215
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=5 host_ms=2.816168
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=6 host_ms=3.165005
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=7 host_ms=2.676835
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=8 host_ms=2.985597
+CUDA04C_ITER_PASS backend=vulkan count=64 dpr=2 index=9 host_ms=6.415407
+CUDA04C_CASE_PASS backend=vulkan count=64 dpr=2 iterations=10 cold_ms=127.553029 cached_ms=0.299033 edited_ms=2.941910 update_p50_ms=2.844217 update_p95_ms=6.415407 rebuild_ms=151.812453 resident_bytes=3146768 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=0 host_ms=1.544641
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=1 host_ms=1.164697
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=2 host_ms=1.180688
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=3 host_ms=1.186433
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=4 host_ms=2.910865
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=5 host_ms=5.102193
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=6 host_ms=1.490544
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=7 host_ms=1.162737
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=8 host_ms=1.081170
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=1 index=9 host_ms=1.194336
+CUDA04C_CASE_PASS backend=cuda count=256 dpr=1 iterations=10 cold_ms=88.340158 cached_ms=0.068216 edited_ms=1.356510 update_p50_ms=1.186433 update_p95_ms=5.102193 rebuild_ms=181.785006 resident_bytes=790528 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=0 host_ms=0.917418
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=1 host_ms=0.863149
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=2 host_ms=0.995790
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=3 host_ms=0.940737
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=4 host_ms=0.968034
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=5 host_ms=1.421138
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=6 host_ms=1.940544
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=7 host_ms=1.927561
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=8 host_ms=5.411510
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=1 index=9 host_ms=2.022303
+CUDA04C_CASE_PASS backend=vulkan count=256 dpr=1 iterations=10 cold_ms=123.205084 cached_ms=0.057961 edited_ms=1.027291 update_p50_ms=0.995790 update_p95_ms=5.411510 rebuild_ms=150.268063 resident_bytes=790544 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=0 host_ms=9.613173
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=1 host_ms=27.214120
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=2 host_ms=10.635807
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=3 host_ms=32.244079
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=4 host_ms=57.095319
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=5 host_ms=11.686623
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=6 host_ms=4.262629
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=7 host_ms=4.178514
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=8 host_ms=7.011713
+CUDA04C_ITER_PASS backend=cuda count=256 dpr=2 index=9 host_ms=5.015195
+CUDA04C_CASE_PASS backend=cuda count=256 dpr=2 iterations=10 cold_ms=200.469681 cached_ms=0.236876 edited_ms=15.289675 update_p50_ms=9.613173 update_p95_ms=57.095319 rebuild_ms=181.794482 resident_bytes=3149824 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=0 host_ms=8.074173
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=1 host_ms=11.166206
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=2 host_ms=7.812580
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=3 host_ms=7.432819
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=4 host_ms=9.313377
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=5 host_ms=6.766371
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=6 host_ms=5.933814
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=7 host_ms=10.965113
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=8 host_ms=5.642495
+CUDA04C_ITER_PASS backend=vulkan count=256 dpr=2 index=9 host_ms=12.483870
+CUDA04C_CASE_PASS backend=vulkan count=256 dpr=2 iterations=10 cold_ms=133.244945 cached_ms=0.249028 edited_ms=8.351200 update_p50_ms=7.812580 update_p95_ms=12.483870 rebuild_ms=151.209474 resident_bytes=3149840 numeric=PASS stale=PASS epoch=PASS transpose=PASS rebuild=PASS
+CUDA04C_ALL_PASS cases=12 iterations=120 negatives=4
