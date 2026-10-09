@@ -1,0 +1,21 @@
+{
+  "amendment_commit": "fbd752d322a148f6d83279bef5cf04b4f9436374",
+  "container_configuration": "PASS",
+  "group_dac_rejection": "PASS",
+  "host_service_principal": "PASS",
+  "kernel_peer_authorization": "PASS",
+  "lifecycle_cleanup": "PASS",
+  "limitations": [
+    "Privileged Docker daemon is an ambient authority",
+    "An ephemeral scripted service, not the GPU production supervisor",
+    "Only one lab repetition; no hostile daemon or hardware fault",
+    "The service's PID namespace masks external peer PIDs; UID is the tested signal",
+    "Digest does not provide independent access to private raw evidence"
+  ],
+  "post_denial_service_continuity": "PASS",
+  "production_authorization": "DENIED",
+  "protocol_commit": "84f82a786d80981edd824a2d9c81f4bbfd105c71",
+  "raw_sha256": "d41fa48b43a3b393c182368704585fd81dfcaaaf39427180a836d5c461ded69d",
+  "schema": "CUDA05E.INTERPRETATION.v1",
+  "test_population": "one disposable server, three accepted socket connections, one DAC-blocked attempt"
+}
