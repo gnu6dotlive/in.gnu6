@@ -1,0 +1,11 @@
+UTC=2026-10-09T22:17:33Z
+HEAD=bfebf176512950af29745b219d4b579cdac27c3d
+BRANCH=feat/blobin-cuda-05b-supervisor
+GPU=NVIDIA GeForce RTX 3070, 8192 MiB, 615.71.09
+RUSTC=rustc 1.97.0 (2d8144b78 2026-07-07)
+NVCC=Build cuda_13.4.r13.4/compiler.38855100_0
+SERVICE_UID=1000
+NATIVE_SHA256=4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943
+SAME_UID_NOTE=Service and authorized client ran with the same Linux UID; distinct-principal isolation not demonstrated.
+HEALTH_NOTE=Live GPU dispatch checks are point-in-time; no physical device reset.
+PROVIDER_NOTE=Local SHA256 from local experimental build is not a signature or trustworthy origin.

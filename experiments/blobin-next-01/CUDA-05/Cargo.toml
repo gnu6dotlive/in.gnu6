@@ -8,3 +8,4 @@ publish = false
 blobin-cuda04-bridge = { path = "../CUDA-04" }
 blobin-cuda02-provider = { path = "../CUDA-02" }
 blobin-f2-topology = { path = "../F2" }
+libc = "=0.2.190"

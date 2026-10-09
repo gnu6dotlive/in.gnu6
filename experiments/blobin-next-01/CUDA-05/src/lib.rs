@@ -6,7 +6,9 @@ use blobin_cuda04_bridge::{
     resident::{ObservedFrame, ResidentBridge},
     Device,
 };
-use std::path::PathBuf;
+use std::{fs::File, io::Read, path::PathBuf};
+pub mod socket;
+pub mod supervisor;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ProbeState {
@@ -14,13 +16,14 @@ pub enum ProbeState {
     Unavailable,
 }
 /// This trait is a test seam. A caller-provided implementation is NOT a trusted probe.
-pub trait Probe {
+pub(crate) trait Probe {
     fn check(&self, device: Device) -> Result<ProbeState, String>;
 }
 
-pub struct Permit {
+pub(crate) struct Permit {
     generation: u64,
     device: Device,
+    instance: [u8; 16],
 }
 impl Permit {
     pub fn generation(&self) -> u64 {
@@ -28,12 +31,13 @@ impl Permit {
     }
 }
 
-pub struct Ingress {
+pub(crate) struct Ingress {
     bridge: ResidentBridge,
     device: Device,
     provider_path: Option<PathBuf>,
     expected_hash: Option<[u8; 32]>,
     generation: Option<u64>,
+    instance: [u8; 16],
 }
 impl Ingress {
     pub fn new(
@@ -49,12 +53,18 @@ impl Ingress {
         {
             return Err("CUDA05 APPROVED CUDA PATH AND HASH REQUIRED".into());
         }
+        let mut instance = [0u8; 16];
+        File::open("/dev/urandom")
+            .map_err(|e| format!("CUDA05B ENTROPY SOURCE {e}"))?
+            .read_exact(&mut instance)
+            .map_err(|e| format!("CUDA05B ENTROPY READ {e}"))?;
         Ok(Self {
             bridge: ResidentBridge::new_managed(device, expected_hash)?,
             device,
             provider_path,
             expected_hash,
             generation: None,
+            instance,
         })
     }
     pub fn revoke(&mut self) -> Result<(), String> {
@@ -75,6 +85,7 @@ impl Ingress {
         Ok(Permit {
             generation,
             device: self.device,
+            instance: self.instance,
         })
     }
     fn verify_provider(&self) -> Result<(), String> {
@@ -86,7 +97,10 @@ impl Ingress {
         Ok(())
     }
     pub fn evaluate(&mut self, permit: &Permit, req: &Request) -> Result<ObservedFrame, String> {
-        if self.generation != Some(permit.generation) || permit.device != self.device {
+        if self.generation != Some(permit.generation)
+            || permit.device != self.device
+            || permit.instance != self.instance
+        {
             return Err("CUDA05 STALE OR FOREIGN PERMIT".into());
         }
         if self.device == Device::Cuda {
@@ -140,6 +154,21 @@ mod tests {
         )
         .unwrap();
         assert!(i.evaluate(&old, &req).is_err());
+    }
+    #[test]
+    fn permit_cannot_cross_ingress_instances_even_at_matching_generation() {
+        let mut source = Ingress::new(Device::Vulkan, None, None).unwrap();
+        let mut target = Ingress::new(Device::Vulkan, None, None).unwrap();
+        let foreign = source.acquire(&Fixed(ProbeState::Ready)).unwrap();
+        let local = target.acquire(&Fixed(ProbeState::Ready)).unwrap();
+        assert_eq!(foreign.generation(), local.generation());
+        let req = Request::from_f2(
+            blobin_f2_topology::Scene::default(),
+            blobin_cuda02_provider::generate_scene(16),
+        )
+        .unwrap();
+        assert!(target.evaluate(&foreign, &req).is_err());
+        assert_eq!(target.health_generation(), Some(local.generation()));
     }
     #[test]
     fn denied_missing_cuda_policy() {

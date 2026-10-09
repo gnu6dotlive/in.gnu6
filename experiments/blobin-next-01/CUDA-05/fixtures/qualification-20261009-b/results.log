@@ -1,0 +1,32 @@
+CUDA05B_SOCKET_PASS backend=cuda index=0 command=STATUS response=STATE generation=None challenges=0 peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=1 command=RENDER response=DENIED reason=CUDA05B_NO_ACTIVE_PERMIT
+CUDA05B_SOCKET_PASS backend=cuda index=2 command=ACQUIRE response=READY generation=3 peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=3 command=RENDER response=RENDER_PASS generation=3 cache_hit=false parity=PASS peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=4 command=RENDER response=RENDER_PASS generation=3 cache_hit=true parity=PASS peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=5 command=REVOKE response=REVOKED peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=6 command=RENDER response=DENIED reason=CUDA05B_NO_ACTIVE_PERMIT
+CUDA05B_SOCKET_PASS backend=cuda index=7 command=ACQUIRE response=READY generation=7 peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=8 command=RENDER response=RENDER_PASS generation=7 cache_hit=false parity=PASS peer_uid=1000
+CUDA05B_SOCKET_PASS backend=cuda index=9 command=STATUS response=STATE generation=Some(7) challenges=5 peer_uid=1000
+CUDA05B_DEVICE_PASS backend=cuda probe_challenges=5 socket_peer=OS_UID parity=PASS
+CUDA05B_DENY_PASS backend=cuda wrong_uid=REJECTED
+CUDA05B_SOCKET_PASS backend=vulkan index=0 command=STATUS response=STATE generation=None challenges=0 peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=1 command=RENDER response=DENIED reason=CUDA05B_NO_ACTIVE_PERMIT
+CUDA05B_SOCKET_PASS backend=vulkan index=2 command=ACQUIRE response=READY generation=3 peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=3 command=RENDER response=RENDER_PASS generation=3 cache_hit=false parity=PASS peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=4 command=RENDER response=RENDER_PASS generation=3 cache_hit=true parity=PASS peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=5 command=REVOKE response=REVOKED peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=6 command=RENDER response=DENIED reason=CUDA05B_NO_ACTIVE_PERMIT
+CUDA05B_SOCKET_PASS backend=vulkan index=7 command=ACQUIRE response=READY generation=7 peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=8 command=RENDER response=RENDER_PASS generation=7 cache_hit=false parity=PASS peer_uid=1000
+CUDA05B_SOCKET_PASS backend=vulkan index=9 command=STATUS response=STATE generation=Some(7) challenges=5 peer_uid=1000
+CUDA05B_DEVICE_PASS backend=vulkan probe_challenges=5 socket_peer=OS_UID parity=PASS
+CUDA05B_DENY_PASS backend=vulkan wrong_uid=REJECTED
+CUDA05B_TAMPER_STEP_PASS index=0 command=ACQUIRE response=READY generation=3 peer_uid=1000
+CUDA05B_TAMPER_STEP_PASS index=1 command=RENDER response=RENDER_PASS generation=3 cache_hit=false parity=PASS peer_uid=1000
+CUDA05B_TAMPER_STEP_PASS index=2 command=RENDER response=DENIED reason=CUDA05B_CHALLENGE_UNAPPROVED_PROVIDER
+CUDA05B_TAMPER_STEP_PASS index=3 command=RENDER response=DENIED reason=CUDA05B_NO_ACTIVE_PERMIT
+CUDA05B_TAMPER_STEP_PASS index=4 command=ACQUIRE response=READY generation=7 peer_uid=1000
+CUDA05B_TAMPER_STEP_PASS index=5 command=RENDER response=RENDER_PASS generation=7 cache_hit=false parity=PASS peer_uid=1000
+CUDA05B_TAMPER_PASS backend=cuda same_path=REJECTED revoked=PASS restored=PASS
+CUDA05B_ALL_PASS devices=2 socket_operations=26 wrong_uid=2 tamper=1 no_gpu_reset=PASS

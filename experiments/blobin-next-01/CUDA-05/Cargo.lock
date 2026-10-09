@@ -102,6 +102,7 @@ dependencies = [
  "blobin-cuda02-provider",
  "blobin-cuda04-bridge",
  "blobin-f2-topology",
+ "libc",
 ]
 
 [[package]]
