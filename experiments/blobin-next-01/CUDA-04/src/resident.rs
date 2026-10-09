@@ -1,5 +1,10 @@
 //! Persistent GPU session with typed content-stamp invalidation.
-use crate::{geometry_id, Device, GeometryId, Output};
+use crate::{
+    geometry_id,
+    health::{DeviceHealth, HealthView},
+    provider::{self, ProviderFingerprint},
+    Device, GeometryId, Output,
+};
 use blobin_cuda02_provider::{Request, Sample};
 use blobin_cuda03_resident::{cuda, vulkan};
 use std::path::{Path, PathBuf};
@@ -34,6 +39,13 @@ impl Session {
         }
     }
 }
+/// Provenance snapshot tied to the same synchronous evaluation.
+#[derive(Debug)]
+pub struct ObservedFrame {
+    pub output: Output,
+    pub health: HealthView,
+    pub provider: Option<ProviderFingerprint>,
+}
 pub struct ResidentBridge {
     device: Device,
     session: Option<Session>,
@@ -41,6 +53,9 @@ pub struct ResidentBridge {
     stamp: Option<GeometryId>,
     cached: Option<Vec<Sample>>,
     cuda_path: Option<PathBuf>,
+    provider: Option<ProviderFingerprint>,
+    approved_sha256: Option<[u8; 32]>,
+    health: DeviceHealth,
 }
 impl ResidentBridge {
     pub fn new(device: Device) -> Result<Self, String> {
@@ -54,7 +69,36 @@ impl ResidentBridge {
             stamp: None,
             cached: None,
             cuda_path: None,
+            provider: None,
+            approved_sha256: None,
+            health: DeviceHealth::legacy(),
         })
+    }
+    /// Managed sessions begin unverified and require explicit recovery.
+    /// An approved SHA-256 digest is mandatory for CUDA native execution.
+    pub fn new_managed(device: Device, approved_sha256: Option<[u8; 32]>) -> Result<Self, String> {
+        if device == Device::Cuda && approved_sha256.is_none() {
+            return Err("CUDA04D CUDA APPROVED HASH REQUIRED".into());
+        }
+        let mut bridge = Self::new(device)?;
+        bridge.approved_sha256 = approved_sha256;
+        bridge.health = DeviceHealth::managed();
+        Ok(bridge)
+    }
+    pub fn health(&self) -> HealthView {
+        self.health.view()
+    }
+    pub fn provider(&self) -> Option<ProviderFingerprint> {
+        self.provider
+    }
+    pub fn report_device_lost(&mut self) -> Result<u64, String> {
+        self.invalidate();
+        self.health.lost()
+    }
+    /// Caller must have re-probed the backend. This API does not probe hardware itself.
+    pub fn report_device_recovered(&mut self) -> Result<u64, String> {
+        self.invalidate();
+        self.health.recovered()
     }
     pub fn invalidate(&mut self) {
         self.session = None;
@@ -62,21 +106,63 @@ impl ResidentBridge {
         self.stamp = None;
         self.cached = None;
         self.cuda_path = None;
+        self.provider = None;
     }
     pub fn resident_bytes(&self) -> u64 {
         self.session.as_ref().map_or(0, Session::bytes)
     }
+    pub fn evaluate_observed(
+        &mut self,
+        req: &Request,
+        library: Option<&Path>,
+    ) -> Result<ObservedFrame, String> {
+        let output = self.evaluate(req, library)?;
+        Ok(ObservedFrame {
+            output,
+            health: self.health(),
+            provider: self.provider(),
+        })
+    }
     pub fn evaluate(&mut self, req: &Request, library: Option<&Path>) -> Result<Output, String> {
+        // A caller-operated health gate is checked before ANY cache hit.
+        self.health.require_ready()?;
         let id = geometry_id(req)?;
         let shape = (req.dimensions(), req.primitives().len());
-        if self.device == Device::Cuda && library.is_none() {
-            self.invalidate();
-            return Err("CUDA04C CUDA LIBRARY REQUIRED ON EACH REQUEST".into());
-        }
-        let provider_changed = self.device == Device::Cuda && self.cuda_path.as_deref() != library;
-        if provider_changed {
-            self.invalidate();
-        }
+        let pinned = if self.device == Device::Cuda {
+            let path = match library {
+                Some(path) => path,
+                None => {
+                    self.invalidate();
+                    return Err("CUDA04D CUDA PROVIDER REQUIRED".into());
+                }
+            };
+            let checked = match provider::inspect(path) {
+                Ok(p) => p,
+                Err(e) => {
+                    self.invalidate();
+                    return Err(e);
+                }
+            };
+            if self
+                .approved_sha256
+                .is_some_and(|expected| expected != checked.fingerprint.sha256)
+            {
+                self.invalidate();
+                return Err("CUDA04D PROVIDER HASH NOT APPROVED".into());
+            }
+            let path_changed = self.cuda_path.as_deref() != Some(path);
+            let bytes_changed = self.provider.is_some_and(|old| old != checked.fingerprint);
+            if bytes_changed && !path_changed && self.approved_sha256.is_none() {
+                self.invalidate();
+                return Err("CUDA04D PROVIDER REPLACED WITHOUT APPROVAL".into());
+            }
+            if path_changed || bytes_changed {
+                self.invalidate();
+            }
+            Some(checked)
+        } else {
+            None
+        };
         if self.stamp == Some(id) {
             if let (Some(_), Some(samples)) = (&self.session, &self.cached) {
                 return Ok(Output {
@@ -95,26 +181,35 @@ impl ResidentBridge {
         let result = if replace {
             self.invalidate();
             let created = match self.device {
-                Device::Cuda => Session::Cuda(cuda::Resident::new(
-                    req,
-                    library.ok_or("CUDA04B LIBRARY REQUIRED")?,
-                )?),
-                Device::Vulkan => Session::Vulkan(vulkan::Resident::new(req)?),
+                Device::Cuda => {
+                    let verified = pinned
+                        .as_ref()
+                        .ok_or("CUDA04D VERIFIED PROVIDER REQUIRED")?;
+                    cuda::Resident::new(req, &verified.loader_path()).map(Session::Cuda)
+                }
+                Device::Vulkan => vulkan::Resident::new(req).map(Session::Vulkan),
                 Device::Cpu => return Err("CUDA04B REQUIRES GPU".into()),
             };
-            self.session = Some(created);
+            self.session = Some(match created {
+                Ok(session) => session,
+                Err(error) => {
+                    let _ = self.report_device_lost();
+                    return Err(error);
+                }
+            });
             self.shape = Some(shape);
             self.cuda_path = if self.device == Device::Cuda {
                 library.map(Path::to_path_buf)
             } else {
                 None
             };
+            self.provider = pinned.as_ref().map(|p| p.fingerprint);
             Ok(())
         } else {
             self.session.as_mut().expect("session").update(req)
         };
         if let Err(e) = result {
-            self.invalidate();
+            let _ = self.report_device_lost();
             return Err(e);
         }
         let computed = self.session.as_mut().expect("session").compute();
@@ -130,11 +225,11 @@ impl ResidentBridge {
                 s
             }
             Ok(_) => {
-                self.invalidate();
-                return Err("CUDA04B INVALID OUTPUT".into());
+                let _ = self.report_device_lost();
+                return Err("CUDA04D INVALID RESIDENT OUTPUT".into());
             }
             Err(e) => {
-                self.invalidate();
+                let _ = self.report_device_lost();
                 return Err(e);
             }
         };

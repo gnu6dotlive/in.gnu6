@@ -1,4 +1,6 @@
 //! CUDA-04: geometry identity and bounded runtime cache, independent of F2 identity.
+pub mod health;
+pub mod provider;
 pub mod resident;
 use blobin_cuda02_provider::{Backend, Request, Sample, SceneAuthority};
 use sha2::{Digest, Sha256};

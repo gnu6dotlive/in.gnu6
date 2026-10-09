@@ -29,3 +29,22 @@ Each case asserts oracle parity for the initial geometry, cache hit, material ch
 The recorded host-clock `update_p50_ms` and `update_p95_ms` cover an existing resident session's `update→launch→synchronize→readback` and copying output; CPU oracle verification occurs after the timer. They are **not** CUDA kernel event times, GPU-only measurements, throughput guarantees or independent multi-session performance distributions.
 
 CUDA shared libraries remain native executable code loaded with `dlopen`. The bridge observes changes to the supplied library **path**, not changes to bytes at an identical path. GPU asynchronous loss cannot be detected by an in-memory cache hit; external device-health generation and trusted library attestation remain open prerequisites. There is no live production runtime integration, release, merge or push.
+
+## CUDA-04D — Managed health and pinned CUDA provider (Linux-only)
+
+The new managed entry point is `ResidentBridge::new_managed(device, approved_sha256)`. CUDA requires an expected SHA-256 from an external approval policy. Managed sessions begin `Unverified`; a supervisory component must report recovery after confirming the device is ready. The `evaluate_observed` API provides synchronous health generation, provider fingerprint and numeric output. A device-loss report revokes resident resources and host cache and blocks evaluation until an explicit recovery report. Hardware health polling is **not** implemented by this experiment.
+
+```bash
+cd experiments/blobin-next-01/CUDA-04
+cargo test --offline --locked
+cargo fmt -- --check
+cargo clippy --offline --locked --all-targets -- -D warnings
+# Rebuild CUDA-03 native provider as shown above into the private build directory.
+cargo run --release --offline --locked --bin qualify04d -- \
+  --cuda-lib /mnt/workbench/build/blobin-cuda04d/libblobin_cuda03.so
+python3 scripts/validate04d.py
+```
+
+The validator checks the archived four-file SHA-256 manifest, both real GPU managed paths, the same-path malicious-byte substitution rejection (the corrupted file is never loaded), a CUDA-04C compatibility matrix (12 cases × 8 mutations), and 61 cumulative Rust tests. The loss and recovery signals are intentionally simulated, not a driver reset. The native digest in the qualification is copied from an existing local build; this is a *test equality predicate*, not a trusted signature.
+
+No production integration or publication is authorized by these results. The earlier `ResidentBridge::new` is a legacy compatibility entry and is not an authority boundary. A mutable file can still change in place while being loaded and Linux pathname ancestor symlinks are not sealed; native code loaded by `dlopen` executes without isolation.

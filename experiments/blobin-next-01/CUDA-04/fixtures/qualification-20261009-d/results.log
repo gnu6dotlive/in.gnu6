@@ -1,0 +1,4 @@
+CUDA04D_HEALTH_PASS device=Cuda generations=1,2,3 cold_ms=414.91726 hit_ms=0.73383 restored_ms=100.32082 parity=PASS loss_blocked=PASS
+CUDA04D_HEALTH_PASS device=Vulkan generations=1,2,3 cold_ms=155.43055 hit_ms=0.05525 restored_ms=111.63759 parity=PASS loss_blocked=PASS
+CUDA04D_INTEGRITY_PASS same_path_replacement=REJECTED original_hash=RESTORED stale_cache=REJECTED parity=PASS
+CUDA04D_ALL_PASS managed_gpu=2 simulated_loss=2 native_same_path_tamper=1

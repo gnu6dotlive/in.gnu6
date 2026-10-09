@@ -1,0 +1,12 @@
+UTC=2026-10-09T21:54:40Z
+BASELINE=321e18928aa3546ec8daaddf7a3d9a8bf0873cdd
+BRANCH=feat/blobin-cuda-04d-health
+GPU=NVIDIA GeForce RTX 3070, 8192 MiB, 615.71.09
+NVCC=Build cuda_13.4.r13.4/compiler.38855100_0
+RUSTC=rustc 1.97.0 (2d8144b78 2026-07-07)
+LIBRARY_SHA256=4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943
+LIBRARY_BUILD=nvcc -O3 -std=c++17 -arch=sm_86 -shared -Xcompiler -fPIC CUDA-03/native/resident.cu
+RUN= cargo run --release --offline --locked --bin qualify04d -- --cuda-lib /mnt/workbench/build/blobin-cuda04d/libblobin_cuda03.so
+COMPAT= cargo run --release --offline --locked --bin qualify04c -- --cuda-lib /mnt/workbench/build/blobin-cuda04d/libblobin_cuda03.so --iterations 8
+NOTE=loss is synthetic caller-triggered health transition; no physical GPU device loss
+NOTE=SHA expected approval in test was taken from locally compiled .so, not independent signed origin
