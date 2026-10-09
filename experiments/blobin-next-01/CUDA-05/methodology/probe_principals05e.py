@@ -70,14 +70,20 @@ def main():
         service_script=folder/"service.pl"
         shutil.copyfile(ROOT/"05e-service.pl",service_script)
         service_script.chmod(0o644)
+        # Host owner applies the directory mode before CAP_CHOWN-only ownership transfer.
+        folder.chmod(0o710)
         mount=f"type=bind,source={folder},target=/lab"
         setup=docker("run","--rm","--pull=never","--network","none","--read-only",
                      "--cap-drop","ALL","--cap-add","CHOWN",
                      "--security-opt","no-new-privileges","--pids-limit","32",
                      "--user","0:0","--mount",mount,IMAGE,
-                     "sh","-c",f"chown {SERVICE_UID}:{group} /lab && chmod 0710 /lab")
+                     "chown",f"{SERVICE_UID}:{group}","/lab")
         raw["commands"].append({"operation":"bounded_directory_ownership","result":setup})
-        if setup["code"]!=0:raise RuntimeError("SETUP_FAILED "+setup["stderr"])
+        if setup["code"]!=0:
+            # Preserve failure separately; no connection-level observations occurred.
+            (ROOT/"evidence"/"05E").mkdir(parents=True,exist_ok=True)
+            (ROOT/"evidence"/"05E"/"setup-failure.json").write_text(json.dumps(setup,indent=2)+"\n")
+            raise RuntimeError("SETUP_FAILED "+setup["stderr"])
         created=False
         try:
             started=docker("run","--detach","--pull=never","--network","none",
