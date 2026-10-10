@@ -292,6 +292,50 @@ impl SceneStream {
         }
         Self::from_bytes(&fs::read(path).map_err(|e| format!("SCENE_READ_FAILED {e}"))?)
     }
+    /// Validation of an untrusted, presentation-only delta.
+    /// No mutation access to in.gnu6 scene truth escapes this boundary.
+    pub fn apply_live_bytes(&mut self, bytes: &[u8]) -> Result<u64, String> {
+        if bytes.len() > 8192 {
+            return Err("GPU04_DELTA_TOO_LARGE".into());
+        }
+        #[derive(Deserialize)]
+        #[serde(deny_unknown_fields)]
+        struct Packet {
+            schema: String,
+            delta: Delta,
+        }
+        let packet: Packet =
+            serde_json::from_slice(bytes).map_err(|_| "GPU04_DELTA_INVALID_PACKET".to_string())?;
+        if packet.schema != "blobin.gpu04.delta.v1" {
+            return Err("GPU04_DELTA_UNKNOWN_VERSION".into());
+        }
+        let next = apply(
+            self.frames.last().ok_or("MISSING_SOURCE_FRAME")?.clone(),
+            packet.delta,
+        )?;
+        let cavity = next
+            .entities
+            .iter()
+            .find(|e| e.entity_id == self.entity_id)
+            .ok_or("CAVITY_BINDING_MISSING")?;
+        if cavity.role != "control"
+            || !cavity.visible
+            || !matches!(cavity.shape, Shape::Rect { .. })
+            || (cavity.world_pose.position.x * self.meters_per_unit).abs() > 0.2
+        {
+            return Err("CAVITY_BINDING_INVALID_OR_OUT_OF_RANGE".into());
+        }
+        let sequence = next.sequence;
+        // No unbounded history: one current semantic projection only.
+        self.frames.clear();
+        self.frames.push(next);
+        Ok(sequence)
+    }
+
+    pub fn latest_offset(&self) -> f32 {
+        self.offset(self.frames.last().expect("qualified initial source frame"))
+    }
+
     pub fn frame_count(&self) -> usize {
         self.frames.len()
     }
@@ -330,6 +374,60 @@ impl SceneStream {
 mod tests {
     use super::*;
     const GOLDEN: &str = include_str!("../fixtures/scene-stream.v1.json");
+    #[test]
+    fn live_delta_accepts_valid_update_and_rejects_replay_without_mutation() {
+        let mut stream = SceneStream::from_bytes(GOLDEN.as_bytes()).unwrap();
+        assert_eq!(stream.frames.last().unwrap().sequence, 13);
+        let mut d = serde_json::json!({
+            "schema":"blobin.gpu04.delta.v1",
+            "delta":{"schemaVersion":1,"fromSequence":13,"toSequence":14,
+               "sceneTime":4.0,"motionMode":"normal",
+               "order":["stage","cavity-control"],"births":[],"deaths":[],
+               "updates":[{"entityId":"cavity-control","role":"control",
+                   "visible":true,"z":0,
+                   "worldPose":{"position":{"x":10,"y":0},"rotation":0,
+                     "scale":{"x":1,"y":1}},
+                   "shape":{"kind":"rect","width":24,"height":24,"radius":4},
+                   "accessibility":null}]}
+        });
+        assert_eq!(stream.apply_live_bytes(d.to_string().as_bytes()), Ok(14));
+        assert!((stream.latest_offset() - 0.1).abs() < 1e-6);
+        assert!(stream
+            .apply_live_bytes(d.to_string().as_bytes())
+            .unwrap_err()
+            .contains("STALE"));
+        assert!((stream.latest_offset() - 0.1).abs() < 1e-6);
+        d["delta"]["fromSequence"] = serde_json::json!(14);
+        d["delta"]["toSequence"] = serde_json::json!(15);
+        d["delta"]["updates"][0]["worldPose"]["position"]["x"] = serde_json::json!(100);
+        assert!(stream
+            .apply_live_bytes(d.to_string().as_bytes())
+            .unwrap_err()
+            .contains("OUT_OF_RANGE"));
+        assert!((stream.latest_offset() - 0.1).abs() < 1e-6);
+    }
+
+    #[test]
+    fn live_delta_rejects_oversize_unknown_fields_and_bad_version() {
+        let mut stream = SceneStream::from_bytes(GOLDEN.as_bytes()).unwrap();
+        assert_eq!(
+            stream.apply_live_bytes(&vec![b' '; 8193]).unwrap_err(),
+            "GPU04_DELTA_TOO_LARGE"
+        );
+        assert_eq!(
+            stream
+                .apply_live_bytes(br#"{"schema":"bad","delta":{}}"#)
+                .unwrap_err(),
+            "GPU04_DELTA_INVALID_PACKET"
+        );
+        assert_eq!(
+            stream
+                .apply_live_bytes(br#"{"schema":"blobin.gpu04.delta.v1","delta":{},"tool":"bash"}"#)
+                .unwrap_err(),
+            "GPU04_DELTA_INVALID_PACKET"
+        );
+    }
+
     #[test]
     fn independent_rust_replay_and_motion_samples() {
         let s = SceneStream::from_bytes(GOLDEN.as_bytes()).unwrap();

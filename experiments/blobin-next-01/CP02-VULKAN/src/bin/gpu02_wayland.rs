@@ -1,13 +1,15 @@
 //! GPU-02: private Wayland host of the actual GPU-01 signed-mesh shader.
 //! Uses Vulkan compute -> GPU-only copy -> Vulkan textured draw -> Wayland present.
 //! No static PNG, CPU pixel substitution or BLOB-FRAME-v1 schema changes.
+#[path = "../live_socket.rs"]
+mod live_socket;
 #[path = "../scene_bridge.rs"]
 mod scene_bridge;
 use blobin_cp01_hybrid::gltf::import_glb;
 use scene_bridge::SceneStream;
 use std::{
     error::Error,
-    sync::Arc,
+    sync::{mpsc::Receiver, Arc},
     time::{Duration, Instant},
 };
 use wgpu::util::DeviceExt;
@@ -36,18 +38,23 @@ struct Live {
     draw_bind: wgpu::BindGroup,
     started: Instant,
     report_at: Instant,
+    previous_submit_at: Option<Instant>,
+    submit_intervals_ms: Vec<f64>,
     frames: u64,
     yaw: f32,
     paused: bool,
     pause_started: Option<Instant>,
     paused_total: Duration,
     semantic_stream: Option<SceneStream>,
+    update_rx: Option<Receiver<Vec<u8>>>,
+    live_mode: bool,
 }
 
 impl Live {
     async fn create(
         window: Arc<Window>,
         stream: Option<SceneStream>,
+        update_rx: Option<Receiver<Vec<u8>>>,
     ) -> Result<Self, Box<dyn Error>> {
         let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
         desc.backends = wgpu::Backends::VULKAN;
@@ -306,11 +313,15 @@ impl Live {
             draw_bind,
             started: Instant::now(),
             report_at: Instant::now(),
+            previous_submit_at: None,
+            submit_intervals_ms: Vec::with_capacity(2048),
             frames: 0,
             yaw: 0.0,
             paused: false,
             pause_started: None,
             paused_total: Duration::ZERO,
+            live_mode: update_rx.is_some(),
+            update_rx,
             semantic_stream: stream,
         })
     }
@@ -322,6 +333,21 @@ impl Live {
         }
     }
     fn render(&mut self) -> Result<(), String> {
+        if let (Some(rx), Some(stream)) = (&self.update_rx, &mut self.semantic_stream) {
+            for _ in 0..16 {
+                match rx.try_recv() {
+                    Ok(message) => match stream.apply_live_bytes(&message) {
+                        Ok(sequence) => println!("GPU04_LIVE_DELTA_ACCEPTED sequence={sequence}"),
+                        Err(reason) => eprintln!("GPU04_LIVE_DELTA_REJECTED reason={reason}"),
+                    },
+                    Err(std::sync::mpsc::TryRecvError::Empty) => break,
+                    Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                        eprintln!("GPU04_DELTA_READER_DISCONNECTED");
+                        break;
+                    }
+                }
+            }
+        }
         let frame = match self.surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(v)
             | wgpu::CurrentSurfaceTexture::Suboptimal(v) => v,
@@ -344,7 +370,13 @@ impl Live {
                 self.yaw,
                 self.semantic_stream.as_ref().map_or_else(
                     || (seconds * 0.75).sin() * 0.11,
-                    |stream| stream.cavity_offset_at(seconds),
+                    |stream| {
+                        if self.live_mode {
+                            stream.latest_offset()
+                        } else {
+                            stream.cavity_offset_at(seconds)
+                        }
+                    },
                 ),
                 if self.semantic_stream.is_some() {
                     0.0
@@ -415,11 +447,30 @@ impl Live {
         self.queue.submit([encoder.finish()]);
         self.window.pre_present_notify();
         self.queue.present(frame);
+        // Measures successful queue.present calls ONLY, never compositor display timestamps.
+        let submitted = Instant::now();
+        if let Some(prev) = self.previous_submit_at {
+            if self.submit_intervals_ms.len() < 2048 {
+                self.submit_intervals_ms
+                    .push(submitted.duration_since(prev).as_secs_f64() * 1_000.0);
+            }
+        }
+        self.previous_submit_at = Some(submitted);
         self.frames += 1;
         if self.report_at.elapsed() >= Duration::from_secs(2) {
             let dt = self.report_at.elapsed().as_secs_f64();
             println!("GPU02_PRESENT_SUBMITTED frames={} interval_s={:.3} submit_rate_hz={:.2} NOT_COMPOSITOR_PRESENTED_FPS",
                 self.frames,dt,self.frames as f64/dt);
+            self.submit_intervals_ms.sort_unstable_by(f64::total_cmp);
+            if !self.submit_intervals_ms.is_empty() {
+                let values = &self.submit_intervals_ms;
+                let n = values.len();
+                let p95 = values[((n - 1) * 95) / 100];
+                let p99 = values[((n - 1) * 99) / 100];
+                let max = values[n - 1];
+                println!("GPU04_QUEUE_PRESENT_INTERARRIVAL count={n} p95_ms={p95:.3} p99_ms={p99:.3} max_ms={max:.3} NOT_WP_PRESENTATION");
+                self.submit_intervals_ms.clear();
+            }
             self.frames = 0;
             self.report_at = Instant::now();
         }
@@ -431,6 +482,8 @@ impl Live {
 struct Application {
     state: Option<Live>,
     stream: Option<SceneStream>,
+    update_rx: Option<Receiver<Vec<u8>>>,
+    _socket_guard: Option<live_socket::SocketGuard>,
     error: Option<String>,
 }
 impl ApplicationHandler for Application {
@@ -445,8 +498,12 @@ impl ApplicationHandler for Application {
             .create_window(attrs)
             .map_err(|e| e.to_string())
             .and_then(|w| {
-                pollster::block_on(Live::create(Arc::new(w), self.stream.clone()))
-                    .map_err(|e| e.to_string())
+                pollster::block_on(Live::create(
+                    Arc::new(w),
+                    self.stream.clone(),
+                    self.update_rx.take(),
+                ))
+                .map_err(|e| e.to_string())
             }) {
             Ok(s) => {
                 s.window.request_redraw();
@@ -504,24 +561,42 @@ fn main() -> Result<(), Box<dyn Error>> {
     let stream = match args.next().as_deref() {
         None => None,
         Some("--scene-stream") => {
-            let path = args.next().ok_or("--scene-stream requires a file path")?;
-            if args.next().is_some() {
-                return Err("unexpected GPU03 arguments".into());
-            }
+            let path = args.next().ok_or("--scene-stream requires a path")?;
             let parsed = SceneStream::load(std::path::Path::new(&path))?;
             println!(
-                "GPU03_SEMANTIC_SCENE_ACCEPTED frames={} source=in.gnu6 read_only=true",
+                "GPU03_SEMANTIC_SCENE_ACCEPTED frames={} source_label=in.gnu6 read_only=true",
                 parsed.frame_count()
             );
             Some(parsed)
         }
-        Some(_) => return Err("usage: gpu02_wayland [--scene-stream /absolute/file.json]".into()),
+        _ => {
+            return Err("usage: gpu02_wayland [--scene-stream FILE [--live-socket SOCKET]]".into())
+        }
+    };
+    let socket_path = match args.next().as_deref() {
+        None => None,
+        Some("--live-socket") if stream.is_some() => {
+            Some(args.next().ok_or("--live-socket requires a path")?)
+        }
+        _ => return Err("GPU04_LIVE_SOCKET_REQUIRES_AUTHORIZED_INITIAL_SCENE".into()),
+    };
+    if args.next().is_some() {
+        return Err("GPU04_UNEXPECTED_ARGUMENTS".into());
+    }
+    let (updates, guard) = if let Some(path) = socket_path {
+        let (rx, guard) = live_socket::listen(std::path::Path::new(&path))?;
+        println!("GPU04_PRIVATE_DELTA_SOCKET_READY same_uid_only=true path={path}");
+        (Some(rx), Some(guard))
+    } else {
+        (None, None)
     };
     let loop_ = EventLoop::new()?;
     loop_.set_control_flow(ControlFlow::Wait);
     let mut app = Application {
         state: None,
         stream,
+        update_rx: updates,
+        _socket_guard: guard,
         error: None,
     };
     loop_.run_app(&mut app)?;
