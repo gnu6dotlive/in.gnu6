@@ -18,5 +18,5 @@ Core reminders:
 - `[in.gnu6]` owns the scene, not the product.
 - Renderer authority must not amplify into semantic authority.
 - RED is valid knowledge.
-- No public API or publication is currently authorized.
+- Repository visibility may become public after redaction/licensing/secret-history gates (operator authorization 2026-10-10); no public API, npm publishing or distribution contract is authorized.
 - Compress mechanics. Preserve reality.

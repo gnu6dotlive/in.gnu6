@@ -83,6 +83,12 @@ No state implies the next one.
 
 Public API: **UNDECIDED**.
 
+**2026-10-10 amendment:** operator grants repository-public visibility permission
+**after** a verified full-history secrets, rights/license and personal-data
+publication gate. This is not a license grant or permission to publish npm
+packages, expose consumer data or declare API stability.
+See `docs/public/PUBLICATION-READINESS.md`.
+
 Until an operator decision changes this:
 - package remains `private: true`;
 - no npm/public registry publication;

@@ -1,7 +1,7 @@
 # [in.gnu6] — Questlog
 
 Status: **ACTIVE PROGRAM AUTHORITY**
-Repository: `tension-atoi/in.gnu6` — private
+Repository: `tension-atoi/in.gnu6` — private as of 2026-10-10; public visibility authorized, disclosure gates pending
 Initial questline ratification: **2026-10-06**
 Operator authority: **human operator retains final prioritization of Side Quests and all authority-expanding decisions**
 
@@ -1687,3 +1687,29 @@ Operator may reprioritize Side Quests at any time.
 **Compress mechanics. Preserve reality.**
 
 **There remains something to understand. Find exactly what.**
+
+
+## SQ-PUBLIC-01 — Préparation à une source publique et versionnement
+
+**État : AUTHORIZED_STAGED / RELEASE_BLOCKED**
+
+Le 2026-10-10, l'opérateur a explicitement autorisé de rendre
+`tension-atoi/in.gnu6` public **progressivement**, tout en conservant
+les chantiers techniques (notamment GPU-05) comme priorité. Cette
+autorisation remplace seulement l'interdit de visibilité de la
+création initiale du dépôt, et **ne remplace pas** les contrats d'API,
+de licence ni les gates de confidentialité.
+
+- Nouveau README français/anglais, centré sur les preuves attribuables,
+  les frontières de l'ontologie et les limites du prototype Vulkan.
+- Versions calendaires justifiées, sans microversions `0.0.x` :
+  voir `docs/release/VERSIONING.md`.
+- Gates secrets, droits/licences et redaction :
+  `docs/public/PUBLICATION-READINESS.md`.
+- Aucun `main` push/merge, changement de visibilité ni package
+  publié avant fermeture des gates correspondants.
+- PACER-07 et ENDURANCE-01 sont qualifiés séparément et rapprochés
+  documentairement : CP03 HYBRID-60 reste OPEN.
+
+**Priorité opérateur :** chantier transversal progressif, ne remplace
+pas les Main Quests ni la falsification de GPU-05.

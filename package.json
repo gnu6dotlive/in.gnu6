@@ -1,6 +1,6 @@
 {
   "name": "@gnu6/in",
-  "version": "0.0.0-private",
+  "version": "2026.10.0-research",
   "private": true,
   "description": "Headless scenic, spatial, and topology runtime for gnu6 consumers.",
   "type": "module",
