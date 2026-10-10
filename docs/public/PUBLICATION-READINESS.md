@@ -4,6 +4,10 @@
 
 Cette autorisation concerne la **visibilité du code après revue**, pas une API publique, une mise sur npm, un transfert de propriété intellectuelle, une licence OSS implicite ou le déploiement de services.
 
+## État observé : dépôt PUBLIC, distribution non ratifiée
+
+Le 2026-10-10, la visibilité PUBLIC de tension-atoi/in.gnu6 a été vérifiée sur GitHub après annonce de l'opérateur. Les gates ci-dessous représentent le dossier de préparation historique et restent à examiner ; ils ne sont pas tous clos. La visibilité Git ne constitue ni une licence OSS, ni un contrat npm, ni une API stable.
+
 ## Gates avant le basculement `PRIVATE → PUBLIC`
 
 | Gate | Statut initial | Sortie exigée |
@@ -36,18 +40,17 @@ branches, les licences des donors et les noms de consommateurs.
 Un scan de secrets automatisé n'est pas un contrôle de droits d'auteur,
 de données personnelles ou de confidentialité commerciale.
 
-**Décision opératoire : conserver le dépôt PRIVATE.** Aucun basculement
-de visibilité ni publication npm sans fermeture de ces vérifications.
+**Décision historique (avant changement de visibilité) : conserver PRIVATE.** Le dépôt est depuis PUBLIC ; aucune licence, publication npm ou API publique n'est pour autant ratifiée.
 
 ## Travail progressif, sans changer le chantier principal
 
 1. À chaque checkpoint GPU-05, relier ce qui est réellement démontré aux documents existants.
 2. Marquer les claims en trois classes : `mesuré`, `ratifié pour un mandat borné`, `recherche ouverte`.
-3. Traiter l'audit d'historique et la licence avant la modification de visibilité ; le dépôt reste privé en attendant.
+3. Poursuivre activement l'audit d'historique, de confidentialité et de licence du dépôt déjà public ; documenter et corriger toute exposition indue.
 4. Ne pas fusionner les travaux d'autres agents ni pousser `main` par raccourci sous prétexte de « lancement public ».
 5. Actualiser les surfaces externes seulement avec une traçabilité version/commit/preuve.
 
-**STOP obligatoire :** si un résultat touche à l'identité, des accès, une licence inconnue, du code tiers non autorisé ou un secret, maintenir la visibilité privée jusqu'à résolution. Il est préférable de publier plus tard que de rendre une fuite irréversible.
+**STOP de diffusion :** si une exposition de secrets, données privées, droits inconnus ou code tiers non autorisé est détectée, suspendre la diffusion, évaluer l'exposition existante et appliquer la remédiation adaptée. Il est préférable de publier plus tard que de rendre une fuite irréversible.
 
 ## Politique éditoriale
 

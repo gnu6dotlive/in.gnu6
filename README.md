@@ -31,6 +31,8 @@ Deux intégrations consommateurs — Docklab et le harnais SP Joaillerie — ser
 
 La preuve **125 secondes / 74,956 FPS de moyenne / p95 13,478 ms / zéro frame écartée** est une observation physique locale via `wp_presentation` sur une surface Wayland attribuée au binaire natif, **pas** une garantie multi-GPU, une certification produit ou une mesure input-to-photon.
 
+**ORACLE-05 (preuve live)** : Rust et le projecteur sémantique TypeScript in.gnu6 échangent 40 événements Wayland réels sur un socket Unix privé, avec correspondance de séquence exacte et 1 497 frames présentées sans discard en 20 s. **Les 20 appuis se projettent sur stage, jamais cavity-control : la calibration visuelle reste non qualifiée.** CP03 OPEN. [Rapport ORACLE-05](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-05-STATUS.md).
+
 ORACLE-04 observe 10 cycles optiques logiciels corrélés sur 35 s, sans excès de gap >33,4 ms dans cet essai ; l'ancienne interruption de 413 ms reste inexpliquée. [Rapport ORACLE-04](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-04-STATUS.md).
 
 ORACLE-03 prépare la **projection sémantique typée** des coordonnées Wayland vers `InteractionProjector` (10 lois TypeScript PASS, un test Rust PASS). Le premier essai a été refusé par le garde GNU6 (code 75). Un **nouvel essai protégé de 24 s** a ensuite présenté 1 769 frames, zéro discarded, mais révèle **une interruption de 413,544 ms (gate de régularité RED)**. Aucun clic réel n'a été observé ; aucune calibration photodiode ni acceptation CP03. [ORACLE-03](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-03-STATUS.md) · [Preuve physique & anomalie](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-03-PHYSICAL-01-STATUS.md).
@@ -66,7 +68,7 @@ Pour les expérimentations GPU sur la station de référence, l’exécution lou
 
 ## Public et open source : frontières actuelles
 
-La **visibilité publique du dépôt GitHub est autorisée par l’opérateur**, avec une préparation progressive et une revue préalable des données exposées. Le paquet npm reste **`private: true` / `UNLICENSED`** tant qu’un choix de licence et un contrat de distribution n’ont pas été ratifiés. **Accessible publiquement ne signifie pas automatiquement réutilisable sous licence libre.** Aucune stabilité d’API publique n’est promise.
+Le dépôt GitHub **tension-atoi/in.gnu6 est maintenant PUBLIC** (visibilité confirmée le 2026-10-10). Les revues de données, de provenance et de droits de redistribution restent ouvertes. Le paquet npm reste **`private: true` / `UNLICENSED`** tant qu’un choix de licence et un contrat de distribution n’ont pas été ratifiés. **Accessible publiquement ne signifie pas automatiquement réutilisable sous licence libre.** Aucune stabilité d’API publique n’est promise.
 
 Les corrections éditoriales, les questions reproductibles et les contre-exemples techniques sont bienvenus selon les règles de contribution qui seront publiées avec l’ouverture du dépôt.
 

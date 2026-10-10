@@ -1735,3 +1735,7 @@ L'oracle dual-canal matériel (contact et photodiode sur une seule horloge) est 
 ## GPU05-ORACLE-04 — opt-in stall telemetry and software optical loop
 
 **LOCAL PASS 2624 presented / 0 discarded / 10 software optical cycles; CP03 OPEN.** No 413ms anomaly observed in this single 35s run; earlier RED remains unresolved. See `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-04-STATUS.md`.
+
+## GPU05-ORACLE-05 — observation sémantique native en direct
+
+**LIVE LOCAL PASS / 40/40 observations corrélées / 20 appuis sur stage / 0 sur cavity-control (calibration RED) / CP03 OPEN.** Le renderer Rust transmet les événements wl_pointer via IPC Unix privé à un processus TypeScript qui réutilise le projecteur de scène in.gnu6. Un run Vulkan 20 s donne 1 497 frames présentées et zéro discard, mais la correspondance graphique du contrôle, la provenance humaine et les photons restent non qualifiés. Rapport : experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-05-STATUS.md.
