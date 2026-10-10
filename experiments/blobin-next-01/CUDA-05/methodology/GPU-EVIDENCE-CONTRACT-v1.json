@@ -1,0 +1,65 @@
+{
+  "schema": "gnu6.gpu-evidence-contract.v1",
+  "contract_version": "1.0.0",
+  "experiment": "CUDA-05F-P01",
+  "classification": "internal-research",
+  "allowed_gate_states": [
+    "PASS",
+    "FAIL",
+    "NOT_RUN",
+    "NOT_QUALIFIED",
+    "BLOCKED"
+  ],
+  "required_gates": [
+    "host_service_uid",
+    "authorized_host_peer",
+    "rejected_connected_peer",
+    "dac_rejected_peer",
+    "cuda_gpu_parity",
+    "vulkan_gpu_parity",
+    "worker_crash_recovery",
+    "worker_timeout_recovery",
+    "worker_binary_integrity",
+    "provider_integrity",
+    "release_authority"
+  ],
+  "raw_fields": [
+    "experiment_id",
+    "contract_sha256",
+    "protocol_commit",
+    "timestamp_utc",
+    "host",
+    "environment",
+    "observations",
+    "commands",
+    "failures"
+  ],
+  "derived_fields": [
+    "experiment_id",
+    "contract_sha256",
+    "protocol_commit",
+    "raw_sha256",
+    "gates",
+    "scope",
+    "production_authorization"
+  ],
+  "public_allowlist": [
+    "schema",
+    "experiment_id",
+    "contract_sha256",
+    "protocol_commit",
+    "raw_sha256",
+    "gates",
+    "limitations",
+    "review_status",
+    "production_authorization"
+  ],
+  "rules": [
+    "A gate is PASS only if a real observation matches its preregistered predicate.",
+    "No simulation qualifies actual GPU loss.",
+    "No external publication or production permission is inferred from test results.",
+    "Provider hashes produced from local files are equality checks, not origin attestation.",
+    "A public hash of unavailable raw bytes cannot constitute independent external replication.",
+    "Any missing or failed gate must remain visible in the publication candidate."
+  ]
+}
