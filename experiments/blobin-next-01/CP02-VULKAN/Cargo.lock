@@ -131,8 +131,11 @@ dependencies = [
  "libc",
  "png",
  "pollster",
+ "raw-window-handle",
  "serde",
  "serde_json",
+ "wayland-client",
+ "wayland-protocols",
  "wgpu",
  "winit",
 ]

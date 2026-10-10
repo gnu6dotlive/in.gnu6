@@ -1,0 +1,411 @@
+//! EXPERIMENTAL / SOURCE-ONLY: Wayland presentation feedback on an *owned* surface.
+//! Not compiled, not imported by the existing GPU-04/05 binaries.
+//! The eventual Vulkan host must use this exact connection and wl_surface for
+//! both its Vulkan WSI and wp_presentation.feedback requests.
+//!
+//! Dependencies when admitted:
+//! wayland-client = {version="=0.31.15",features=["system"]}
+//! wayland-protocols = {version="=0.32.13",features=["client"]}
+//! raw-window-handle = "0.6.2"
+//! Integration requires an audited native window lifetime + wgpu raw-handle wrapper.
+#![allow(dead_code)]
+#[path = "presentation_tracker.rs"]
+mod presentation_tracker;
+
+use presentation_tracker::{FeedbackOutcome, FeedbackTracker, PresentationReceipt};
+use raw_window_handle::{
+    RawDisplayHandle, RawWindowHandle, WaylandDisplayHandle, WaylandWindowHandle,
+};
+use std::{os::fd::AsRawFd, ptr::NonNull};
+use wayland_client::{
+    delegate_noop,
+    protocol::{wl_compositor, wl_registry, wl_surface},
+    Connection, Dispatch, EventQueue, Proxy, QueueHandle,
+};
+use wayland_protocols::{
+    wp::presentation_time::client::{wp_presentation, wp_presentation_feedback},
+    xdg::shell::client::{xdg_surface, xdg_toplevel, xdg_wm_base},
+};
+
+#[derive(Debug)]
+struct NativeState {
+    compositor: Option<wl_compositor::WlCompositor>,
+    shell: Option<xdg_wm_base::XdgWmBase>,
+    presentation: Option<wp_presentation::WpPresentation>,
+    configured: bool,
+    suggested_size: Option<(u32, u32)>,
+    closed: bool,
+    tracker: FeedbackTracker,
+    protocol_error: Option<&'static str>,
+}
+
+impl Default for NativeState {
+    fn default() -> Self {
+        Self {
+            compositor: None,
+            shell: None,
+            presentation: None,
+            configured: false,
+            suggested_size: None,
+            closed: false,
+            tracker: FeedbackTracker::new(),
+            protocol_error: None,
+        }
+    }
+}
+
+impl Dispatch<wl_registry::WlRegistry, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        registry: &wl_registry::WlRegistry,
+        event: wl_registry::Event,
+        _: &(),
+        _: &Connection,
+        qh: &QueueHandle<Self>,
+    ) {
+        if let wl_registry::Event::Global {
+            name,
+            interface,
+            version,
+        } = event
+        {
+            match interface.as_str() {
+                "wl_compositor" if state.compositor.is_none() => {
+                    state.compositor = Some(registry.bind::<wl_compositor::WlCompositor, _, _>(
+                        name,
+                        version.min(4),
+                        qh,
+                        (),
+                    ));
+                }
+                "xdg_wm_base" if state.shell.is_none() => {
+                    state.shell = Some(registry.bind::<xdg_wm_base::XdgWmBase, _, _>(
+                        name,
+                        version.min(1),
+                        qh,
+                        (),
+                    ));
+                }
+                "wp_presentation" if state.presentation.is_none() => {
+                    state.presentation =
+                        Some(registry.bind::<wp_presentation::WpPresentation, _, _>(
+                            name,
+                            version.min(2),
+                            qh,
+                            (),
+                        ));
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
+impl Dispatch<wp_presentation::WpPresentation, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        _: &wp_presentation::WpPresentation,
+        event: wp_presentation::Event,
+        _: &(),
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        if let wp_presentation::Event::ClockId { clk_id } = event {
+            if let Err(e) = state.tracker.clock_id(clk_id) {
+                state.protocol_error = Some(e);
+            }
+        }
+    }
+}
+
+impl Dispatch<wp_presentation_feedback::WpPresentationFeedback, u32> for NativeState {
+    fn event(
+        state: &mut Self,
+        _: &wp_presentation_feedback::WpPresentationFeedback,
+        event: wp_presentation_feedback::Event,
+        feedback_id: &u32,
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        let outcome = match event {
+            wp_presentation_feedback::Event::Presented {
+                tv_sec_hi,
+                tv_sec_lo,
+                tv_nsec,
+                refresh,
+                ..
+            } => Some(FeedbackOutcome::Presented {
+                tv_sec_hi,
+                tv_sec_lo,
+                tv_nsec,
+                refresh_ns: refresh,
+            }),
+            wp_presentation_feedback::Event::Discarded => Some(FeedbackOutcome::Discarded),
+            wp_presentation_feedback::Event::SyncOutput { .. } => None,
+            _ => None,
+        };
+        if let Some(outcome) = outcome {
+            if let Err(e) = state.tracker.resolved(*feedback_id, outcome) {
+                state.protocol_error = Some(e);
+            }
+        }
+    }
+}
+
+impl Dispatch<xdg_wm_base::XdgWmBase, ()> for NativeState {
+    fn event(
+        _: &mut Self,
+        shell: &xdg_wm_base::XdgWmBase,
+        event: xdg_wm_base::Event,
+        _: &(),
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        if let xdg_wm_base::Event::Ping { serial } = event {
+            shell.pong(serial);
+        }
+    }
+}
+impl Dispatch<xdg_surface::XdgSurface, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        xdg: &xdg_surface::XdgSurface,
+        event: xdg_surface::Event,
+        _: &(),
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        if let xdg_surface::Event::Configure { serial } = event {
+            xdg.ack_configure(serial);
+            state.configured = true;
+        }
+    }
+}
+impl Dispatch<xdg_toplevel::XdgToplevel, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        _: &xdg_toplevel::XdgToplevel,
+        event: xdg_toplevel::Event,
+        _: &(),
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        match event {
+            xdg_toplevel::Event::Close => state.closed = true,
+            xdg_toplevel::Event::Configure { width, height, .. } if width > 0 && height > 0 => {
+                state.suggested_size = Some((width as u32, height as u32));
+            }
+            _ => {}
+        }
+    }
+}
+delegate_noop!(NativeState: ignore wl_compositor::WlCompositor);
+delegate_noop!(NativeState: ignore wl_surface::WlSurface);
+
+/// Own this object for strictly longer than any Vulkan swapchain created from
+/// raw Wayland handles. Never spawn another reader for this connection.
+pub struct OwnedWaylandPresentation {
+    // Vulkan surface resides in OwnedGpuWindow and drops before this owner.
+    surface: wl_surface::WlSurface,
+    _xdg_toplevel: xdg_toplevel::XdgToplevel,
+    _xdg_surface: xdg_surface::XdgSurface,
+    state: NativeState,
+    qh: QueueHandle<NativeState>,
+    events: EventQueue<NativeState>,
+    connection: Connection,
+    next_feedback_id: u32,
+}
+
+impl OwnedWaylandPresentation {
+    pub fn open() -> Result<Self, String> {
+        let connection = Connection::connect_to_env().map_err(|e| e.to_string())?;
+        let mut events = connection.new_event_queue::<NativeState>();
+        let qh = events.handle();
+        let _registry = connection.display().get_registry(&qh, ());
+        let mut state = NativeState::default();
+        events.roundtrip(&mut state).map_err(|e| e.to_string())?;
+
+        let compositor = state.compositor.as_ref().ok_or("GPU05_NO_COMPOSITOR")?;
+        let shell = state.shell.as_ref().ok_or("GPU05_NO_XDG_SHELL")?;
+        if state.presentation.is_none() {
+            return Err("GPU05_NO_WP_PRESENTATION".into());
+        }
+        let surface = compositor.create_surface(&qh, ());
+        let xdg_surface = shell.get_xdg_surface(&surface, &qh, ());
+        let xdg_toplevel = xdg_surface.get_toplevel(&qh, ());
+        xdg_toplevel.set_title("blob.in GPU-05 native owned surface".into());
+        // Initial xdg_surface configure must precede the first Vulkan commit.
+        surface.commit();
+        for _ in 0..8 {
+            if state.configured && state.tracker.clock().is_some() {
+                break;
+            }
+            events.roundtrip(&mut state).map_err(|e| e.to_string())?;
+        }
+        if !state.configured || state.tracker.clock().is_none() {
+            return Err("GPU05_NOT_CONFIGURED_OR_CLOCK_MISSING".into());
+        }
+        state.tracker.begin_surface(1).map_err(str::to_string)?;
+        if let Some(e) = state.protocol_error {
+            return Err(e.into());
+        }
+        Ok(Self {
+            surface,
+            _xdg_toplevel: xdg_toplevel,
+            _xdg_surface: xdg_surface,
+            state,
+            qh,
+            events,
+            connection,
+            next_feedback_id: 1,
+        })
+    }
+
+    /// Allocate feedback *for this wl_surface* immediately before the Vulkan
+    /// WSI wl_surface.commit triggered by queue.present. There MUST be exactly
+    /// one owner event loop for both the Wayland proxies and Vulkan raw handles.
+    pub fn arm_before_present(&mut self, frame_seq: u64) -> Result<u32, String> {
+        if self.state.closed {
+            return Err("GPU05_SURFACE_CLOSED".into());
+        }
+        if let Some(reason) = self.state.protocol_error {
+            return Err(reason.into());
+        }
+        let id = self.next_feedback_id;
+        let next_id = id.checked_add(1).ok_or("GPU05_FEEDBACK_ID_EXHAUSTED")?;
+        let presentation = self
+            .state
+            .presentation
+            .as_ref()
+            .ok_or("GPU05_PRESENTATION_PROXY_MISSING")?;
+        // Tracker validates before an irreversible protocol request.
+        self.state
+            .tracker
+            .requested(id, frame_seq)
+            .map_err(|e| e.to_owned())?;
+        let _feedback = presentation.feedback(&self.surface, &self.qh, id);
+        self.connection.flush().map_err(|e| e.to_string())?;
+        self.next_feedback_id = next_id;
+        Ok(id)
+    }
+
+    /// Process compositor events on the owner thread; never read this
+    /// connection on another thread or via a foreign-client event queue.
+    pub fn poll_feedback(&mut self) -> Result<Vec<PresentationReceipt>, String> {
+        // dispatch_pending alone does not read new events off the socket.
+        self.events.flush().map_err(|e| e.to_string())?;
+        self.events
+            .dispatch_pending(&mut self.state)
+            .map_err(|e| e.to_string())?;
+        if let Some(guard) = self.events.prepare_read() {
+            let mut pfd = libc::pollfd {
+                fd: guard.connection_fd().as_raw_fd(),
+                events: libc::POLLIN,
+                revents: 0,
+            };
+            // SAFETY: one valid pollfd on stack, timeout=0; no blocking render.
+            let available = unsafe { libc::poll(&raw mut pfd, 1, 0) };
+            if available < 0 {
+                return Err(format!(
+                    "GPU05_POLL_FAILED {}",
+                    std::io::Error::last_os_error()
+                ));
+            }
+            if available > 0 {
+                guard.read().map_err(|e| e.to_string())?;
+            }
+        }
+        self.events
+            .dispatch_pending(&mut self.state)
+            .map_err(|e| e.to_string())?;
+        if let Some(e) = self.state.protocol_error {
+            return Err(e.into());
+        }
+        Ok(self.state.tracker.drain_receipts())
+    }
+
+    /// Only for diagnostics: roundtrip may block and change frame pacing.
+    /// Production should poll the owner's Wayland connection with a single
+    /// registered FD and call dispatch_pending after reading events.
+    pub fn diagnostic_roundtrip(&mut self) -> Result<Vec<PresentationReceipt>, String> {
+        self.events
+            .roundtrip(&mut self.state)
+            .map_err(|e| e.to_string())?;
+        if let Some(reason) = self.state.protocol_error {
+            return Err(reason.into());
+        }
+        Ok(self.state.tracker.drain_receipts())
+    }
+
+    pub fn surface(&self) -> &wl_surface::WlSurface {
+        &self.surface
+    }
+    pub fn connection(&self) -> &Connection {
+        &self.connection
+    }
+    pub fn clock_id(&self) -> Option<u32> {
+        self.state.tracker.clock()
+    }
+    pub fn pending_count(&self) -> usize {
+        self.state.tracker.unresolved()
+    }
+    pub fn is_closed(&self) -> bool {
+        self.state.closed
+    }
+    pub fn suggested_size(&self) -> (u32, u32) {
+        self.state.suggested_size.unwrap_or((960, 648))
+    }
+}
+
+/// The Vulkan surface owns no Wayland objects. Field order enforces Vulkan
+/// surface destruction before the underlying native Wayland objects.
+pub struct OwnedGpuWindow {
+    surface: wgpu::Surface<'static>,
+    host: OwnedWaylandPresentation,
+}
+impl OwnedGpuWindow {
+    pub fn open(instance: &wgpu::Instance) -> Result<Self, String> {
+        let host = OwnedWaylandPresentation::open()?;
+        let display_ptr = NonNull::new(host.connection.backend().display_ptr().cast())
+            .ok_or("GPU05_NULL_WAYLAND_DISPLAY")?;
+        let wl_ptr =
+            NonNull::new(host.surface.id().as_ptr().cast()).ok_or("GPU05_NULL_WAYLAND_SURFACE")?;
+        let display = RawDisplayHandle::Wayland(WaylandDisplayHandle::new(display_ptr));
+        let window = RawWindowHandle::Wayland(WaylandWindowHandle::new(wl_ptr));
+        // SAFETY: the host owns both libwayland connection and wl_surface.
+        // OwnedGpuWindow keeps their storage live, and its surface drops
+        // before the host (Rust struct field drop order).
+        let surface = unsafe {
+            instance.create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
+                raw_display_handle: Some(display),
+                raw_window_handle: window,
+            })
+        }
+        .map_err(|e| format!("GPU05_VULKAN_SURFACE_CREATION {e}"))?;
+        Ok(Self { surface, host })
+    }
+    pub fn wgpu_surface(&self) -> &wgpu::Surface<'static> {
+        &self.surface
+    }
+    pub fn arm(&mut self, sequence: u64) -> Result<u32, String> {
+        self.host.arm_before_present(sequence)
+    }
+    pub fn poll(&mut self) -> Result<Vec<PresentationReceipt>, String> {
+        self.host.poll_feedback()
+    }
+    pub fn clock(&self) -> Option<u32> {
+        self.host.clock_id()
+    }
+    pub fn pending(&self) -> usize {
+        self.host.pending_count()
+    }
+    pub fn closed(&self) -> bool {
+        self.host.is_closed()
+    }
+    pub fn size(&self) -> (u32, u32) {
+        self.host.suggested_size()
+    }
+    pub fn drain_for_shutdown(&mut self) -> Result<Vec<PresentationReceipt>, String> {
+        self.host.diagnostic_roundtrip()
+    }
+}
