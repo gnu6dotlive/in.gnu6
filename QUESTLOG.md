@@ -1719,3 +1719,7 @@ pas les Main Quests ni la falsification de GPU-05.
 **SOURCE + 23 TESTS PASS / PHYSICAL NOT RUN / CP03 OPEN.**
 
 L'oracle dual-canal matériel (contact et photodiode sur une seule horloge) est désormais défini et falsifiable. Les hash SHA-256 d'endurance et de PACER-07 sont reconciliés sans nouveau benchmark. Il reste à implémenter le chemin d'entrée utilisateur vers la scène optique et à disposer d'une acquisition matérielle calibrée, attestée indépendamment. Détails : `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-01-STATUS.md`.
+
+## GPU05-ORACLE-02 — témoin lumineux Wayland natif
+
+**Source + 15 tests PASS ; Vulkan idle smoke 749/749 PRESENTED ; aucun clic observé ; CP03 OPEN.** Un probe opt-in reçoit les boutons wl_pointer uniquement depuis la surface native et projette une impulsion optique bornée sans modifier l'autorité sémantique. Le smoke 10 s n'a eu aucun événement d'entrée ; la vraie chaîne causale et la photodiode indépendante restent à qualifier. Rapport : `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-02-STATUS.md`.

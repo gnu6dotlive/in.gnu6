@@ -23,8 +23,10 @@ use std::{
 };
 use wayland_client::{
     delegate_noop,
-    protocol::{wl_callback, wl_compositor, wl_output, wl_registry, wl_surface},
-    Connection, Dispatch, EventQueue, Proxy, QueueHandle,
+    protocol::{
+        wl_callback, wl_compositor, wl_output, wl_pointer, wl_registry, wl_seat, wl_surface,
+    },
+    Connection, Dispatch, EventQueue, Proxy, QueueHandle, WEnum,
 };
 use wayland_protocols::{
     wp::presentation_time::client::{wp_presentation, wp_presentation_feedback},
@@ -36,12 +38,24 @@ pub struct FrameCallbackReceipt {
     pub frame_sequence: u64,
     pub compositor_callback_ms: u32,
 }
+#[derive(Debug, Clone, Copy)]
+pub struct OpticalPointerButton {
+    pub pressed: bool,
+    pub compositor_time_ms: u32,
+}
+const MAX_OPTICAL_POINTER_EVENTS: usize = 16;
 const MAX_CALLBACKS: usize = 2;
 const MAX_QUEUED_CALLBACK_RECEIPTS: usize = 8;
 
 #[derive(Debug)]
 struct NativeState {
     compositor: Option<wl_compositor::WlCompositor>,
+    optical_probe_requested: bool,
+    seat: Option<wl_seat::WlSeat>,
+    pointer: Option<wl_pointer::WlPointer>,
+    optical_surface: Option<wl_surface::WlSurface>,
+    pointer_inside: bool,
+    optical_events: Vec<OpticalPointerButton>,
     outputs: HashMap<u32, wl_output::WlOutput>,
     output_names: HashMap<u32, String>,
     shell: Option<xdg_wm_base::XdgWmBase>,
@@ -59,6 +73,12 @@ impl Default for NativeState {
     fn default() -> Self {
         Self {
             compositor: None,
+            optical_probe_requested: false,
+            seat: None,
+            pointer: None,
+            optical_surface: None,
+            pointer_inside: false,
+            optical_events: Vec::with_capacity(MAX_OPTICAL_POINTER_EVENTS),
             outputs: HashMap::new(),
             output_names: HashMap::new(),
             shell: None,
@@ -98,6 +118,11 @@ impl Dispatch<wl_registry::WlRegistry, ()> for NativeState {
                         (),
                     ));
                 }
+                "wl_seat"
+                    if state.optical_probe_requested && state.seat.is_none() && version >= 5 =>
+                {
+                    state.seat = Some(registry.bind::<wl_seat::WlSeat, _, _>(name, 5, qh, ()));
+                }
                 "wl_output" if version >= 4 => {
                     let output = registry.bind::<wl_output::WlOutput, _, _>(name, 4, qh, ());
                     state.outputs.insert(output.id().protocol_id(), output);
@@ -121,6 +146,73 @@ impl Dispatch<wl_registry::WlRegistry, ()> for NativeState {
                 }
                 _ => {}
             }
+        }
+    }
+}
+
+impl Dispatch<wl_seat::WlSeat, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        seat: &wl_seat::WlSeat,
+        event: wl_seat::Event,
+        _: &(),
+        _: &Connection,
+        qh: &QueueHandle<Self>,
+    ) {
+        if let wl_seat::Event::Capabilities {
+            capabilities: WEnum::Value(caps),
+        } = event
+        {
+            if caps.contains(wl_seat::Capability::Pointer) && state.pointer.is_none() {
+                state.pointer = Some(seat.get_pointer(qh, ()));
+            }
+            if !caps.contains(wl_seat::Capability::Pointer) {
+                state.pointer_inside = false;
+                // No pointer input can be accepted after capability removal.
+            }
+        }
+    }
+}
+impl Dispatch<wl_pointer::WlPointer, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        _: &wl_pointer::WlPointer,
+        event: wl_pointer::Event,
+        _: &(),
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        match event {
+            wl_pointer::Event::Enter { surface, .. } => {
+                state.pointer_inside = state
+                    .optical_surface
+                    .as_ref()
+                    .is_some_and(|own| *own == surface);
+            }
+            wl_pointer::Event::Leave { .. } => {
+                state.pointer_inside = false;
+            }
+            wl_pointer::Event::Button {
+                button,
+                time,
+                state: button_state,
+                ..
+            } if state.pointer_inside && button == 0x110 => {
+                let pressed = match button_state {
+                    WEnum::Value(wl_pointer::ButtonState::Pressed) => true,
+                    WEnum::Value(wl_pointer::ButtonState::Released) => false,
+                    _ => return,
+                };
+                if state.optical_events.len() >= MAX_OPTICAL_POINTER_EVENTS {
+                    state.protocol_error = Some("ORACLE02_POINTER_EVENT_QUEUE_FULL");
+                    return;
+                }
+                state.optical_events.push(OpticalPointerButton {
+                    pressed,
+                    compositor_time_ms: time,
+                });
+            }
+            _ => {}
         }
     }
 }
@@ -289,11 +381,20 @@ impl OwnedWaylandPresentation {
         Self::open_on(None)
     }
     pub fn open_on(requested_output: Option<&str>) -> Result<Self, String> {
+        Self::open_on_probe(requested_output, false)
+    }
+    pub fn open_on_probe(
+        requested_output: Option<&str>,
+        enable_probe: bool,
+    ) -> Result<Self, String> {
         let connection = Connection::connect_to_env().map_err(|e| e.to_string())?;
         let mut events = connection.new_event_queue::<NativeState>();
         let qh = events.handle();
         let _registry = connection.display().get_registry(&qh, ());
-        let mut state = NativeState::default();
+        let mut state = NativeState {
+            optical_probe_requested: enable_probe,
+            ..Default::default()
+        };
         events.roundtrip(&mut state).map_err(|e| e.to_string())?;
         if requested_output.is_some() {
             // wl_output names arrive only after the registry bind roundtrip.
@@ -311,12 +412,24 @@ impl OwnedWaylandPresentation {
             })
             .transpose()?;
 
-        let compositor = state.compositor.as_ref().ok_or("GPU05_NO_COMPOSITOR")?;
-        let shell = state.shell.as_ref().ok_or("GPU05_NO_XDG_SHELL")?;
+        let compositor = state.compositor.clone().ok_or("GPU05_NO_COMPOSITOR")?;
+        let shell = state.shell.clone().ok_or("GPU05_NO_XDG_SHELL")?;
         if state.presentation.is_none() {
             return Err("GPU05_NO_WP_PRESENTATION".into());
         }
+        if enable_probe {
+            if state.seat.is_none() {
+                return Err("ORACLE02_NO_WL_SEAT".into());
+            }
+            events.roundtrip(&mut state).map_err(|e| e.to_string())?;
+            if state.pointer.is_none() {
+                return Err("ORACLE02_NO_WL_POINTER".into());
+            }
+        }
         let surface = compositor.create_surface(&qh, ());
+        if enable_probe {
+            state.optical_surface = Some(surface.clone());
+        }
         let xdg_surface = shell.get_xdg_surface(&surface, &qh, ());
         let xdg_toplevel = xdg_surface.get_toplevel(&qh, ());
         xdg_toplevel.set_title("blob.in GPU-05 native owned surface".into());
@@ -443,6 +556,12 @@ impl OwnedWaylandPresentation {
     pub fn frame_callback_pending(&self) -> usize {
         self.state.callback_pending.len()
     }
+    pub fn drain_optical_buttons(&mut self) -> Result<Vec<OpticalPointerButton>, String> {
+        if let Some(reason) = self.state.protocol_error {
+            return Err(reason.into());
+        }
+        Ok(std::mem::take(&mut self.state.optical_events))
+    }
 
     /// Only for diagnostics: roundtrip may block and change frame pacing.
     /// Production should poll the owner's Wayland connection with a single
@@ -488,7 +607,14 @@ impl OwnedGpuWindow {
         Self::open_on(instance, None)
     }
     pub fn open_on(instance: &wgpu::Instance, output: Option<&str>) -> Result<Self, String> {
-        let host = OwnedWaylandPresentation::open_on(output)?;
+        Self::open_on_probe(instance, output, false)
+    }
+    pub fn open_on_probe(
+        instance: &wgpu::Instance,
+        output: Option<&str>,
+        enable_probe: bool,
+    ) -> Result<Self, String> {
+        let host = OwnedWaylandPresentation::open_on_probe(output, enable_probe)?;
         let display_ptr = NonNull::new(host.connection.backend().display_ptr().cast())
             .ok_or("GPU05_NULL_WAYLAND_DISPLAY")?;
         let wl_ptr =
@@ -518,6 +644,9 @@ impl OwnedGpuWindow {
     }
     pub fn frame_callbacks(&mut self) -> Result<Vec<FrameCallbackReceipt>, String> {
         self.host.drain_frame_callbacks()
+    }
+    pub fn optical_buttons(&mut self) -> Result<Vec<OpticalPointerButton>, String> {
+        self.host.drain_optical_buttons()
     }
     pub fn callback_pending(&self) -> usize {
         self.host.frame_callback_pending()

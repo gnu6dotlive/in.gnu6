@@ -5,6 +5,8 @@ mod first_frame_barrier;
 mod first_present_latency;
 #[path = "../frame_pacing03.rs"]
 mod frame_pacing03;
+#[path = "../optical_probe.rs"]
+mod optical_probe;
 #[path = "../owned_wayland_presentation.rs"]
 mod owned_wayland_presentation;
 #[path = "../scene_bridge.rs"]
@@ -15,10 +17,12 @@ use blobin_cp01_hybrid::gltf::import_glb;
 use first_frame_barrier::{FirstFrameBarrier, Outcome, StartupMode};
 use first_present_latency::{calculate, monotonic_now_ns, StartupAnchors};
 use frame_pacing03::FrameCallbackPacing;
+use optical_probe::{OpticalProbe, Transition};
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
 use startup_policy::StartupPolicy;
 use std::{
+    collections::BTreeMap,
     error::Error,
     fs::{File, OpenOptions},
     io::{BufWriter, Write},
@@ -41,6 +45,10 @@ struct Live {
     params: wgpu::Buffer,
     draw: wgpu::RenderPipeline,
     draw_bind: wgpu::BindGroup,
+    optical_uniform: Option<wgpu::Buffer>,
+    optical_probe: Option<OpticalProbe>,
+    optical_trace: Option<BufWriter<File>>,
+    optical_feedback_pending: BTreeMap<u64, (u64, bool)>,
     started: Instant,
     report_at: Instant,
     previous_submit_at: Option<Instant>,
@@ -80,11 +88,12 @@ impl Live {
         callback_trace: Option<BufWriter<File>>,
         stage_trace: Option<BufWriter<File>>,
         output: Option<&str>,
+        optical_trace: Option<BufWriter<File>>,
     ) -> Result<Self, Box<dyn Error>> {
         let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
         desc.backends = wgpu::Backends::VULKAN;
         let instance = wgpu::Instance::new(desc);
-        let gpu = OwnedGpuWindow::open_on(&instance, output)?;
+        let gpu = OwnedGpuWindow::open_on_probe(&instance, output, optical_trace.is_some())?;
         if let Some(src) = stream.as_ref() {
             println!("GPU05_SCENE_STREAM frames={}", src.frame_count());
         }
@@ -260,44 +269,79 @@ impl Live {
             min_filter: wgpu::FilterMode::Linear,
             ..Default::default()
         });
+        let optical_uniform = if optical_trace.is_some() {
+            Some(
+                device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("oracle02 optical ROI only"),
+                    contents: bytemuck::cast_slice(&[0.0f32; 4]),
+                    usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                }),
+            )
+        } else {
+            None
+        };
+        let mut draw_entries = vec![
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    multisampled: false,
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                count: None,
+            },
+        ];
+        if optical_uniform.is_some() {
+            draw_entries.push(wgpu::BindGroupLayoutEntry {
+                binding: 2,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            });
+        }
         let draw_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("gpu02 draw bindings"),
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        multisampled: false,
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                    },
-                    count: None,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: None,
-                },
-            ],
+            entries: &draw_entries,
         });
+        let mut bind_entries = vec![
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&texview),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ];
+        if let Some(buffer) = optical_uniform.as_ref() {
+            bind_entries.push(wgpu::BindGroupEntry {
+                binding: 2,
+                resource: buffer.as_entire_binding(),
+            });
+        }
         let draw_bind = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("gpu02 fullscreen texture"),
+            label: Some("gpu05 scene projection and optional optical ROI"),
             layout: &draw_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&texview),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&sampler),
-                },
-            ],
+            entries: &bind_entries,
         });
         let draw_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("gpu02 graphics presenter"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../present.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(if optical_uniform.is_some() {
+                include_str!("../present_optical.wgsl").into()
+            } else {
+                include_str!("../present.wgsl").into()
+            }),
         });
         let draw_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("gpu02 draw pipeline layout"),
@@ -349,6 +393,22 @@ impl Live {
             out.write_all(b"\n")?;
             out.flush()?;
         }
+        let mut optical_trace = optical_trace;
+        if let Some(out) = optical_trace.as_mut() {
+            serde_json::to_writer(
+                &mut *out,
+                &serde_json::json!({
+                    "type":"header","schema":"blobin.gpu05.optical.renderer.v1",
+                    "wl_surface_token":token,
+                    "input_origin":"wl_pointer_button_scoped_to_own_surface",
+                    "roi":"uv_x_0.10_to_0.26_y_0.10_to_0.26",
+                    "physical_capture":"NOT_RUN",
+                    "semantic_authority":"unchanged_renderer_local_projection",
+                }),
+            )?;
+            out.write_all(b"\n")?;
+            out.flush()?;
+        }
         println!("GPU05_OWNER token={} clock={:?}", token, gpu.clock());
         Ok(Self {
             gpu,
@@ -362,6 +422,10 @@ impl Live {
             params,
             draw,
             draw_bind,
+            optical_uniform,
+            optical_probe: optical_trace.as_ref().map(|_| OpticalProbe::new()),
+            optical_trace,
+            optical_feedback_pending: BTreeMap::new(),
             started: Instant::now(),
             report_at: Instant::now(),
             previous_submit_at: None,
@@ -419,8 +483,23 @@ impl Live {
         Ok(())
     }
 
+    fn optical_event(&mut self, value: serde_json::Value) -> Result<(), String> {
+        if let Some(out) = self.optical_trace.as_mut() {
+            serde_json::to_writer(&mut *out, &value).map_err(|e| e.to_string())?;
+            out.write_all(b"\n").map_err(|e| e.to_string())?;
+        }
+        Ok(())
+    }
     fn record_feedback(&mut self) -> Result<(), String> {
         for r in self.gpu.poll()? {
+            if let Some((trial, bright)) = self.optical_feedback_pending.remove(&r.frame_sequence) {
+                self.optical_event(serde_json::json!({
+                    "type":"compositor_outcome","frame_sequence":r.frame_sequence,
+                    "trial":trial,"roi_bright_when_submitted":bright,
+                    "outcome":if r.discarded{"discarded"}else{"presented"},
+                    "time_source":"wp_presentation_not_photons",
+                }))?;
+            }
             if r.frame_sequence == 1 {
                 if self.first_frame_outcome.is_some() {
                     return Err("GPU05_PACER06_DUPLICATE_FIRST_FRAME_OUTCOME".into());
@@ -497,6 +576,27 @@ impl Live {
             }
             self.callback_sequences.push(cb.frame_sequence);
         }
+        for button in self.gpu.optical_buttons()? {
+            let now = self.started.elapsed();
+            let result = if let Some(probe) = self.optical_probe.as_mut() {
+                probe.on_button(button.pressed, now)?
+            } else {
+                None
+            };
+            self.optical_event(serde_json::json!({
+                "type":"wayland_button","button":"BTN_LEFT",
+                "pressed":button.pressed,"compositor_event_time_ms":button.compositor_time_ms,
+                "host_receive_elapsed_ns":now.as_nanos(),
+                "timing_class":"unattested_wayland_software_input",
+            }))?;
+            if let Some(Transition::Bright(trial)) = result {
+                self.optical_event(serde_json::json!({
+                    "type":"probe_bright_requested","trial":trial,
+                    "host_elapsed_ns":now.as_nanos(),
+                    "authority":"renderer_local_witness_only",
+                }))?;
+            }
+        }
         Ok(())
     }
     fn render(&mut self) -> Result<(), String> {
@@ -565,6 +665,31 @@ impl Live {
         self.wsi_timeout_streak = 0;
         self.mark_stage(stage_seq, "after_acquire", Instant::now())?;
         let observed_at = self.pause_started.unwrap_or_else(Instant::now);
+        let now = self.started.elapsed();
+        if let Some(probe) = self.optical_probe.as_mut() {
+            let transition = probe.tick(now);
+            if let Some(Transition::Dark(trial)) = transition {
+                self.optical_event(serde_json::json!({
+                    "type":"probe_dark_reset","trial":trial,
+                    "host_elapsed_ns":now.as_nanos(),
+                }))?;
+            }
+        }
+        let optic_trial = self
+            .optical_probe
+            .as_ref()
+            .and_then(OpticalProbe::active_trial);
+        let optic_bright = self
+            .optical_probe
+            .as_ref()
+            .is_some_and(OpticalProbe::is_bright);
+        if let Some(buffer) = self.optical_uniform.as_ref() {
+            self.queue.write_buffer(
+                buffer,
+                0,
+                bytemuck::cast_slice(&[if optic_bright { 1.0f32 } else { 0.0 }, 0.0, 0.0, 0.0]),
+            );
+        }
         let seconds = observed_at
             .duration_since(self.started)
             .saturating_sub(self.paused_total)
@@ -656,6 +781,24 @@ impl Live {
         self.mark_stage(stage_seq, "after_queue_submit", Instant::now())?;
         self.gpu.arm(self.next_frame_sequence)?;
         self.mark_stage(stage_seq, "after_feedback_arm", Instant::now())?;
+        if self.optical_probe.is_some() {
+            let trial = optic_trial.unwrap_or(0);
+            if self
+                .optical_feedback_pending
+                .insert(stage_seq, (trial, optic_bright))
+                .is_some()
+            {
+                return Err("ORACLE02_DUPLICATE_OPTICAL_FRAME_SEQUENCE".into());
+            }
+            if self.optical_feedback_pending.len() > 8 {
+                return Err("ORACLE02_PENDING_FRAME_LIMIT_EXCEEDED".into());
+            }
+            self.optical_event(serde_json::json!({
+                "type":"roi_frame_submitted","frame_sequence":stage_seq,
+                "trial":trial,"bright":optic_bright,
+                "time_source":"gpu_submission_not_photons",
+            }))?;
+        }
         if stage_seq == 1 {
             self.first_submit_begin_mono_ns = Some(monotonic_now_ns()?);
         }
@@ -718,6 +861,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut pinned_output: Option<String> = None;
     let mut startup_policy = StartupPolicy::Immediate;
     let mut initial_feedback_mode = StartupMode::Current;
+    let mut optical_trace_output: Option<String> = None;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -774,6 +918,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 startup_clock_output = Some(path);
             }
+            "--optical-probe-jsonl" => {
+                let value = args
+                    .next()
+                    .ok_or("--optical-probe-jsonl requires absolute path")?;
+                if !Path::new(&value).is_absolute() {
+                    return Err("ORACLE02_TRACE_PATH_NOT_ABSOLUTE".into());
+                }
+                optical_trace_output = Some(value);
+            }
             "--stage-jsonl" => {
                 let value = args.next().ok_or("--stage-jsonl requires path")?;
                 if !Path::new(&value).is_absolute() {
@@ -802,6 +955,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         )),
         None => None,
     };
+    let optical_trace = match optical_trace_output {
+        Some(path) => Some(BufWriter::new(
+            OpenOptions::new().write(true).create_new(true).open(path)?,
+        )),
+        None => None,
+    };
     let mut live = pollster::block_on(Live::create(
         scene,
         None,
@@ -809,6 +968,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         callback_trace,
         stage_trace,
         pinned_output.as_deref(),
+        optical_trace,
     ))?;
     let app_ready_mono_ns = monotonic_now_ns()?;
     println!("GPU05_PACER04_STAGES_CPU_CLOCK_INSTANT not_wayland_clock=true");
@@ -955,6 +1115,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     if let Some(out) = live.stage_trace.as_mut() {
         out.flush()?;
+    }
+    if let Some(out) = live.optical_trace.as_mut() {
+        out.flush()?;
+    }
+    if live.optical_probe.is_some() {
+        println!(
+            "ORACLE02_EXIT pending_optical_frames={} optical_physical_capture=NOT_RUN",
+            live.optical_feedback_pending.len()
+        );
+        if !live.optical_feedback_pending.is_empty() {
+            return Err("ORACLE02_UNRESOLVED_OPTICAL_FRAME_OUTCOMES".into());
+        }
     }
     if let Some(path) = startup_clock_output {
         let clock = live.gpu.clock().ok_or("GPU05_MISSING_WP_CLOCK_ID")?;
