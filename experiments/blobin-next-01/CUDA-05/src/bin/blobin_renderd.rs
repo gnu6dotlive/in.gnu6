@@ -305,8 +305,8 @@ impl State {
                 .expect("child")
                 .render(&serialized, expected, self.cfg.timeout);
         let worker_ms = worker_started.elapsed().as_secs_f64() * 1000.0;
-        let rgba = match result {
-            Ok(bytes) => bytes,
+        let (rgba, cache_hit) = match result {
+            Ok(frame) => frame,
             Err(err) => {
                 *current = None;
                 if let Some(gate) = match dev {
@@ -335,7 +335,7 @@ impl State {
             "stride_bytes":width_px*4,"format":"RGBA8_UNORM_OPAQUE","buffer_bytes":expected,
             "backend_requested":backend_requested,"backend_actual":backend_requested,
             "view_mode":view_mode,"generation":generation,"qualification":"CUDA05F_GATE_PASS",
-            "cache_hit":false,"geometry_sha256":geometry,"frame_sequence":self.frames}),
+            "cache_hit":cache_hit,"geometry_sha256":geometry,"frame_sequence":self.frames}),
             rgba,
         ))
     }

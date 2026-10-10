@@ -120,9 +120,13 @@ fn run() -> Result<(), String> {
         };
         let request = message.make_request()?;
         let output = bridge.evaluate_observed(&request, lib.as_deref())?;
-        if output.output.selected != dev || output.output.cache_hit {
-            return Err("RESIDENT_UNEXPECTED_DEVICE_OR_CACHE".into());
+        if output.output.selected != dev {
+            return Err("RESIDENT_UNEXPECTED_DEVICE".into());
         }
+        // CUDA-04 reuses validated SDF samples when the geometry is unchanged.
+        // A cache hit is not a device failure: still colorize for the requested mode,
+        // and send provenance to the parent without claiming fresh GPU execution.
+        let cached = output.output.cache_hit;
         let pixels = request.dimensions().0 as usize * request.dimensions().1 as usize;
         if output.output.samples.len() != pixels {
             return Err("SAMPLE_LENGTH_WRONG".into());
@@ -135,6 +139,9 @@ fn run() -> Result<(), String> {
         stdout
             .write_all(&len)
             .map_err(|_| "RESPONSE_PREFIX_FAILED")?;
+        stdout
+            .write_all(&[u8::from(cached)])
+            .map_err(|_| "RESPONSE_CACHE_FLAG_FAILED")?;
         stdout
             .write_all(&rgba)
             .map_err(|_| "RESPONSE_PAYLOAD_FAILED")?;

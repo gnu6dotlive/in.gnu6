@@ -13,7 +13,7 @@ use std::{
 pub struct ResidentWorker {
     child: Child,
     input: ChildStdin,
-    responses: Receiver<Result<Vec<u8>, String>>,
+    responses: Receiver<Result<(Vec<u8>, bool), String>>,
     born: Instant,
     used: u64,
     budget: u64,
@@ -49,7 +49,7 @@ impl ResidentWorker {
             .arg(ttl.as_millis().to_string());
         cmd.stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::null());
+            .stderr(Stdio::inherit());
         // The worker inherits the invoking desktop UID by design; do not call this
         // a privilege boundary. The process is independently killable/revocable.
         let mut child = cmd.spawn().map_err(|_| "RESIDENT_WORKER_SPAWN_FAILED")?;
@@ -101,7 +101,11 @@ impl ResidentWorker {
         let (tx, rx) = mpsc::channel();
         thread::spawn(move || loop {
             let mut prefix = [0u8; 4];
-            if output.read_exact(&mut prefix).is_err() {
+            if let Err(error) = output.read_exact(&mut prefix) {
+                let _ = tx.send(Err(format!(
+                    "RESIDENT_CHILD_EOF_OR_HEADER_ERROR kind={:?}",
+                    error.kind()
+                )));
                 break;
             }
             let n = u32::from_le_bytes(prefix) as usize;
@@ -109,12 +113,17 @@ impl ResidentWorker {
                 let _ = tx.send(Err("RESIDENT_RESPONSE_LENGTH_INVALID".into()));
                 break;
             }
+            let mut cache = [0u8; 1];
+            if output.read_exact(&mut cache).is_err() || cache[0] > 1 {
+                let _ = tx.send(Err("RESIDENT_RESPONSE_CACHE_FLAG_INVALID".into()));
+                break;
+            }
             let mut bytes = vec![0u8; n];
             if output.read_exact(&mut bytes).is_err() {
                 let _ = tx.send(Err("RESIDENT_RESPONSE_TRUNCATED".into()));
                 break;
             }
-            if tx.send(Ok(bytes)).is_err() {
+            if tx.send(Ok((bytes, cache[0] == 1))).is_err() {
                 break;
             }
         });
@@ -157,7 +166,7 @@ impl ResidentWorker {
         json: &[u8],
         expected: usize,
         limit: Duration,
-    ) -> Result<Vec<u8>, String> {
+    ) -> Result<(Vec<u8>, bool), String> {
         if self.expired() {
             return Err("RESIDENT_WORKER_LEASE_EXPIRED".into());
         }
@@ -173,9 +182,12 @@ impl ResidentWorker {
         Self::send_bounded(&mut self.input, json, deadline)?;
         let reply = self
             .responses
-            .recv_timeout(limit)
-            .map_err(|_| "RESIDENT_RESPONSE_TIMEOUT_OR_EOF")??;
-        if reply.len() != expected {
+            .recv_timeout(deadline.saturating_duration_since(Instant::now()))
+            .map_err(|error| match error {
+                mpsc::RecvTimeoutError::Timeout => "RESIDENT_RESPONSE_TIMEOUT",
+                mpsc::RecvTimeoutError::Disconnected => "RESIDENT_READER_THREAD_CLOSED",
+            })??;
+        if reply.0.len() != expected {
             return Err("RESIDENT_FRAME_SIZE_WRONG".into());
         }
         self.used += 1;

@@ -39,6 +39,8 @@ Server response contains **one** JSON `FRAME_READY` packet plus **exactly one** 
 }
 ```
 
+**Cache provenance:** `FRAME_READY.cache_hit` is a Boolean. `true` means CUDA-04 reused previously computed samples for identical geometry on the same backend. This is a valid frame, not a worker failure, and the requested visualization is still applied to those samples. A changed `scene_revision` or visualization alone need not invalidate the SDF cache. Cached frames must not be misrepresented as new GPU kernel executions.
+
 The FD length MUST equal `stride_bytes*height_px`; pixels are contiguous row-major RGBA8 with alpha=255 and stride exactly width*4, not premultiplied. Worker uses **actual CPU/CUDA/Vulkan SDF samples**, followed by CPU colorization for presentation. Modes are **2D signed field visualizations, not ray-traced 3D**. The `lit` mode is derived surface-normal shading, not a physically based lighting pipeline. Frame descriptor is a **sealed memfd**, not a GPU DMA-BUF; importing to GPU by the viewer may require a copy.
 
 `RENDER_ERROR` has `{version,type,request_id,scene_revision,reason}`. The server never sends a successful frame if a worker fails, a gate fails, a timeout occurs, a packet is too large, a digest mismatches, or an output size/format is wrong. Fail-closed; never silently fall back from requested `cuda`/`vulkan` to `cpu`.

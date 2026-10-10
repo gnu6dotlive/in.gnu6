@@ -14,6 +14,8 @@ def send(p,request):
     if len(prefix)!=4:raise RuntimeError("RESPONSE_HEADER_MISSING")
     size=struct.unpack("<I",prefix)[0]
     if size != request["width_px"]*request["height_px"]*4:raise RuntimeError("SIZE_MISMATCH")
+    flag=p.stdout.read(1)
+    if flag not in (b"\x00",b"\x01"):raise RuntimeError("CACHE_FLAG_INVALID")
     data=p.stdout.read(size)
     if len(data)!=size or data[3::4]!=b"\xff"*(size//4):raise RuntimeError("OUTPUT_INCOMPLETE_OR_ALPHA")
     return data
