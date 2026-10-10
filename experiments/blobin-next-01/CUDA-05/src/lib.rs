@@ -177,3 +177,6 @@ mod tests {
         assert!(Ingress::new(Device::Cpu, None, None).is_err());
     }
 }
+
+pub mod frame_protocol;
+pub mod frame_transport;
