@@ -203,7 +203,10 @@ impl State {
                     .ok_or("FRAME_CUDA_PROVIDER_SHA_NOT_CONFIGURED")?,
             )?;
         }
+        let request_started = Instant::now();
+        let gate_started = Instant::now();
         let generation = self.gate(device)?;
+        let gate_ms = gate_started.elapsed().as_secs_f64() * 1000.0;
         let pixels = (*width_px as usize)
             .checked_mul(*height_px as usize)
             .ok_or("FRAME_SIZE_OVERFLOW")?;
@@ -230,6 +233,7 @@ impl State {
                     .collect::<String>(),
             ]);
         }
+        let worker_started = Instant::now();
         let mut child = Command::new(&self.cfg.frame_worker)
             .args(&args)
             .stdin(Stdio::piped())
@@ -285,6 +289,8 @@ impl State {
         if rgba.len() != expected {
             return Err("FRAME_OUTPUT_BYTE_COUNT_MISMATCH".into());
         }
+        let worker_ms = worker_started.elapsed().as_secs_f64() * 1000.0;
+        eprintln!("BLOB_FRAME_TIMING backend={backend_requested} mode={view_mode} width={width_px} height={height_px} gate_ms={gate_ms:.3} worker_ms={worker_ms:.3} total_ms={:.3} sequence={} descriptor=sealed_worker_per_frame",request_started.elapsed().as_secs_f64()*1000.0,self.frames+1);
         self.frames = self.frames.checked_add(1).ok_or("FRAME_COUNTER_OVERFLOW")?;
         let hash = geometry_id(&req)?
             .0

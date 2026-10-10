@@ -1,0 +1,25 @@
+[Unit]
+Description=blob.in local real GPU Render Bridge (Wayland showcase)
+Documentation=man:systemd.service(5)
+After=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=6
+
+[Service]
+Type=exec
+UMask=0077
+WorkingDirectory=/mnt/workbench/workspaces/gnu.in.labs/.worktrees/blobin-showcase-runtime-01/experiments/blobin-next-01/CUDA-05
+RuntimeDirectory=blobin-showcase
+RuntimeDirectoryMode=0700
+ExecStartPre=/usr/bin/python3 /mnt/workbench/workspaces/gnu.in.labs/.worktrees/blobin-showcase-runtime-01/experiments/blobin-next-01/CUDA-05/scripts/recover_stale_socket.py
+ExecStart=/mnt/workbench/workspaces/gnu.in.labs/.worktrees/blobin-showcase-runtime-01/experiments/blobin-next-01/CUDA-05/scripts/start_render_bridge.sh
+Restart=on-failure
+RestartSec=2s
+TimeoutStopSec=8s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blobin-render-bridge
+NoNewPrivileges=true
+
+[Install]
+WantedBy=graphical-session.target
