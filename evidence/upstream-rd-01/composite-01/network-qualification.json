@@ -1,0 +1,70 @@
+{
+  "gate": "INCONCLUSIVE_HOST_LOOPBACK_POSITIVE_CONTROL",
+  "cases": [
+    {
+      "mxc": "mxc-allow",
+      "deno": "deno-allow",
+      "exit": 0,
+      "decision": {
+        "ok": false,
+        "name": "TypeError",
+        "message": "fetch failed"
+      },
+      "stdout": "{\"ok\":false,\"name\":\"TypeError\",\"message\":\"fetch failed\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "pass": false
+    },
+    {
+      "mxc": "mxc-deny",
+      "deno": "deno-allow",
+      "exit": 0,
+      "decision": {
+        "ok": false,
+        "name": "TypeError",
+        "message": "fetch failed"
+      },
+      "stdout": "{\"ok\":false,\"name\":\"TypeError\",\"message\":\"fetch failed\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "mxc": "mxc-allow",
+      "deno": "deno-deny",
+      "exit": 0,
+      "decision": {
+        "ok": false,
+        "name": "NotCapable",
+        "message": "Requires net access to \"127.0.0.1:32779\", run again with the --allow-net flag"
+      },
+      "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires net access to \\\"127.0.0.1:32779\\\", run again with the --allow-net flag\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "pass": true
+    },
+    {
+      "mxc": "mxc-deny",
+      "deno": "deno-deny",
+      "exit": 0,
+      "decision": {
+        "ok": false,
+        "name": "NotCapable",
+        "message": "Requires net access to \"127.0.0.1:32779\", run again with the --allow-net flag"
+      },
+      "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires net access to \\\"127.0.0.1:32779\\\", run again with the --allow-net flag\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "pass": true
+    }
+  ],
+  "target": "ephemeral localhost HTTP, no public egress",
+  "mxc_source_pin": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "deno_version": "2.9.7",
+  "source_runtime_match": false,
+  "limitations": [
+    "Process/Bubblewrap on one physical Linux machine",
+    "Deno broker IPC not exercised",
+    "No Judgment Plane integration",
+    "A TCP localhost fixture does not qualify universal network confinement",
+    "MXC Bubblewrap always creates a private network namespace; host-loopback is denied by design",
+    "Without a supported MXC-positive network endpoint this is NOT a pass of a bidirectional network oracle"
+  ],
+  "cause_source": "https://github.com/microsoft/mxc/blob/c6f301d53a1430c4c921a05c57af838f7392348f/docs/backends/bwrap/bubblewrap-backend.md"
+}

@@ -1,7 +1,7 @@
 # W14 — MXC × Deno authorization-to-containment boundary
 
 Contract: `00-BASE.md` + `12-MXC-SECURITY-01.md` + `13-DENO-PERMISSION-01.md`.
-Status: **DESIGNED / NOT_EXECUTED**. No authority to modify the Gnosix Judgment Plane, desktop MCP, in.gnu6 core, Coolify, secrets or production.
+Status: **PARTIAL_LAB_PASS** — four executed MXC SDK × Deno filesystem cases; network cross-test INCONCLUSIVE due invalid host-loopback positive control; permission broker and Judgment Plane NOT_RUN. No authority to modify the Gnosix Judgment Plane, desktop MCP, in.gnu6 core, Coolify, secrets or production.
 
 ## Question
 Can a Deno-specified permission request be narrowed into a kernel-enforced execution boundary, with fail-closed refusal when the requested scope is unenforceable?
@@ -21,4 +21,4 @@ Can a Deno-specified permission request be narrowed into a kernel-enforced execu
 6. Broker absent vs broken → separately defined and tested; no assumption of equivalence.
 7. Host identity/TTL/resource scope mismatch → non-amplification gate RED.
 
-Inputs must be temporary fixtures and exact source pins; tests require **actual** Deno and MXC runtime execution under isolated bounded lab conditions. No compilation, integration or product release is authorized simply by writing this contract.
+Inputs use disposable fixtures and pinned/identified runtime binaries. Actual MXC SDK + Deno v2.9.7 filesystem test is now **LAB_PASS_4_OF_4**; evidence and source/runtime mismatch are recorded in `docs/agent-results/upstream-rd-01/composite-01.md`. The network positive fixture used host-loopback, which MXC rejects by design, so its outcome is **INCONCLUSIVE**, not PASS. No product integration, authority expansion or release is authorized by this experiment.

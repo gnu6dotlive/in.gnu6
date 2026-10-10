@@ -1,0 +1,71 @@
+{
+  "gate": "PASS_4_OF_4",
+  "source_commit_mxc": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "mxc_sdk": "v1.0.0",
+  "deno_binary_release": "v2.9.7",
+  "deno_matches_pinned_source_commit": false,
+  "cases": [
+    {
+      "mode": "rw",
+      "permission": "allow",
+      "exitcode": 0,
+      "stdout": "{\"ok\":true,\"gate\":\"DENO_WRITE_COMPLETED\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "decision": {
+        "ok": true,
+        "gate": "DENO_WRITE_COMPLETED"
+      },
+      "marker": "COMPOSITE_ALLOWED\n",
+      "pass": true
+    },
+    {
+      "mode": "ro",
+      "permission": "allow",
+      "exitcode": 0,
+      "stdout": "{\"ok\":false,\"name\":\"Error\",\"message\":\"Read-only file system (os error 30): writefile '/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-x53z5owl/marker.txt'\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "decision": {
+        "ok": false,
+        "name": "Error",
+        "message": "Read-only file system (os error 30): writefile '/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-x53z5owl/marker.txt'"
+      },
+      "marker": null,
+      "pass": true
+    },
+    {
+      "mode": "rw",
+      "permission": "deny",
+      "exitcode": 0,
+      "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-x53z5owl/marker.txt\\\", run again with the --allow-write flag\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "decision": {
+        "ok": false,
+        "name": "NotCapable",
+        "message": "Requires write access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-x53z5owl/marker.txt\", run again with the --allow-write flag"
+      },
+      "marker": null,
+      "pass": true
+    },
+    {
+      "mode": "ro",
+      "permission": "deny",
+      "exitcode": 0,
+      "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-x53z5owl/marker.txt\\\", run again with the --allow-write flag\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "decision": {
+        "ok": false,
+        "name": "NotCapable",
+        "message": "Requires write access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-x53z5owl/marker.txt\", run again with the --allow-write flag"
+      },
+      "marker": null,
+      "pass": true
+    }
+  ],
+  "sentinel_preserved": true,
+  "limitations": [
+    "No Deno external permission broker IPC configured",
+    "MXC Process/Bubblewrap backend on one Linux machine only",
+    "No real Judgment Plane ExecutionGrant or token minting",
+    "No general security certification or deployment"
+  ]
+}
