@@ -1,4 +1,6 @@
 //! GPU-05 native owned Wayland surface, actual signed tetra/SDF shader, Vulkan WSI.
+#[path = "../first_frame_barrier.rs"]
+mod first_frame_barrier;
 #[path = "../frame_pacing03.rs"]
 mod frame_pacing03;
 #[path = "../owned_wayland_presentation.rs"]
@@ -8,6 +10,7 @@ mod scene_bridge;
 #[path = "../startup_policy.rs"]
 mod startup_policy;
 use blobin_cp01_hybrid::gltf::import_glb;
+use first_frame_barrier::{FirstFrameBarrier, Outcome, StartupMode};
 use frame_pacing03::FrameCallbackPacing;
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
@@ -46,6 +49,7 @@ struct Live {
     next_frame_sequence: u64,
     presented_frames: u64,
     discarded_frames: u64,
+    first_frame_outcome: Option<Outcome>,
     last_feedback_refresh_ns: Option<u32>,
     trace: Option<BufWriter<File>>,
     callback_trace: Option<BufWriter<File>>,
@@ -363,6 +367,7 @@ impl Live {
             next_frame_sequence: 1,
             presented_frames: 0,
             discarded_frames: 0,
+            first_frame_outcome: None,
             last_feedback_refresh_ns: None,
             trace,
             callback_trace,
@@ -407,6 +412,24 @@ impl Live {
 
     fn record_feedback(&mut self) -> Result<(), String> {
         for r in self.gpu.poll()? {
+            if r.frame_sequence == 1 {
+                if self.first_frame_outcome.is_some() {
+                    return Err("GPU05_PACER06_DUPLICATE_FIRST_FRAME_OUTCOME".into());
+                }
+                self.first_frame_outcome = Some(if r.discarded {
+                    Outcome::Discarded
+                } else {
+                    Outcome::Presented
+                });
+                println!(
+                    "GPU05_PACER06_FIRST_OUTCOME outcome={} via=wp_presentation",
+                    if r.discarded {
+                        "discarded"
+                    } else {
+                        "presented"
+                    }
+                );
+            }
             let mut item = serde_json::json!({
                 "type":"feedback","feedback_id":r.feedback_id,
                 "frame_sequence":r.frame_sequence,"wl_surface_token":self.token,
@@ -675,6 +698,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut stage_output = None;
     let mut pinned_output: Option<String> = None;
     let mut startup_policy = StartupPolicy::Immediate;
+    let mut initial_feedback_mode = StartupMode::Current;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -706,6 +730,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     return Err("GPU05_CALLBACK_TRACE_PATH_NOT_ABSOLUTE".into());
                 }
                 callback_output = Some(value);
+            }
+            "--first-feedback-gate" => {
+                let value = args.next().ok_or("--first-feedback-gate requires value")?;
+                initial_feedback_mode = StartupMode::parse(&value)?;
             }
             "--startup-policy" => {
                 let value = args.next().ok_or("--startup-policy requires value")?;
@@ -769,6 +797,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let start = Instant::now();
     let mut pacing = FrameCallbackPacing::new();
+    let mut first_barrier = FirstFrameBarrier::new(initial_feedback_mode);
+    let mut first_outcome_propagated = false;
+    println!(
+        "GPU05_PACER06_GATE mode={} max_first_wait_ms=250",
+        first_barrier.mode().name()
+    );
     let mut abort_reason: Option<&'static str> = None;
     println!(
         "GPU05_PACER03_ACTIVE frame_credit=wl_surface.frame max_wp_inflight=2 watchdog_ms=250"
@@ -777,6 +811,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         let before_feedback = live.presented_frames + live.discarded_frames;
         live.record_feedback()?;
         let now = start.elapsed();
+        if !first_outcome_propagated {
+            if let Some(outcome) = live.first_frame_outcome {
+                if let Err(reason) = first_barrier.first_feedback(1, outcome) {
+                    abort_reason = Some(reason);
+                    break;
+                }
+                first_outcome_propagated = true;
+            }
+        }
         for seq in std::mem::take(&mut live.callback_sequences) {
             if let Err(reason) = pacing.on_frame_callback(seq, now) {
                 abort_reason = Some(reason);
@@ -800,6 +843,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                 break;
             }
         }
+        match first_barrier.permit(live.next_frame_sequence, now) {
+            Ok(true) => {}
+            Ok(false) => {
+                std::thread::sleep(Duration::from_millis(1));
+                continue;
+            }
+            Err(reason) => {
+                abort_reason = Some(reason);
+                break;
+            }
+        }
         let before_seq = live.next_frame_sequence;
         let before_feedback = live.presented_frames + live.discarded_frames;
         if let Err(e) = live.render() {
@@ -812,6 +866,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             if let Err(reason) = pacing.submitted(before_seq, after_render) {
                 abort_reason = Some(reason);
                 break;
+            }
+            if let Err(reason) = first_barrier.submitted(before_seq, after_render) {
+                abort_reason = Some(reason);
+                break;
+            }
+        }
+        if !first_outcome_propagated {
+            if let Some(outcome) = live.first_frame_outcome {
+                if let Err(reason) = first_barrier.first_feedback(1, outcome) {
+                    abort_reason = Some(reason);
+                    break;
+                }
+                first_outcome_propagated = true;
             }
         }
         for seq in std::mem::take(&mut live.callback_sequences) {
@@ -837,6 +904,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         for seq in std::mem::take(&mut live.callback_sequences) {
             pacing.on_frame_callback(seq, start.elapsed())?;
         }
+        if !first_outcome_propagated {
+            if let Some(outcome) = live.first_frame_outcome {
+                first_barrier.first_feedback(1, outcome)?;
+                first_outcome_propagated = true;
+            }
+        }
         if live.gpu.pending() == 0
             && live.gpu.callback_pending() == 0
             && pacing.callback_pending() == 0
@@ -854,8 +927,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     if let Some(out) = live.stage_trace.as_mut() {
         out.flush()?;
     }
-    println!("GPU05_PACER03_EXIT seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} callbacks={} callback_pending={} max_inflight={} wsi_timeouts={} wsi_occluded={} watchdog_trips={} aborted={} NOT_CP03",
-        start.elapsed().as_secs_f64(),live.next_frame_sequence-1,
+    println!("GPU05_PACER06_EXIT mode={} first_outcome={:?} startup_wait_iterations={} seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} callbacks={} callback_pending={} max_inflight={} wsi_timeouts={} wsi_occluded={} watchdog_trips={} aborted={} NOT_CP03",
+        first_barrier.mode().name(),first_barrier.outcome(),
+        first_barrier.wait_iterations(),start.elapsed().as_secs_f64(),live.next_frame_sequence-1,
         live.presented_frames,live.discarded_frames,live.gpu.pending(),
         pacing.callbacks(),pacing.callback_pending(),
         pacing.max_inflight(),live.wsi_timeout_total,live.wsi_occluded_total,

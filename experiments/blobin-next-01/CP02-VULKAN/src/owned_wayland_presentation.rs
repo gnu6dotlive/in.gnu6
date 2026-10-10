@@ -242,6 +242,9 @@ impl Dispatch<xdg_surface::XdgSurface, ()> for NativeState {
     ) {
         if let xdg_surface::Event::Configure { serial } = event {
             xdg.ack_configure(serial);
+            if !state.configured {
+                println!("GPU05_PACER06_XDG_FIRST_CONFIGURE_ACK serial={serial}");
+            }
             state.configured = true;
         }
     }
@@ -326,6 +329,7 @@ impl OwnedWaylandPresentation {
             );
         }
         // Initial xdg_surface configure must precede the first Vulkan commit.
+        println!("GPU05_PACER06_INITIAL_EMPTY_SURFACE_COMMIT");
         surface.commit();
         for _ in 0..8 {
             if state.configured && state.tracker.clock().is_some() {
@@ -337,6 +341,7 @@ impl OwnedWaylandPresentation {
             return Err("GPU05_NOT_CONFIGURED_OR_CLOCK_MISSING".into());
         }
         state.tracker.begin_surface(1).map_err(str::to_string)?;
+        println!("GPU05_PACER06_CONFIGURED_BEFORE_VULKAN_SWAPCHAIN status=true");
         if let Some(e) = state.protocol_error {
             return Err(e.into());
         }
@@ -385,6 +390,9 @@ impl OwnedWaylandPresentation {
         self.state.callback_pending.insert(frame_seq);
         let _callback = self.surface.frame(&self.qh, frame_seq);
         let _feedback = presentation.feedback(&self.surface, &self.qh, id);
+        if frame_seq == 1 {
+            println!("GPU05_PACER06_FIRST_FRAME_FEEDBACK_ARMED seq=1");
+        }
         self.connection.flush().map_err(|e| e.to_string())?;
         self.next_feedback_id = next_id;
         Ok(id)

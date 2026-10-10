@@ -66,6 +66,14 @@ Direct stage observation:
 - Live Wayland callbacks match feedback sequences in each variant. No GPU-05 process remained open after the pair.
 - Hyprland PID `2544527` remained alive; native `blobin_renderd` PID `1974196` remained alive.
 
+## Follow-on PACER-06
+
+A new same-output/same-binary A/B of current startup versus waiting
+for the first wp_presentation outcome changed frame #1 from discarded
+to presented (451/451 presented and zero discarded in the gated run).
+This is one short positive pair, not independently replicated; CP03
+remains OPEN. See GPU-05-PACER-06-STATUS.md for complete evidence.
+
 ## Falsification verdict and next experiment
 
 **Negative for the naive delay hypothesis in this A/B pair:** a fixed 75ms idle after configuring the GPU surface does **not** prevent the first-frame compositor discard, and no material throughput improvement is evident in the two samples.
