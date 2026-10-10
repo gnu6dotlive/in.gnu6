@@ -15,8 +15,8 @@ Date: 2026-10-10 · Autorité: GO explicite de l'opérateur, publication de la b
 ## Gates
 - G00 baseline/isolation: PASS; G01 pins/source access: PASS pour six commits et douze fichiers, licences distributives à approfondir.
 - G02 lecture source: PASS pour l'intake; revue approfondie des API et consommateurs: OPEN.
-- G03 convergence interprojets: DRAFT; G04 expériences empiriques: NOT_RUN.
-- G05 transfert projet: NOT_RUN; G06 publication: DRAFT_ONLY; G07 push: PENDING avant receipt du remote.
+- G03 convergence interprojets: DRAFT; G04 bwrap startup host smoke: PROBE_PASS after fixture repair; MXC SDK, GPU, runtime and performance tests: NOT_RUN.
+- G05 transfert projet: NOT_RUN; G06 publication: DRAFT_ONLY; G07 premier commit/push: VERIFIED_REMOTE at d9bcb0488c88a4447d5731d35e00b9bf230a5462, remote SHA equals local SHA.
 
 ## Interfaces et conflits à préserver
 - `in.gnu6` n'acquiert pas l'autorité runtime/security/UI du fait de cette recherche.

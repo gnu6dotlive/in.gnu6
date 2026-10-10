@@ -16,7 +16,7 @@ Use deterministic commands with bounded warmups/repetitions and JSON; compare co
 
 ## Non-claims and license
 CPU execution benchmarks do not measure GPU kernel time, PCIe transfers or VRAM residency; never fabricate GPU gains.
-GitHub SPDX says Apache-2.0; inspect LICENSE for any dual licensing and attribution.
+Pinned-source LICENSE-APACHE and LICENSE-MIT both exist (dual grants). GitHub SPDX metadata alone lists Apache-2.0; see docs/agent-results/upstream-rd-01/license-review.md.
 
 ## Exclusive writes
 `docs/agent-results/upstream-rd-01/w05.md` and `evidence/upstream-rd-01/w05/` only; never product code. No network publication, merge, branch rewriting, or required hardware allocation.

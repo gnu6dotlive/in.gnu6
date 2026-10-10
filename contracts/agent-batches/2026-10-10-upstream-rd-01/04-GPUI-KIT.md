@@ -16,7 +16,7 @@ Verify keyboard traversal, focus restoration and accessible labels in a minimal 
 
 ## Non-claims and license
 Claimed FPS does not imply measured RTX3070 performance; experimental GPUI Shell may change; version pin required.
-GitHub metadata NOASSERTION: source and docs licenses require separate review, including possible Apache/CC split.
+Pinned-source review: LICENSE-APACHE states Apache-2.0 for software; LICENSE-DOCS.md additionally grants CC BY 4.0 for specified docs prose/illustrations, with exceptions. See docs/agent-results/upstream-rd-01/license-review.md.
 
 ## Exclusive writes
 `docs/agent-results/upstream-rd-01/w04.md` and `evidence/upstream-rd-01/w04/` only; never product code. No network publication, merge, branch rewriting, or required hardware allocation.
