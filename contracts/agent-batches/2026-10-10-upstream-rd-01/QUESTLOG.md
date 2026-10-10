@@ -97,3 +97,18 @@ Gates: W14_FILESYSTEM=LAB_PASS_REPEATED; W14_NETWORK=INCONCLUSIVE; W14_END_TO_EN
 - **Autorité encore manquante** : identité sécurisée du broker, grant signé/non forgeable, validation du scope/TTL et révocation via Gnosix Judgment Plane, tests host-network egress MXC avec outillage correct, Deno binary compilé au SHA épinglé, produit réel, multi-tenant.
 
 Gates : W14B_DENO_BROKER_IPC=PASS_9_OF_9; W14B_MXC_NETWORK_REFUSAL=PASS_3_OF_3; W14B_COMPOSITE_BROKER_OS=PASS_5_OF_5; W14B_MXC_EGRESS_ALLOW=NOT_RUN; W14B_JUDGMENT_PLANE=NOT_RUN; PRODUCT_TRANSFER=NOT_RUN; PUBLIC_SECURITY_CLAIM=NOT_AUTHORIZED.
+
+## 2026-10-10 — W15 scoping/identity of the Deno permission broker
+
+**LAB_PASS_AUTHORITY_CORE_DENO / PRODUCT_AND_MXC_TRIPLE_CHAIN_NOT_RUN.**
+
+- Préflight `gnu6-lab-run --check` PASS; branche de recherche `649086b` propre et synchronisée avec le remote; `in.gnu6/main` toujours hors périmètre. Worktree dédié `research/upstream-rd-01-authority-03-20261010`.
+- Source de vérité acquisition read-only : `gnosix-authority-core@de096640d52c75734813611aca4f858fa7ff47d9` + `system-one-rust@745e962bb3628d52f0c98386ace232a35003db69`, dépôts propres avant/après.
+- Harnais Rust Cargo isolé compilé contre le vrai `gnosix-authority-core` en utilisant **feature `test-support` seulement**. Branché au Deno officiel v2.9.7 via vrai broker IPC Unix.
+- Pour le cas autorisé, requête Deno `write` et chemin exact, UID/PID noyau `SO_PEERCRED`, PID déclaré, `ScopedCapability` opération/scope, digest de l'action, identité de ressource et `ExecutionGrant::consume_atomic` concordent : **ALLOW**, écriture réelle.
+- Dix cas refusés sans écriture : dépassement de portée de la délégation, TTL excessif, expiration, epoch révoqué, grant déjà consommé, digest d'action discordant, resource identity discordante, opération non autorisée, PID attendu divergent, chemin alias symlink. **11/11 PASS répétés sur deux jeux de répertoires éphémères : 22/22**.
+- Deux essais d'un crate externe de construire ou désérialiser `ExecutionGrant` sont rejetés à compilation, **2/2** diagnostics attendus. Il n'en résulte pas que la fonctionnalité `test-support` soit convenable en production — elle **ne l'est pas**.
+- Sources et reçus : `contracts/agent-batches/2026-10-10-upstream-rd-01/16-W15-AUTHORITY-BROKER.md`, `docs/agent-results/upstream-rd-01/w15-authority-03.md`, `evidence/upstream-rd-01/w15-authority-03/`.
+- **Non qualifiés** : émetteur de grants de production, principal cryptographique, prévention TOCTOU openat2/dirfd, chaîne *simultanée* Judgment Plane -> broker Deno -> MXC, revocation entre décision et syscall, Deno full-tree Oct6, multihost/tenant, publication produit.
+
+Gates: W15_LIVE_BROKER_CORE=LAB_PASS_11_OF_11_X2; W15_FORGERY_COMPILER=PASS_2_OF_2; W15_PRODUCTION_BOOTSTRAP=NOT_RUN; W15_FULL_MXC_CHAIN=NOT_RUN; PRODUCT_TRANSFER=NOT_RUN; PUBLIC_SECURITY_CLAIM=NOT_AUTHORIZED.

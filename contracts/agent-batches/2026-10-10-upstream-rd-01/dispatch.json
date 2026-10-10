@@ -215,5 +215,17 @@
     "deno_full_pinned_commit_runtime": "NOT_RUN_BROKER_SOURCE_BLOB_MATCHES_ONLY",
     "product_mutations": "NONE",
     "production_mutations": "NONE"
+  },
+  "w15_authority_03": {
+    "source_core": "de096640d52c75734813611aca4f858fa7ff47d9",
+    "source_judgment_plane": "745e962bb3628d52f0c98386ace232a35003db69",
+    "local_live_deno_broker": "LAB_PASS_11_OF_11_REPEATED_TWICE",
+    "external_forgery_compiler": "DENIED_2_OF_2",
+    "execution_grant_issuer": "TEST_SUPPORT_ONLY",
+    "mxc_composition": "NOT_RUN",
+    "production_issuer": "NOT_RUN",
+    "hardened_inode_binding": "NOT_RUN",
+    "product_mutations": "NONE",
+    "production_mutations": "NONE"
   }
 }
