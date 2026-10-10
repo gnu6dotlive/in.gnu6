@@ -5,10 +5,13 @@ mod frame_pacing03;
 mod owned_wayland_presentation;
 #[path = "../scene_bridge.rs"]
 mod scene_bridge;
+#[path = "../startup_policy.rs"]
+mod startup_policy;
 use blobin_cp01_hybrid::gltf::import_glb;
 use frame_pacing03::FrameCallbackPacing;
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
+use startup_policy::StartupPolicy;
 use std::{
     error::Error,
     fs::{File, OpenOptions},
@@ -671,6 +674,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut callback_output = None;
     let mut stage_output = None;
     let mut pinned_output: Option<String> = None;
+    let mut startup_policy = StartupPolicy::Immediate;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -702,6 +706,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     return Err("GPU05_CALLBACK_TRACE_PATH_NOT_ABSOLUTE".into());
                 }
                 callback_output = Some(value);
+            }
+            "--startup-policy" => {
+                let value = args.next().ok_or("--startup-policy requires value")?;
+                startup_policy = StartupPolicy::parse(&value)?;
             }
             "--pin-output" => {
                 let name = args.next().ok_or("--pin-output requires a monitor name")?;
@@ -747,6 +755,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         pinned_output.as_deref(),
     ))?;
     println!("GPU05_PACER04_STAGES_CPU_CLOCK_INSTANT not_wayland_clock=true");
+    // Deliberate one-variable A/B after scene import, device setup and
+    // swapchain configuration, but before the first surface frame.
+    // This is NOT an unrecorded warmup frame nor proof of GPU idle.
+    let settle = startup_policy.settle_duration();
+    println!(
+        "GPU05_PACER05_STARTUP variant={} settle_ms={} window_ready=true",
+        startup_policy.name(),
+        settle.as_millis()
+    );
+    if !settle.is_zero() {
+        std::thread::sleep(settle);
+    }
     let start = Instant::now();
     let mut pacing = FrameCallbackPacing::new();
     let mut abort_reason: Option<&'static str> = None;

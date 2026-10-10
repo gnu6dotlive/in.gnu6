@@ -93,6 +93,12 @@ Detailed samples and attribution:
   traces.sha256
   binary.sha256
 
+## Follow-on PACER-05
+
+A matched output/geometry/binary/fixture sequential A/B of immediate
+versus 75ms delayed first submission showed frame #1 discarded in both,
+without throughput benefit. See GPU-05-PACER-05-STATUS.md; CP03 OPEN.
+
 ## Verdict and next falsification
 
 PACER-04 locally proves 74.839 real compositor-presented FPS,
