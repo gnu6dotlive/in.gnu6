@@ -1,0 +1,152 @@
+{
+  "gate": "PASS_6_OF_6",
+  "runtime": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)",
+  "release_tag": "v2.9.7",
+  "archive_sha256": "c6527f24f4b16031d3ae4fa9f658d5f11534c8d84ce7dc8502420280919c3490",
+  "pinned_source_commit": "a18ce33715e30cd2b0d99c7e322ef11a65490e4d",
+  "source_runtime_match": false,
+  "fixtures": [
+    {
+      "case": "read_default_deny",
+      "status": "PASS",
+      "expected_allow": false,
+      "observed": {
+        "ok": false,
+        "operation": "read",
+        "name": "NotCapable",
+        "message": "Requires read access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr/synthetic.txt\", run again with the --allow-read flag"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "argv_display": [
+        "deno",
+        "run",
+        "--no-config",
+        "--no-prompt",
+        "<fixture>",
+        "read",
+        "<temp_target>"
+      ]
+    },
+    {
+      "case": "read_exact_allow",
+      "status": "PASS",
+      "expected_allow": true,
+      "observed": {
+        "ok": true,
+        "operation": "read",
+        "matches_fixture": true
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "argv_display": [
+        "deno",
+        "run",
+        "--no-config",
+        "--no-prompt",
+        "--allow-read=/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr/synthetic.txt",
+        "<fixture>",
+        "read",
+        "<temp_target>"
+      ]
+    },
+    {
+      "case": "read_other_path_allow_only",
+      "status": "PASS",
+      "expected_allow": false,
+      "observed": {
+        "ok": false,
+        "operation": "read",
+        "name": "NotCapable",
+        "message": "Requires read access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr/synthetic.txt\", run again with the --allow-read flag"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "argv_display": [
+        "deno",
+        "run",
+        "--no-config",
+        "--no-prompt",
+        "--allow-read=/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr/decoy.txt",
+        "<fixture>",
+        "read",
+        "<temp_target>"
+      ]
+    },
+    {
+      "case": "read_explicit_deny_wins",
+      "status": "PASS",
+      "expected_allow": false,
+      "observed": {
+        "ok": false,
+        "operation": "read",
+        "name": "NotCapable",
+        "message": "Requires read access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr/synthetic.txt\", run again with the --allow-read flag"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "argv_display": [
+        "deno",
+        "run",
+        "--no-config",
+        "--no-prompt",
+        "--allow-read=/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr",
+        "--deny-read=/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/deno-v2.9.7/gnu6-deno-only-6aysu8xr/synthetic.txt",
+        "<fixture>",
+        "read",
+        "<temp_target>"
+      ]
+    },
+    {
+      "case": "network_default_deny",
+      "status": "PASS",
+      "expected_allow": false,
+      "observed": {
+        "ok": false,
+        "operation": "net",
+        "name": "NotCapable",
+        "message": "Requires net access to \"127.0.0.1:41531\", run again with the --allow-net flag"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "argv_display": [
+        "deno",
+        "run",
+        "--no-config",
+        "--no-prompt",
+        "<fixture>",
+        "net",
+        "<temp_target>"
+      ]
+    },
+    {
+      "case": "network_exact_allow",
+      "status": "PASS",
+      "expected_allow": true,
+      "observed": {
+        "ok": true,
+        "operation": "net",
+        "status": 200
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "argv_display": [
+        "deno",
+        "run",
+        "--no-config",
+        "--no-prompt",
+        "--allow-net=127.0.0.1:41531",
+        "<fixture>",
+        "net",
+        "<temp_target>"
+      ]
+    }
+  ],
+  "synthetic_file_intact": true,
+  "limitations": [
+    "release v2.9.7 precedes pinned source commit of 2026-10-06",
+    "no Deno permission broker IPC process configured",
+    "Deno application permission gate, not OS sandbox enforcement",
+    "host loopback only, no external network"
+  ]
+}
