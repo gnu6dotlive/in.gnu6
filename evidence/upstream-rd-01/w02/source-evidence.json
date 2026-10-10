@@ -1,0 +1,226 @@
+{
+  "worker": "W02",
+  "repo": "GLinnik21/plx-native",
+  "source_commit": "35ca8790072621d6cbad8e75eb70fb1fc3f24915",
+  "method": "GitHub contents at immutable commit; bounded regex inventory, not code execution",
+  "files": [
+    {
+      "path": "rust-modules/README.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "3a5c1883dd9ad512648ffac0c9e59864d0478c87",
+      "sha256": "a645236554f57e143cecaaf6a07051fe39dfd6ac712955b7c6656d6feb786ba1",
+      "line_count": 52,
+      "url": "https://github.com/GLinnik21/plx-native/blob/35ca8790072621d6cbad8e75eb70fb1fc3f24915/rust-modules/README.md",
+      "signals": [
+        {
+          "query": "Rust",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 9,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "# rust-modules — the Rust app core"
+            },
+            {
+              "line": 4,
+              "text": "gradual, module-by-module C→Rust migration; today it IS the app — UI, event loop, player"
+            },
+            {
+              "line": 8,
+              "text": "side. Its Rust entry points are `plex_run`, `plx_crash_write_image_marker`,"
+            }
+          ]
+        },
+        {
+          "query": "ABI",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 7,
+              "text": "line and image marker, wraps the Starfish C++ seam, and keeps Sentry's opaque value ABI on the C"
+            },
+            {
+              "line": 36,
+              "text": "`sentry_value_t`; Rust calls it without having to reproduce that ARM32 ABI."
+            },
+            {
+              "line": 47,
+              "text": "`-Z build-std=std,panic_unwind`) for `arm-unknown-linux-gnueabi`; the C side and the final link use the webOS NDK"
+            }
+          ]
+        },
+        {
+          "query": "GPU_ACTIVE",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "damage",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "deprecated",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "docs/perf-damage-tracking-verdict.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "c44f03619f8f7c0d41b899da09bcfdade3c87d1d",
+      "sha256": "d46b0e40675eb58fc0d5299fb6ecca3e0f012ba5fd374f7b037959f0b262672f",
+      "line_count": 217,
+      "url": "https://github.com/GLinnik21/plx-native/blob/35ca8790072621d6cbad8e75eb70fb1fc3f24915/docs/perf-damage-tracking-verdict.md",
+      "signals": [
+        {
+          "query": "Rust",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 119,
+              "text": "| no EGL anywhere in the crate | **Confirmed** — `grep -rniE '\\begl\\|buffer_age\\|BUFFER_PRESERVED\\|SwapBuffers\\|wl_surface_damage' rust-modules/src src` returns nothing. |"
+            }
+          ]
+        },
+        {
+          "query": "ABI",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 6,
+          "anchors": [
+            {
+              "line": 34,
+              "text": ">    a cross-fade, and an unadvertised extension is not a portability contract. Full account:"
+            },
+            {
+              "line": 44,
+              "text": "**No — and not because immediate mode forbids it.** Every number we have is CPU (`/proc` jiffy deltas, `idle.rs:13-19`), and per-region damage removes GPU fragments, which appear in none of "
+            },
+            {
+              "line": 58,
+              "text": "| | motion capability | per-region damage |"
+            }
+          ]
+        },
+        {
+          "query": "GPU_ACTIVE",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 15,
+              "text": ">    frame's rasterized quads moved `GPU_ACTIVE` by −0.81%, with `ARITH_WORDS` −0.08% and"
+            },
+            {
+              "line": 19,
+              "text": ">    proven armed: `GPU_ACTIVE` +0.03%, `surface-manager` inside its own 6.3% on-leg spread, and"
+            },
+            {
+              "line": 31,
+              "text": ">    rect declared while still drawing everything takes `GPU_ACTIVE` 7,531,684 → 542,012 and"
+            }
+          ]
+        },
+        {
+          "query": "damage",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 29,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "# Verdict: no per-region damage tracking"
+            },
+            {
+              "line": 30,
+              "text": ">    **This driver does not ADVERTISE the extension and implements it anyway.** A 480x270 damage"
+            },
+            {
+              "line": 33,
+              "text": ">    the real damage distribution extrapolates to roughly half an animating frame and near zero on"
+            }
+          ]
+        },
+        {
+          "query": "deprecated",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "docs/ui-framework.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "a2c4d31dc6faefa052e781cd37a0ec7942a47c9c",
+      "sha256": "493d73e4062b3f26273ac73c514bd45a3be3a519804047722b3b5707a80848e6",
+      "line_count": 87,
+      "url": "https://github.com/GLinnik21/plx-native/blob/35ca8790072621d6cbad8e75eb70fb1fc3f24915/docs/ui-framework.md",
+      "signals": [
+        {
+          "query": "Rust",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 4,
+          "anchors": [
+            {
+              "line": 4,
+              "text": "> at the start of the retui migration, when `ui/` was a Rust view tree bolted onto a still-C home"
+            },
+            {
+              "line": 13,
+              "text": "> **For anything you intend to act on, read `rust-modules/src/ui/CLAUDE.md`** — it is the"
+            },
+            {
+              "line": 18,
+              "text": "`rust-modules/src/ui/` is a small **retained-mode, UIKit-style view tree** in Rust."
+            }
+          ]
+        },
+        {
+          "query": "ABI",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 7,
+              "text": "> references is gone: `ui_home.h`/`ui_home.c` were deleted, the `#[no_mangle]` C ABI it mentions no"
+            },
+            {
+              "line": 64,
+              "text": "| `ui/home.rs` | `Backdrop`, `Hero`, `Grid`/`Shelf`/`Card`, `Home`, and the `#[no_mangle]` C ABI |"
+            },
+            {
+              "line": 78,
+              "text": "verified by booting into it. C ABI unchanged; `ui_home.rs` retired."
+            }
+          ]
+        },
+        {
+          "query": "GPU_ACTIVE",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "damage",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "deprecated",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN",
+  "product_status": "NOT_RUN"
+}
