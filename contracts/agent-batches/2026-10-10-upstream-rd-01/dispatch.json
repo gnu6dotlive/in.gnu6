@@ -195,5 +195,15 @@
       "tension-atoi/gnosix": "PUBLIC",
       "tension-atoi/in.gnu6": "PRIVATE_AT_CHECK"
     }
+  },
+  "w14_composite": {
+    "mxc": "SDK_1_0_0_FROM_PINNED_SOURCE",
+    "deno": "RELEASE_V2_9_7_SHA256_VERIFIED_SOURCE_PIN_DIFFERS",
+    "filesystem": "LAB_PASS_4_OF_4_REPEATED_TWICE",
+    "network": "INCONCLUSIVE_INVALID_HOST_LOOPBACK_POSITIVE_CONTROL",
+    "deno_broker_ipc": "NOT_RUN",
+    "judgment_plane": "NOT_RUN",
+    "product_transfer": "NOT_RUN",
+    "public_security_claim": "NOT_AUTHORIZED"
   }
 }

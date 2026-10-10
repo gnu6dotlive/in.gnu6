@@ -68,3 +68,17 @@ Gates: MXC_SOURCE=PASS, MXC_HOST_LOOPBACK=PASS, MXC_SDK_RUNTIME=NOT_RUN/BLOCKED_
 - Visibilité GitHub, contrôle ponctuel du 2026-10-10 : `tension-atoi/gnosix` PUBLIC confirmé; `tension-atoi/in.gnu6` PRIVATE selon l'API au moment de la vérification, malgré une annonce de publication. Aucune mutation de visibilité demandée ou réalisée dans cette tranche.
 
 Gates : MXC_BUILD=PASS; MXC_RUNTIME_FILESYSTEM=PASS_2_OF_2; DENO_RELEASE_SHA256=PASS; DENO_RUNTIME_PERMISSIONS=PASS_6_OF_6; DENO_PINNED_RUNTIME=NOT_RUN; DENO_BROKER_LIVE=NOT_RUN; MXC_DENO_COMPOSITE=NOT_RUN; PRODUCT_TRANSFER=NOT_RUN; GIT_REMOTE=TO_VERIFY_AFTER_PUSH.
+
+## 2026-10-10 — W14 composite MXC × Deno, experimental qualification
+
+**FILESYSTEM_LAB_PASS_REPEATED / NETWORK_INCONCLUSIVE / BROKER_NOT_RUN / JUDGMENT_PLANE_NOT_RUN.**
+
+- G00: branche de recherche depuis `cd6d17b2` propre et conforme au remote; worktree `research/upstream-rd-01-composite-01-20261010` isolé et sans modifications des autres projets.
+- MXC SDK v1.0.0 du checkout Git immuable `c6f301d53a1430c4c921a05c57af838f7392348f`, compilé en scratch Cargo dans l'enveloppe `gnu6-lab-run`. Deno exécutable officiel `v2.9.7`, archive SHA-256 vérifiée; provenance **différente** du SHA Deno du 6 octobre.
+- Deno lancé **à l'intérieur** de MXC `Containment::Process`. Matrice d'écriture 2×2: Deno allow + MXC RW → succès; Deno allow + MXC RO → refus système `EROFS`; Deno deny + MXC RW → `NotCapable`; double deny → `NotCapable`. Dossier temporaire et témoin intact; **4/4 PASS reproduit dans deux nouveaux dossiers (8/8)**.
+- La matrice réseau, sur serveur HTTP éphémère du loopback hôte, ne possède pas de contrôle positif MXC valide : le backend Bubblewrap utilise toujours un réseau privé avec host-loopback refusé. Statut **INCONCLUSIVE_HOST_LOOPBACK_POSITIVE_CONTROL**, 3 refus corrects sur 4 mais **aucun PASS réseau**. Première fixture et reprise conservées.
+- Sources, code des harnais, reçus JSON, oracle de vérification : `docs/agent-results/upstream-rd-01/composite-01.md` et `evidence/upstream-rd-01/composite-01/`.
+- Le contrat W14 a été amendé de `NOT_EXECUTED` à `PARTIAL_LAB_PASS`. Aucune preuve d'exécution du broker Deno, du commit exact Deno, des `ExecutionGrant` Gnosix, du multi-hôte ou du contrôle réseau egress accepté.
+- Aucune publication produit, aucune mutation de production ou de la branche `in.gnu6/main`. Push de la branche de recherche uniquement, à contrôler indépendamment.
+
+Gates: W14_FILESYSTEM=LAB_PASS_REPEATED; W14_NETWORK=INCONCLUSIVE; W14_END_TO_END=OPEN; W14_PRODUCTION=NOT_AUTHORIZED.
