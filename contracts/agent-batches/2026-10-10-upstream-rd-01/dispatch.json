@@ -171,5 +171,16 @@
       "state": "PARTIAL_PENDING_REMOTE_VERIFICATION"
     }
   ],
-  "deep_inspection": "18 additional pinned files verified (three per upstream), plus 12 intake files"
+  "deep_inspection": "18 additional pinned files verified (three per upstream), plus 12 intake files",
+  "mx_deno_security_slice": {
+    "scope": "MXC_W01A_AND_DENO_W03A",
+    "mxc_source_guard": "PASS_7_OF_7_MUTATIONS",
+    "mxc_host_loopback": "PASS_TWO_SIDED_HOST_ORACLE_NOT_MXC_SDK",
+    "mxc_sdk_runtime": "NOT_RUN_OFFLINE_CIDR_DEPENDENCY_MISSING",
+    "deno_broker_source": "PASS_10_OF_10_MUTATIONS",
+    "deno_runtime": "NOT_RUN_BINARY_ABSENT",
+    "mxc_deno_joint_gate": "DESIGNED_NOT_EXECUTED",
+    "product_implementations": "UNCHANGED",
+    "public_surface": "NOT_DEPLOYED"
+  }
 }

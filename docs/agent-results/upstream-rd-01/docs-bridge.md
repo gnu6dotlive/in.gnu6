@@ -12,3 +12,5 @@
 - VPS/Coolify: no inspection or production change necessary to establish private research gate.
 
 Next public candidate should be bilingual and contain exact evidence and non-claims. A successful `git push` to private in.gnu6 cannot prove a changed docs.gnu6.live surface. Any publish action requires independent source/build/runtime qualification.
+
+W01A/W03A update, 2026-10-10: MXC seven static guard mutants RED plus a two-sided host Bubblewrap loopback fixture PASS; Deno ten static broker guard mutants RED. Real MXC SDK and Deno runtimes NOT_RUN. Exact notes: `mxc-security-01.md`, `deno-permission-01.md`. These results remain private documentation and do not create public API, production claims or beneficiary-repo work.
