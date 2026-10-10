@@ -5,6 +5,8 @@ mod first_frame_barrier;
 mod first_present_latency;
 #[path = "../frame_pacing03.rs"]
 mod frame_pacing03;
+#[path = "../host_stall_probe.rs"]
+mod host_stall_probe;
 #[path = "../optical_probe.rs"]
 mod optical_probe;
 #[path = "../owned_wayland_presentation.rs"]
@@ -17,6 +19,7 @@ use blobin_cp01_hybrid::gltf::import_glb;
 use first_frame_barrier::{FirstFrameBarrier, Outcome, StartupMode};
 use first_present_latency::{calculate, monotonic_now_ns, StartupAnchors};
 use frame_pacing03::FrameCallbackPacing;
+use host_stall_probe::{thread_cpu_time_ns, HostStallProbe};
 use optical_probe::{OpticalProbe, Transition};
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
@@ -867,6 +870,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut startup_policy = StartupPolicy::Immediate;
     let mut initial_feedback_mode = StartupMode::Current;
     let mut optical_trace_output: Option<String> = None;
+    let mut host_stall_output: Option<String> = None;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -932,6 +936,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 optical_trace_output = Some(value);
             }
+            "--host-stall-jsonl" => {
+                let path = args
+                    .next()
+                    .ok_or("--host-stall-jsonl requires absolute path")?;
+                if !Path::new(&path).is_absolute() {
+                    return Err("ORACLE04_STALL_TRACE_PATH_NOT_ABSOLUTE".into());
+                }
+                host_stall_output = Some(path);
+            }
             "--stage-jsonl" => {
                 let value = args.next().ok_or("--stage-jsonl requires path")?;
                 if !Path::new(&value).is_absolute() {
@@ -960,6 +973,26 @@ fn main() -> Result<(), Box<dyn Error>> {
         )),
         None => None,
     };
+    let mut host_stall_trace: Option<BufWriter<File>> = match host_stall_output {
+        Some(path) => Some(BufWriter::new(
+            OpenOptions::new().write(true).create_new(true).open(path)?,
+        )),
+        None => None,
+    };
+    if let Some(out) = host_stall_trace.as_mut() {
+        serde_json::to_writer(
+            &mut *out,
+            &serde_json::json!({
+                "type":"header","schema":"blobin.gpu05.host-stall.v1",
+                "monotonic_domains":["host_process_instant","thread_cpu_clock"],
+                "presentation_clock":"separate_wp_presentation",
+                "counter_scope":"GPU05_OPTIN_FORENSIC_ONLY",
+                "max_presentation_gap_threshold_ns":33_400_000,
+                "causal_attribution":"NOT_ESTABLISHED",
+            }),
+        )?;
+        out.write_all(b"\n")?;
+    }
     let optical_trace = match optical_trace_output {
         Some(path) => Some(BufWriter::new(
             OpenOptions::new().write(true).create_new(true).open(path)?,
@@ -993,6 +1026,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut pacing = FrameCallbackPacing::new();
     let mut first_barrier = FirstFrameBarrier::new(initial_feedback_mode);
     let mut first_outcome_propagated = false;
+    let mut host_stall_probe = HostStallProbe::new();
+    let mut max_wayland_poll_ns = 0_u64;
     println!(
         "GPU05_PACER06_GATE mode={} max_first_wait_ms=250",
         first_barrier.mode().name()
@@ -1002,8 +1037,51 @@ fn main() -> Result<(), Box<dyn Error>> {
         "GPU05_PACER03_ACTIVE frame_credit=wl_surface.frame max_wp_inflight=2 watchdog_ms=250"
     );
     while start.elapsed() < Duration::from_secs(seconds) && !live.gpu.closed() {
+        let gap = if host_stall_trace.is_some() {
+            let instant_ns = u64::try_from(start.elapsed().as_nanos())?;
+            let cpu_ns = thread_cpu_time_ns()?;
+            host_stall_probe.sample(instant_ns, cpu_ns)?
+        } else {
+            None
+        };
         let before_feedback = live.presented_frames + live.discarded_frames;
+        let poll_start = Instant::now();
+        let poll_cpu_begin = if host_stall_trace.is_some() {
+            Some(thread_cpu_time_ns()?)
+        } else {
+            None
+        };
         live.record_feedback()?;
+        let poll_ns = u64::try_from(poll_start.elapsed().as_nanos())?;
+        let poll_cpu_delta = if let Some(begin) = poll_cpu_begin {
+            Some(thread_cpu_time_ns()?.saturating_sub(begin))
+        } else {
+            None
+        };
+        max_wayland_poll_ns = max_wayland_poll_ns.max(poll_ns);
+        if let Some(out) = host_stall_trace.as_mut() {
+            if gap.is_some_and(|g| g.exceeds_33_4ms) || poll_ns > 25_000_000 {
+                serde_json::to_writer(
+                    &mut *out,
+                    &serde_json::json!({
+                        "type":"stall_outlier",
+                        "next_frame_sequence":live.next_frame_sequence,
+                        "loop_iterations":host_stall_probe.iterations,
+                        "loop_gap_wall_ns":gap.map(|g|g.wall_gap_ns),
+                        "loop_gap_thread_cpu_ns":gap.map(|g|g.thread_cpu_gap_ns),
+                        "loop_gap_wall_minus_cpu_ns":gap.map(|g|g.wall_minus_cpu_ns),
+                        "wall_gap_over_33_4ms":gap.is_some_and(|g|g.exceeds_33_4ms),
+                        "wayland_poll_wall_ns":poll_ns,
+                        "wayland_poll_thread_cpu_ns":poll_cpu_delta,
+                        "wp_feedback_pending":live.gpu.pending(),
+                        "frame_callback_pending":live.gpu.callback_pending(),
+                        "submitted_frames":live.next_frame_sequence-1,
+                        "note":"thread_wall_minus_cpu_is_not_proof_of_preemption",
+                    }),
+                )?;
+                out.write_all(b"\n")?;
+            }
+        }
         let now = start.elapsed();
         if !first_outcome_propagated {
             if let Some(outcome) = live.first_frame_outcome {
@@ -1050,10 +1128,26 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         let before_seq = live.next_frame_sequence;
         let before_feedback = live.presented_frames + live.discarded_frames;
+        let render_before = Instant::now();
         if let Err(e) = live.render() {
             eprintln!("GPU05_PACER03_FRAME_ABORT reason={e}");
             abort_reason = Some("GPU05_PACER03_FRAME_ERROR");
             break;
+        }
+        let render_ns = u64::try_from(render_before.elapsed().as_nanos())?;
+        if let Some(out) = host_stall_trace.as_mut() {
+            if render_ns > 25_000_000 {
+                serde_json::to_writer(
+                    &mut *out,
+                    &serde_json::json!({
+                        "type":"render_outlier",
+                        "frame_sequence":before_seq,
+                        "render_wall_ns":render_ns,
+                        "note":"GPU05_client_render_scope_including_wsi_not_photons"
+                    }),
+                )?;
+                out.write_all(b"\n")?;
+            }
         }
         let after_render = start.elapsed();
         if live.next_frame_sequence > before_seq {
@@ -1111,6 +1205,22 @@ fn main() -> Result<(), Box<dyn Error>> {
             break;
         }
         std::thread::sleep(Duration::from_millis(2));
+    }
+    if let Some(out) = host_stall_trace.as_mut() {
+        serde_json::to_writer(
+            &mut *out,
+            &serde_json::json!({
+                "type":"summary",
+                "iterations":host_stall_probe.iterations,
+                "loop_gap_outliers":host_stall_probe.outliers,
+                "max_loop_gap_ns":host_stall_probe.max_loop_gap_ns,
+                "max_thread_cpu_gap_ns":host_stall_probe.max_thread_cpu_gap_ns,
+                "max_wayland_poll_ns":max_wayland_poll_ns,
+                "cp03_pass":false,
+            }),
+        )?;
+        out.write_all(b"\n")?;
+        out.flush()?;
     }
     if let Some(out) = live.trace.as_mut() {
         out.flush()?;
