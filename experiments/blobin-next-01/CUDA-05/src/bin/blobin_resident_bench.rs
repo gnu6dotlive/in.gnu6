@@ -32,9 +32,24 @@ fn run() -> Result<(), String> {
             ..Scene::default()
         };
         let prim = vec![
-            Primitive { x: -0.12 + t * 0.05, y: 0.02, radius: 0.22, op: 0 },
-            Primitive { x: 0.14 - t * 0.04, y: 0.06, radius: 0.13, op: 3 },
-            Primitive { x: 0.0, y: -0.07 + t * 0.04, radius: 0.04, op: 1 },
+            Primitive {
+                x: -0.12 + t * 0.05,
+                y: 0.02,
+                radius: 0.22,
+                op: 0,
+            },
+            Primitive {
+                x: 0.14 - t * 0.04,
+                y: 0.06,
+                radius: 0.13,
+                op: 3,
+            },
+            Primitive {
+                x: 0.0,
+                y: -0.07 + t * 0.04,
+                radius: 0.04,
+                op: 1,
+            },
         ];
         let req = Request::from_f2(scene, prim)?;
         let started = Instant::now();

@@ -180,3 +180,5 @@ mod tests {
 
 pub mod frame_protocol;
 pub mod frame_transport;
+
+pub mod resident_runtime;

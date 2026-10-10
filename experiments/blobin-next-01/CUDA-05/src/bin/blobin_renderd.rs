@@ -5,6 +5,7 @@ use blobin_cuda05_ingress::{
     frame_protocol::{ClientMessage, MAX_FRAME, VERSION},
     frame_transport::{self, make_sealed_frame},
     isolation::{Injection, IsolatedSupervisor, Policy},
+    resident_runtime::ResidentWorker,
 };
 use serde_json::{json, Value};
 use std::{
@@ -37,6 +38,12 @@ fn install_shutdown_handlers() -> Result<(), String> {
     Ok(())
 }
 
+struct ResidentConfig {
+    worker: PathBuf,
+    sha: [u8; 32],
+    ttl: Duration,
+    budget: u64,
+}
 struct Config {
     socket: PathBuf,
     frame_worker: PathBuf,
@@ -47,6 +54,7 @@ struct Config {
     library_sha: Option<[u8; 32]>,
     timeout: Duration,
     max_requests: u64,
+    resident: Option<ResidentConfig>,
 }
 fn sha_decode(value: &str) -> Result<[u8; 32], String> {
     if value.len() != 64 || !value.is_ascii() {
@@ -72,6 +80,10 @@ fn parse_args() -> Result<Config, String> {
     let mut library_sha = None;
     let mut timeout_ms = 15_000u64;
     let mut max_requests = 0u64;
+    let mut resident_path = None;
+    let mut resident_sha = None;
+    let mut resident_ttl_ms = 30_000u64;
+    let mut resident_frame_budget = 120u64;
     let mut args = env::args().skip(1);
     while let Some(k) = args.next() {
         let v = args.next().ok_or("FRAME_CLI_VALUE_REQUIRED")?;
@@ -83,6 +95,14 @@ fn parse_args() -> Result<Config, String> {
             "--gate-sha256" => gate_sha = Some(sha_decode(&v)?),
             "--cuda-lib" => library = Some(PathBuf::from(v)),
             "--cuda-sha256" => library_sha = Some(sha_decode(&v)?),
+            "--resident-worker" => resident_path = Some(PathBuf::from(v)),
+            "--resident-sha256" => resident_sha = Some(sha_decode(&v)?),
+            "--resident-ttl-ms" => {
+                resident_ttl_ms = v.parse().map_err(|_| "RESIDENT_TTL_INVALID")?
+            }
+            "--resident-frame-budget" => {
+                resident_frame_budget = v.parse().map_err(|_| "RESIDENT_BUDGET_INVALID")?
+            }
             "--timeout-ms" => timeout_ms = v.parse().map_err(|_| "FRAME_TIMEOUT_PARSE")?,
             "--max-requests" => {
                 max_requests = v.parse().map_err(|_| "FRAME_REQUEST_COUNT_PARSE")?
@@ -103,7 +123,25 @@ fn parse_args() -> Result<Config, String> {
     {
         return Err("FRAME_CUDA_LIB_AND_APPROVAL_REQUIRED_TOGETHER".into());
     }
+    if resident_path.is_some() != resident_sha.is_some()
+        || !(1000..=120000).contains(&resident_ttl_ms)
+        || !(1..=240).contains(&resident_frame_budget)
+    {
+        return Err("RESIDENT_POLICY_INVALID".into());
+    }
+    if resident_path.as_ref().is_some_and(|p| !p.is_absolute()) {
+        return Err("RESIDENT_WORKER_PATH_NOT_ABSOLUTE".into());
+    }
+    let resident = resident_path
+        .zip(resident_sha)
+        .map(|(worker, sha)| ResidentConfig {
+            worker,
+            sha,
+            ttl: Duration::from_millis(resident_ttl_ms),
+            budget: resident_frame_budget,
+        });
     Ok(Config {
+        resident,
         socket: socket.ok_or("FRAME_SOCKET_REQUIRED")?,
         frame_worker,
         frame_sha: frame_sha.ok_or("FRAME_WORKER_SHA_REQUIRED")?,
@@ -126,6 +164,8 @@ struct State {
     cfg: Config,
     cuda_gate: Option<IsolatedSupervisor>,
     vulkan_gate: Option<IsolatedSupervisor>,
+    cuda_resident: Option<ResidentWorker>,
+    vulkan_resident: Option<ResidentWorker>,
     frames: u64,
 }
 impl State {
@@ -169,6 +209,137 @@ impl State {
         }
         result
     }
+    fn frame_resident(&mut self, msg: &ClientMessage) -> Result<(Value, Vec<u8>), String> {
+        let ClientMessage::RenderRequest {
+            request_id,
+            scene_revision,
+            width_px,
+            height_px,
+            backend_requested,
+            view_mode,
+            ..
+        } = msg
+        else {
+            return Err("RENDER_REQUEST_REQUIRED".into());
+        };
+        let dev = match backend_requested.as_str() {
+            "cuda" => Device::Cuda,
+            "vulkan" => Device::Vulkan,
+            _ => return Err("RESIDENT_GPU_ONLY".into()),
+        };
+        let request = msg.make_request()?;
+        let expected = (*width_px as usize)
+            .checked_mul(*height_px as usize)
+            .and_then(|p| p.checked_mul(4))
+            .ok_or("FRAME_DIMENSION_OVERFLOW")?;
+        if expected > MAX_FRAME {
+            return Err("FRAME_BUFFER_TOO_LARGE".into());
+        }
+        let start = Instant::now();
+        let config = self.cfg.resident.as_ref().ok_or("RESIDENT_DISABLED")?;
+        check_binary(&config.worker, config.sha)?;
+        if dev == Device::Cuda {
+            let path = self.cfg.library.as_deref().ok_or("CUDA_LIBRARY_REQUIRED")?;
+            check_binary(path, self.cfg.library_sha.ok_or("CUDA_HASH_REQUIRED")?)?;
+        }
+        let old = match dev {
+            Device::Cuda => &mut self.cuda_resident,
+            Device::Vulkan => &mut self.vulkan_resident,
+            Device::Cpu => unreachable!(),
+        };
+        if old.as_mut().is_some_and(|worker| worker.expired()) {
+            *old = None;
+            if let Some(gate) = match dev {
+                Device::Cuda => &mut self.cuda_gate,
+                Device::Vulkan => &mut self.vulkan_gate,
+                Device::Cpu => unreachable!(),
+            } {
+                gate.revoke();
+            }
+        }
+        let needs_new = match dev {
+            Device::Cuda => self.cuda_resident.is_none(),
+            Device::Vulkan => self.vulkan_resident.is_none(),
+            Device::Cpu => false,
+        };
+        let gate_started = Instant::now();
+        if needs_new {
+            let generation = self.gate(dev)?;
+            let c = self.cfg.resident.as_ref().expect("checked");
+            let child = ResidentWorker::launch(
+                &c.worker,
+                backend_requested,
+                if dev == Device::Cuda {
+                    self.cfg.library.as_deref()
+                } else {
+                    None
+                },
+                if dev == Device::Cuda {
+                    self.cfg.library_sha
+                } else {
+                    None
+                },
+                c.ttl,
+                c.budget,
+                generation,
+            )?;
+            let dest = match dev {
+                Device::Cuda => &mut self.cuda_resident,
+                Device::Vulkan => &mut self.vulkan_resident,
+                Device::Cpu => unreachable!(),
+            };
+            *dest = Some(child);
+        }
+        let gate_ms = gate_started.elapsed().as_secs_f64() * 1000.0;
+        let serialized = serde_json::to_vec(msg).map_err(|_| "RENDER_JSON_SERIALIZATION")?;
+        let worker_started = Instant::now();
+        let current = match dev {
+            Device::Cuda => &mut self.cuda_resident,
+            Device::Vulkan => &mut self.vulkan_resident,
+            Device::Cpu => unreachable!(),
+        };
+        let generation = current.as_ref().ok_or("RESIDENT_CHILD_MISSING")?.generation;
+        let result =
+            current
+                .as_mut()
+                .expect("child")
+                .render(&serialized, expected, self.cfg.timeout);
+        let worker_ms = worker_started.elapsed().as_secs_f64() * 1000.0;
+        let rgba = match result {
+            Ok(bytes) => bytes,
+            Err(err) => {
+                *current = None;
+                if let Some(gate) = match dev {
+                    Device::Cuda => &mut self.cuda_gate,
+                    Device::Vulkan => &mut self.vulkan_gate,
+                    Device::Cpu => unreachable!(),
+                } {
+                    gate.revoke();
+                }
+                return Err(err);
+            }
+        };
+        self.frames = self
+            .frames
+            .checked_add(1)
+            .ok_or("FRAME_SEQUENCE_OVERFLOW")?;
+        let geometry = geometry_id(&request)?
+            .0
+            .iter()
+            .map(|v| format!("{v:02x}"))
+            .collect::<String>();
+        eprintln!("BLOB_FRAME_TIMING backend={backend_requested} mode={view_mode} width={width_px} height={height_px} gate_ms={gate_ms:.3} worker_ms={worker_ms:.3} total_ms={:.3} sequence={} descriptor=residency_opt_in",start.elapsed().as_secs_f64()*1000.0,self.frames);
+        Ok((
+            json!({"version":VERSION,"type":"FRAME_READY","request_id":request_id,
+            "scene_revision":scene_revision,"width_px":width_px,"height_px":height_px,
+            "stride_bytes":width_px*4,"format":"RGBA8_UNORM_OPAQUE","buffer_bytes":expected,
+            "backend_requested":backend_requested,"backend_actual":backend_requested,
+            "view_mode":view_mode,"generation":generation,"qualification":"CUDA05F_GATE_PASS",
+            "cache_hit":false,"geometry_sha256":geometry,"frame_sequence":self.frames}),
+            rgba,
+        ))
+    }
+
     fn frame(&mut self, msg: &ClientMessage) -> Result<(Value, Vec<u8>), String> {
         let ClientMessage::RenderRequest {
             request_id,
@@ -182,6 +353,9 @@ impl State {
         else {
             return Err("FRAME_RENDER_MESSAGE_REQUIRED".into());
         };
+        if backend_requested != "cpu" && self.cfg.resident.is_some() {
+            return self.frame_resident(msg);
+        }
         let req = msg.make_request()?;
         let device = match backend_requested.as_str() {
             "cpu" => Device::Cpu,
@@ -382,6 +556,9 @@ fn run() -> Result<(), String> {
     let cfg = parse_args()?;
     check_binary(&cfg.frame_worker, cfg.frame_sha)?;
     check_binary(&cfg.gate_worker, cfg.gate_sha)?;
+    if let Some(resident) = &cfg.resident {
+        check_binary(&resident.worker, resident.sha)?;
+    }
     if let (Some(path), Some(sha)) = (cfg.library.as_deref(), cfg.library_sha) {
         check_binary(path, sha)?;
     }
@@ -394,6 +571,8 @@ fn run() -> Result<(), String> {
     );
     let mut state = State {
         cfg,
+        cuda_resident: None,
+        vulkan_resident: None,
         cuda_gate: None,
         vulkan_gate: None,
         frames: 0,
