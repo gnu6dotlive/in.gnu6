@@ -1,0 +1,31 @@
+{
+  "gate": "PASS_2_OF_2",
+  "cases": [
+    {
+      "case": "construct_grant",
+      "pass": true,
+      "cargo_exit": 101,
+      "error_markers": [
+        "cannot construct",
+        "private fields"
+      ],
+      "diagnostic": "     Locking 15 packages to latest compatible versions\n    Checking gnu6-w15-failed-forgery v0.1.0 (/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-forgery-4nh8tlym)\nerror: cannot construct `ExecutionGrant` with struct literal syntax due to private fields\n --> src/main.rs:2:18\n  |\n2 | fn main(){let _g=ExecutionGrant{grant_id:String::from(\"fake\")};}\n  |                  ^^^^^^^^^^^^^^ ----------------------------- private field\n  |\n  = note: ...and other private fields that were not provided\nhelp: you might have meant to use the `mint_internal` associated function\n  |\n2 - fn main(){let _g=ExecutionGrant{grant_id:String::from(\"fake\")};}\n2 + fn main(){let _g=ExecutionGrant::mint_internal(_);}\n  |\n\nerror: could not compile `gnu6-w15-failed-forgery` (bin \"gnu6-w15-failed-forgery\") due to 1 previous error\n"
+    },
+    {
+      "case": "deserialize_grant",
+      "pass": true,
+      "cargo_exit": 101,
+      "error_markers": [
+        "E0277",
+        "Deserialize"
+      ],
+      "diagnostic": "    Checking gnu6-w15-failed-forgery v0.1.0 (/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-forgery-4nh8tlym)\nerror[E0277]: the trait bound `ExecutionGrant: serde::Deserialize<'de>` is not satisfied\n    --> src/main.rs:2:33\n     |\n   2 | fn main(){let _g:ExecutionGrant=serde_json::from_str(\"{}\").unwrap();}\n     |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `serde_core::de::Deserialize<'_>` is not implemented for `ExecutionGrant`\n     |\n     = note: for local types consider adding `#[derive(serde::Deserialize)]` to your `ExecutionGrant` type\n     = note: for types from other crates check whether the crate offers a `serde` feature flag\n     = help: the following other types implement trait `serde_core::de::Deserialize<'de>`:\n               &'a Path\n               &'a [u8]\n               &'a str\n               ()\n               (T,)\n               (T0, T1)\n               (T0, T1, T2)\n               (T0, T1, T2, T3)\n             and 143 others\nnote: required by a bound in `serde_json::from_str`\n    --> /mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/mxc-cargo-home/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.150/src/de.rs:2711:8\n     |\n2709 | pub fn from_str<'a, T>(s: &'a str) -> Result<T>\n     |        -------- required by a bound in this function\n2710 | where\n2711 |     T: de::Deserialize<'a>,\n     |        ^^^^^^^^^^^^^^^^^^^ required by this bound in `from_str`\n\nFor more information about this error, try `rustc --explain E0277`.\nerror: could not compile `gnu6-w15-failed-forgery` (bin \"gnu6-w15-failed-forgery\") due to 1 previous error\n"
+    }
+  ],
+  "source": "gnosix-authority-core@de096640d52c75734813611aca4f858fa7ff47d9",
+  "limitations": [
+    "Compile-fail only verifies two external access patterns",
+    "Production bootstrap provenance and cross-process serialization not qualified",
+    "The sealed grant remains in-process in W15 adapter"
+  ]
+}

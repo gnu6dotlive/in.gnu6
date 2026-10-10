@@ -1,0 +1,249 @@
+{
+  "gate": "PASS_11_OF_11",
+  "authority_core_sha": "de096640d52c75734813611aca4f858fa7ff47d9",
+  "judgment_plane_sha_read_only": "745e962bb3628d52f0c98386ace232a35003db69",
+  "deno_runtime": "2.9.7",
+  "bootstrapping": "TEST_SUPPORT_ONLY_NOT_PRODUCTION",
+  "live_integration": "Deno Unix permission broker -> Rust policy adapter -> real sealed ExecutionGrant",
+  "cases": [
+    {
+      "case": "valid",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "valid",
+        "decision": "allow",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":true,\"gate\":\"DENO_WRITE_COMPLETED\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": true,
+        "marker_contents": "COMPOSITE_ALLOWED\n",
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "scope_escape",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "scope_escape",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-v6t6e481/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": false,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "ttl_exceeds",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "ttl_exceeds",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-ycxfykta/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": false,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "expired",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "expired",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-7517x_u6/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "revoked",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "revoked",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-pe30utqa/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "replay",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "replay",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-s_qotkg5/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "wrong_digest",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "wrong_digest",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-h0wdyi2e/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "wrong_identity",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "wrong_identity",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-96sggkj3/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "wrong_operation",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "wrong_operation",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-pm2gn3lp/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "wrong_peer",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "wrong_peer",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": false,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-daszz4o8/marker.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": true
+      },
+      "harness_stderr": "",
+      "pass": true
+    },
+    {
+      "case": "symlink_alias",
+      "harness_exit": 0,
+      "result": {
+        "case_name": "symlink_alias",
+        "decision": "deny",
+        "request_seen": true,
+        "peer_pid_matches": true,
+        "peer_uid_matches": true,
+        "request_pid_matches": true,
+        "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-w15-only-07nqp75x/alias.txt\\\", run again with the --allow-write flag\"}\n",
+        "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+        "exit_code": 0,
+        "marker_exists": false,
+        "marker_contents": null,
+        "grant_issued": true,
+        "scope_valid": false
+      },
+      "harness_stderr": "",
+      "pass": true
+    }
+  ],
+  "limitations": [
+    "Synthetic authority minted only via feature-gated test-support",
+    "No production bootstrap or issuer authentication",
+    "Peer UID+PID tested locally, not a signed principal",
+    "No MXC sandbox in this W15 adapter test",
+    "Path scope is exact fixture path, not a hardened openat2 race-free resolver",
+    "No production authority, no public security certification"
+  ]
+}
