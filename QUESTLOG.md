@@ -1727,3 +1727,7 @@ L'oracle dual-canal matériel (contact et photodiode sur une seule horloge) est 
 ## GPU05-ORACLE-03 — position Wayland vers observation sémantique typée
 
 **SOURCE PASS / 10 lois TypeScript + 1 loi Rust PASS / LIVE BLOCKED code 75 / CP03 OPEN.** Les événements boutons natifs portent maintenant coordonnées de surface, séquence et token. L'extension `WaylandOpticalSemanticProjector` réutilise `InteractionProjector` avec un repère explicite sur la fixture réelle, sans autorité de mutation. La liaison live Rust→TypeScript et l'oracle photodiode restent à implémenter/qualifier. Voir `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-03-STATUS.md`.
+
+## GPU05-ORACLE-03-PHYSICAL-01 — essai natif borné, pause compositor
+
+**1769/1769 frames présentées ; 0 discarded ; max-gap = 413,544 ms (RED) ; clics = 0 ; CP03 OPEN.** Après le refus GNU6 code 75, un nouveau `go` a autorisé une seule admission exclusive protégée : 24 s sur HDMI-A-1. L'audit de traces (7 nouveaux tests PASS) associe la pause de présentation entre les frames 1501 et 1502 à ~435 ms de retard observé dans le cycle hôte/retour de callback, sans attribuer une cause à Hyprland, GPU, scheduler ou client. Aucun input utilisateur ni photon mesuré. Rapport : `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-03-PHYSICAL-01-STATUS.md`.

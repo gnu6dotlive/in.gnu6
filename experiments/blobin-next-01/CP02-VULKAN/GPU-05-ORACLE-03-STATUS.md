@@ -1,9 +1,15 @@
 # GPU05-ORACLE-03 — Typed Wayland pointer provenance into in.gnu6 projection
 
 **Date:** 2026-10-10 (EDT)
-**State:** SOURCE_TYPED_PROJECTION_PASS / NEW_TARGETED_LAWS_PASS / PHYSICAL_RUN_BLOCKED_CODE75 / REAL_POINTER_NOT_OBSERVED / CP03_OPEN
+**State (amended):** SOURCE_TYPED_PROJECTION_PASS / LATER_PHYSICAL_24S_RUN_OBSERVED / MAX_GAP_413MS_RED / REAL_POINTER_NOT_OBSERVED / CP03_OPEN
 **Branch:** `feat/gpu05-semantic-pointer-projection-20261010`
 **Parent baseline:** `a88924a8cd507c8835b54031b7ec0ee1a67f6fac` (ORACLE-02)
+
+**Post-checkpoint amendment:** A NEW operator `go` later admitted one
+protected 24s native run after the historical code-75 refusal. It
+presented 1769 frames with zero discards but had one **413.544ms**
+compositor interval: max-gap gate RED. There was no real pointer event.
+Full forensic evidence: [ORACLE-03-PHYSICAL-01](GPU-05-ORACLE-03-PHYSICAL-01-STATUS.md).
 
 ## Precise question
 
