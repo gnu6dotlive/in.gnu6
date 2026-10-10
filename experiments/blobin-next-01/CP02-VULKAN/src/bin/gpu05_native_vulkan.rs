@@ -1,12 +1,12 @@
 //! GPU-05 native owned Wayland surface, actual signed tetra/SDF shader, Vulkan WSI.
-#[path = "../frame_pacing.rs"]
-mod frame_pacing;
+#[path = "../frame_pacing02.rs"]
+mod frame_pacing02;
 #[path = "../owned_wayland_presentation.rs"]
 mod owned_wayland_presentation;
 #[path = "../scene_bridge.rs"]
 mod scene_bridge;
 use blobin_cp01_hybrid::gltf::import_glb;
-use frame_pacing::FramePacing;
+use frame_pacing02::AdaptiveFramePacing;
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
 use std::{
@@ -43,6 +43,7 @@ struct Live {
     next_frame_sequence: u64,
     presented_frames: u64,
     discarded_frames: u64,
+    last_feedback_refresh_ns: Option<u32>,
     trace: Option<BufWriter<File>>,
     token: String,
     yaw: f32,
@@ -351,6 +352,7 @@ impl Live {
             next_frame_sequence: 1,
             presented_frames: 0,
             discarded_frames: 0,
+            last_feedback_refresh_ns: None,
             trace,
             token,
             yaw: 0.0,
@@ -371,6 +373,11 @@ impl Live {
             if r.discarded {
                 self.discarded_frames += 1;
             } else if let Some(ns) = r.timestamp_ns {
+                if let Some(refresh) = r.refresh_ns {
+                    if refresh > 0 {
+                        self.last_feedback_refresh_ns = Some(refresh);
+                    }
+                }
                 self.presented_frames += 1;
                 let sec = ns / 1_000_000_000u128;
                 item["tv_sec_hi"] = serde_json::json!((sec >> 32) as u32);
@@ -617,11 +624,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
     let mut live = pollster::block_on(Live::create(scene, None, trace))?;
     let start = Instant::now();
-    let mut pacing = FramePacing::new();
+    let mut pacing = AdaptiveFramePacing::new();
     let mut abort_reason: Option<&'static str> = None;
+    println!("GPU05_PACER02_ACTIVE max_inflight=2 feedback_refresh_learned=true");
     while start.elapsed() < Duration::from_secs(seconds) && !live.gpu.closed() {
+        let before_feedback = live.presented_frames + live.discarded_frames;
         live.record_feedback()?;
-        match pacing.allow_submit(live.gpu.pending(), start.elapsed()) {
+        let now = start.elapsed();
+        if live.presented_frames + live.discarded_frames > before_feedback {
+            pacing.feedback_observed(now);
+            if let Some(refresh) = live.last_feedback_refresh_ns {
+                pacing.observe_refresh(refresh);
+            }
+        }
+        match pacing.should_submit(live.gpu.pending(), now) {
             Ok(true) => {}
             Ok(false) => {
                 std::thread::sleep(Duration::from_millis(1));
@@ -632,10 +648,21 @@ fn main() -> Result<(), Box<dyn Error>> {
                 break;
             }
         }
+        let before_seq = live.next_frame_sequence;
+        let before_feedback = live.presented_frames + live.discarded_frames;
         if let Err(e) = live.render() {
-            eprintln!("GPU05_FRAME_LOOP_ABORT reason={e}");
-            abort_reason = Some("GPU05_FRAME_LOOP_ERROR");
+            eprintln!("GPU05_PACER02_FRAME_ABORT reason={e}");
+            abort_reason = Some("GPU05_PACER02_FRAME_ERROR");
             break;
+        }
+        if live.next_frame_sequence > before_seq {
+            pacing.submitted(start.elapsed());
+        }
+        if live.presented_frames + live.discarded_frames > before_feedback {
+            pacing.feedback_observed(start.elapsed());
+            if let Some(refresh) = live.last_feedback_refresh_ns {
+                pacing.observe_refresh(refresh);
+            }
         }
         std::thread::sleep(Duration::from_millis(1));
     }
@@ -651,11 +678,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     if let Some(out) = live.trace.as_mut() {
         out.flush()?;
     }
-    println!("GPU05_EXIT seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} max_inflight={} wsi_timeouts={} wsi_occluded={} aborted={} NOT_CP03",
+    println!("GPU05_PACER02_EXIT seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} max_inflight={} refresh_ns={} refresh_learned={} wsi_timeouts={} wsi_occluded={} pacing_stall_events={} aborted={} NOT_CP03",
         start.elapsed().as_secs_f64(),live.next_frame_sequence-1,
         live.presented_frames,live.discarded_frames,live.gpu.pending(),
-        pacing.max_inflight(),live.wsi_timeout_total,live.wsi_occluded_total,
-        abort_reason.is_some());
+        pacing.max_inflight(),pacing.refresh_ns(),pacing.learned_refresh(),
+        live.wsi_timeout_total,live.wsi_occluded_total,pacing.stalled_events(),abort_reason.is_some());
     if let Some(reason) = abort_reason {
         return Err(reason.into());
     }
