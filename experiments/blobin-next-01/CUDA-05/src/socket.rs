@@ -56,6 +56,24 @@ pub fn validate_socket_destination(path: &Path) -> Result<(), String> {
     }
     Ok(())
 }
+/// Strict lab-only group-accessible socket destination for distinct host UIDs.
+/// Owner and group must be those of the unprivileged service, not the agent.
+pub fn validate_group_socket_destination(path: &Path) -> Result<(), String> {
+    if !path.is_absolute() || path.exists() {
+        return Err("CUDA05F SOCKET PATH MUST BE ABSOLUTE AND NONEXISTENT".into());
+    }
+    let parent = path.parent().ok_or("CUDA05F SOCKET PARENT MISSING")?;
+    let meta = std::fs::symlink_metadata(parent).map_err(|e| e.to_string())?;
+    use std::os::unix::fs::MetadataExt;
+    if !meta.file_type().is_dir()
+        || meta.permissions().mode() & 0o777 != 0o710
+        || meta.uid() != unsafe { libc::geteuid() }
+        || meta.gid() != unsafe { libc::getegid() }
+    {
+        return Err("CUDA05F SOCKET DIRECTORY NOT OWNED BY SERVICE AT MODE 0710".into());
+    }
+    Ok(())
+}
 #[cfg(test)]
 mod tests {
     use super::*;

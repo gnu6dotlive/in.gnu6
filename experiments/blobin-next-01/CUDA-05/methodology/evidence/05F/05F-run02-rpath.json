@@ -1,0 +1,1114 @@
+{
+  "contract_sha256": "9af8d1f9222c4be0a3e7febbe6c4318eba069fd540ae2c0de848f8aa766a1761",
+  "environment": {
+    "authorized_uid": 1000,
+    "gid": 1000,
+    "gpu": "RTX3070 active Wayland display; no reset",
+    "image": "debian:trixie-slim",
+    "rootful_docker": true,
+    "service_uid": 65534
+  },
+  "experiment_id": "CUDA-05F-P01",
+  "scenarios": [
+    {
+      "backend": "cuda",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-44c1a2febd14-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "STATUS",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER",
+        "XREJECT",
+        "XDAC",
+        "RENDER",
+        "REVOKE",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=None launches=0 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "XREJECT",
+          "response": {
+            "exit": 0,
+            "stderr": "",
+            "stdout": "DENIED reason=CUDA05C_PEER_UNAUTHORIZED\n"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "XDAC",
+          "response": {
+            "exit": 13,
+            "stderr": "CONNECT_FAILED Permission denied\n",
+            "stdout": ""
+          }
+        },
+        {
+          "index": 6,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 7,
+          "intent": "REVOKE",
+          "response": {
+            "exit": 0,
+            "reply": "REVOKED peer_uid=1000"
+          }
+        },
+        {
+          "index": 8,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 9,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 10,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "normal",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1493245\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Cuda limits=10 timeout_ms=12000\nCUDA05F_EVENT index=0 STATE generation=None launches=0 peer_uid=1000\nCUDA05F_EVENT index=1 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=2 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=3 RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=4 DENIED reason=CUDA05C_PEER_UNAUTHORIZED\nCUDA05F_EVENT index=5 RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=6 REVOKED peer_uid=1000\nCUDA05F_EVENT index=7 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=8 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=9 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "11318de805ca79fbf1b9fb51e9f9008f372b25e300d257b13f86062a45965922\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:33:53.350835+00:00"
+    },
+    {
+      "backend": "cuda",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-453002b38baa-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "STATUS",
+        "ACQUIRE",
+        "RENDER",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER",
+        "STATUS"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=None launches=0 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 6,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=Some(2) launches=4 peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "crash",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1494451\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Cuda limits=7 timeout_ms=12000\nCUDA05F_EVENT index=0 STATE generation=None launches=0 peer_uid=1000\nCUDA05F_EVENT index=1 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=2 DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR\nCUDA05F_EVENT index=3 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=4 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=5 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=6 STATE generation=Some(2) launches=4 peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "b452508ace74228865a5850f2e4d7291f69f3f11f1e542446473a7f22957295a\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:33:58.464984+00:00"
+    },
+    {
+      "backend": "cuda",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-ff690131fafb-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "STATUS",
+        "ACQUIRE",
+        "RENDER",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER",
+        "STATUS"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=None launches=0 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_WORKER_TIMEOUT_KILLED"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 6,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=Some(2) launches=4 peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "hang",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1495231\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Cuda limits=7 timeout_ms=1000\nCUDA05F_EVENT index=0 STATE generation=None launches=0 peer_uid=1000\nCUDA05F_EVENT index=1 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=2 DENIED reason=CUDA05C_WORKER_TIMEOUT_KILLED\nCUDA05F_EVENT index=3 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=4 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=5 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=6 STATE generation=Some(2) launches=4 peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "c96084748ce60ecf97796da021836c7baa9809081f5a7131bba2dcae9ee07364\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:34:01.733168+00:00"
+    },
+    {
+      "backend": "vulkan",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-c6da0386c6fc-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "STATUS",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER",
+        "XREJECT",
+        "XDAC",
+        "RENDER",
+        "REVOKE",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=None launches=0 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "XREJECT",
+          "response": {
+            "exit": 0,
+            "stderr": "",
+            "stdout": "DENIED reason=CUDA05C_PEER_UNAUTHORIZED\n"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "XDAC",
+          "response": {
+            "exit": 13,
+            "stderr": "CONNECT_FAILED Permission denied\n",
+            "stdout": ""
+          }
+        },
+        {
+          "index": 6,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 7,
+          "intent": "REVOKE",
+          "response": {
+            "exit": 0,
+            "reply": "REVOKED peer_uid=1000"
+          }
+        },
+        {
+          "index": 8,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 9,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 10,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "normal",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1496155\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Vulkan limits=10 timeout_ms=12000\nCUDA05F_EVENT index=0 STATE generation=None launches=0 peer_uid=1000\nCUDA05F_EVENT index=1 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=2 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=3 RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=4 DENIED reason=CUDA05C_PEER_UNAUTHORIZED\nCUDA05F_EVENT index=5 RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=6 REVOKED peer_uid=1000\nCUDA05F_EVENT index=7 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=8 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=9 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "78305e5593b4c8e99cd749454c0df8fbd8e99f37910c784b4e6acecd1f7e6a4a\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:34:05.837930+00:00"
+    },
+    {
+      "backend": "vulkan",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-a57bc57146c4-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "STATUS",
+        "ACQUIRE",
+        "RENDER",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER",
+        "STATUS"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=None launches=0 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 6,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=Some(2) launches=4 peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "crash",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1497378\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Vulkan limits=7 timeout_ms=12000\nCUDA05F_EVENT index=0 STATE generation=None launches=0 peer_uid=1000\nCUDA05F_EVENT index=1 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=2 DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR\nCUDA05F_EVENT index=3 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=4 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=5 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=6 STATE generation=Some(2) launches=4 peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "50f63464e6be363881419e8c2e85c3ea59c4cab4f3c54b6028860b77856c53f1\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:34:10.659654+00:00"
+    },
+    {
+      "backend": "vulkan",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-121637c9f615-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "STATUS",
+        "ACQUIRE",
+        "RENDER",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER",
+        "STATUS"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=None launches=0 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_WORKER_TIMEOUT_KILLED"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 6,
+          "intent": "STATUS",
+          "response": {
+            "exit": 0,
+            "reply": "STATE generation=Some(2) launches=4 peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "hang",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1498171\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Vulkan limits=7 timeout_ms=1000\nCUDA05F_EVENT index=0 STATE generation=None launches=0 peer_uid=1000\nCUDA05F_EVENT index=1 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=2 DENIED reason=CUDA05C_WORKER_TIMEOUT_KILLED\nCUDA05F_EVENT index=3 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=4 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=5 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=6 STATE generation=Some(2) launches=4 peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "b4d3dc0fa7e1f1db026457500198fdc4f3276f6c842c2ce3a42870eace5120d6\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:34:13.680369+00:00"
+    },
+    {
+      "backend": "cuda",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-89d038f63c22-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "ACQUIRE",
+        "RENDER",
+        "RENDER",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_WORKER_HASH_NOT_APPROVED"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "worker_tamper",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1499023\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Cuda limits=6 timeout_ms=12000\nCUDA05F_EVENT index=0 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=1 RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=2 DENIED reason=CUDA05C_WORKER_HASH_NOT_APPROVED\nCUDA05F_EVENT index=3 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=4 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=5 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "859eb9b16029b3a01f07aa473825fc0b82b23caf9c8c41bf98cfd2308cd5ba81\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:34:17.873399+00:00"
+    },
+    {
+      "backend": "cuda",
+      "cleanup_container": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": "cuda05f-43d3439b7d12-svc\n"
+      },
+      "cleanup_ownership": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "commands": [
+        "ACQUIRE",
+        "RENDER",
+        "RENDER",
+        "RENDER",
+        "ACQUIRE",
+        "RENDER"
+      ],
+      "files": {
+        "libblobin_cuda03.so": "4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943",
+        "supervise05f": "28b1faaef2f08279e833b5cff7b90afc43ea56193262c2846f3bd189b4847439",
+        "worker05c": "09002a12e1ac18ff4ce0c1c43b39481815c75597c2e6f830750bc27c510c1473"
+      },
+      "observations": [
+        {
+          "index": 0,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=1 peer_uid=1000"
+          }
+        },
+        {
+          "index": 1,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        },
+        {
+          "index": 2,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR"
+          }
+        },
+        {
+          "index": 3,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "DENIED reason=CUDA05C_NO_ACTIVE_GRANT"
+          }
+        },
+        {
+          "index": 4,
+          "intent": "ACQUIRE",
+          "response": {
+            "exit": 0,
+            "reply": "READY generation=2 peer_uid=1000"
+          }
+        },
+        {
+          "index": 5,
+          "intent": "RENDER",
+          "response": {
+            "exit": 0,
+            "reply": "RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000"
+          }
+        }
+      ],
+      "scenario": "provider_tamper",
+      "service": {
+        "directory": {
+          "group": 1000,
+          "mode": "0o710",
+          "owner": 65534
+        },
+        "exit": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "0\n"
+        },
+        "host_uid_quad": [
+          65534,
+          65534,
+          65534,
+          65534
+        ],
+        "inspect": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "65534:1000||none|1500635\n"
+        },
+        "log": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "CUDA05F_LISTENING backend=Cuda limits=6 timeout_ms=12000\nCUDA05F_EVENT index=0 READY generation=1 peer_uid=1000\nCUDA05F_EVENT index=1 RENDER_PASS generation=1 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EVENT index=2 DENIED reason=CUDA05C_WORKER_CRASH_OR_ERROR\nCUDA05F_EVENT index=3 DENIED reason=CUDA05C_NO_ACTIVE_GRANT\nCUDA05F_EVENT index=4 READY generation=2 peer_uid=1000\nCUDA05F_EVENT index=5 RENDER_PASS generation=2 worker=FRESH parity=PASS peer_uid=1000\nCUDA05F_EXIT clean=PASS\n"
+        },
+        "socket": {
+          "group": 1000,
+          "mode": "0o660",
+          "owner": 65534
+        },
+        "start": {
+          "exit": 0,
+          "stderr": "",
+          "stdout": "9898d2e4701e55f81a3868137ef3ad601eb1bc8d41a5ce38dc940c7ac33148d8\n"
+        }
+      },
+      "setup": {
+        "exit": 0,
+        "stderr": "",
+        "stdout": ""
+      },
+      "timestamp_utc": "2026-10-10T00:34:22.925581+00:00"
+    }
+  ],
+  "schema": "CUDA05F.RAW.v1",
+  "timestamp_utc": "2026-10-10T00:33:53.350738+00:00"
+}
