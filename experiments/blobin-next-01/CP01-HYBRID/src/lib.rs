@@ -1,8 +1,10 @@
 //! BLOB-NEXT-01 CP01 GEO-02: bounded 3D geometry + CPU SDF/mesh CSG; NOT qualified CP01.
 //! Generic imported meshes are NOT certified. Mixed CPU SDF/MeshSolid booleans operate only on sealed convex meshes or bounded generated non-convex extrusions; the GPU path is not implemented.
+pub mod bvh;
 pub mod camera;
 pub mod gltf;
 pub mod mesh;
+pub mod topology;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub const MAX_NODES: usize = 256;

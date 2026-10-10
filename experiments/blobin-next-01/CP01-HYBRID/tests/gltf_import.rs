@@ -251,3 +251,76 @@ fn canonical_static_fixtures_are_reimportable_without_filesystem_access() {
         MeshPreflight::ClosedCandidateNotCertified
     );
 }
+
+#[test]
+fn imported_tetra_requires_explicit_convex_certification_for_mixed_csg() {
+    use blobin_cp01_hybrid::{
+        mesh::CertifiedMeshSolid, CsgOp, NodeId, NodeKind, Primitive, SceneDocument, SdfLeaf,
+        Semantic, Transform, Vec3,
+    };
+    use std::collections::BTreeMap;
+    let item = import_glb(include_bytes!("../fixtures/tetra-indexed.glb")).unwrap();
+    let convex = item.try_certify_convex().unwrap();
+    let mut nodes = BTreeMap::new();
+    nodes.insert(
+        NodeId(1),
+        NodeKind::MeshSolid(CertifiedMeshSolid::Convex(convex)),
+    );
+    nodes.insert(
+        NodeId(2),
+        NodeKind::Sdf(SdfLeaf {
+            shape: Primitive::Sphere { radius: 0.30 },
+            transform: Transform {
+                translation: Vec3::new(0.15, 0.15, 0.15),
+                ..Transform::IDENTITY
+            },
+        }),
+    );
+    for (root, op, left, right) in [
+        (3, CsgOp::Difference, 1, 2),
+        (4, CsgOp::Difference, 2, 1),
+        (5, CsgOp::Intersection, 1, 2),
+        (6, CsgOp::Union, 1, 2),
+    ] {
+        nodes.insert(
+            NodeId(root),
+            NodeKind::Csg {
+                op,
+                left: NodeId(left),
+                right: NodeId(right),
+            },
+        );
+    }
+    let scene = SceneDocument {
+        version: 1,
+        nodes,
+        roots: vec![NodeId(3), NodeId(4), NodeId(5), NodeId(6)],
+    };
+    scene.validate().unwrap();
+    let sample = |n| {
+        scene
+            .sample(NodeId(n), Vec3::new(0.15, 0.15, 0.15))
+            .unwrap()
+    };
+    assert!(sample(1).distance < 0.0 && sample(2).distance < 0.0);
+    assert!(sample(3).distance > 0.0);
+    assert!(sample(4).distance > 0.0);
+    assert!(sample(5).distance < 0.0);
+    assert!(sample(6).distance < 0.0);
+    for n in 3..=6 {
+        assert_eq!(sample(n).semantic, Semantic::FieldEstimate);
+    }
+}
+
+#[test]
+fn imported_nonconvex_l_prism_is_only_topology_candidate_not_meshsolid() {
+    use blobin_cp01_hybrid::topology::inspect_closed_topology;
+    let item = import_glb(include_bytes!("../fixtures/l-prism-nonconvex.glb")).unwrap();
+    assert_eq!(item.mesh.triangles.len(), 20);
+    let inventory = inspect_closed_topology(&item.mesh).unwrap();
+    assert_eq!(inventory.euler_characteristic, 2);
+    assert!(
+        item.try_certify_convex().is_err(),
+        "topologically closed nonconvex mesh must never gain convex certificate"
+    );
+}

@@ -1,6 +1,6 @@
 //! GEO-03: fail-closed, static, single-mesh triangle importer. NO filesystem access.
 //! This is a strict documented subset of glTF 2.0 / GLB 2.0, not a full loader.
-use crate::{GeometryError, MeshAsset, Vec3, MAX_TRIANGLES};
+use crate::{mesh::CertifiedConvexSolid, GeometryError, MeshAsset, Vec3, MAX_TRIANGLES};
 use serde_json::Value;
 
 pub const MAX_CONTAINER: usize = 16 * 1024 * 1024;
@@ -33,6 +33,14 @@ pub struct ImportedSurface {
     pub source: SourceFormat,
     pub mesh_index: usize,
     pub primitive_index: usize,
+}
+impl ImportedSurface {
+    /// An explicit post-import promotion, never performed by either parser.
+    /// Only the existing conservative convex validator can grant signed-volume
+    /// semantics; any arbitrary nonconvex imported mesh remains a surface.
+    pub fn try_certify_convex(self) -> Result<CertifiedConvexSolid, GeometryError> {
+        CertifiedConvexSolid::certify(self.mesh)
+    }
 }
 fn u32le(s: &[u8]) -> Result<u32, ImportError> {
     let a: [u8; 4] = s.try_into().map_err(|_| ImportError::OutOfBounds)?;
