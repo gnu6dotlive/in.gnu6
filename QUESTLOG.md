@@ -1723,3 +1723,7 @@ L'oracle dual-canal matériel (contact et photodiode sur une seule horloge) est 
 ## GPU05-ORACLE-02 — témoin lumineux Wayland natif
 
 **Source + 15 tests PASS ; Vulkan idle smoke 749/749 PRESENTED ; aucun clic observé ; CP03 OPEN.** Un probe opt-in reçoit les boutons wl_pointer uniquement depuis la surface native et projette une impulsion optique bornée sans modifier l'autorité sémantique. Le smoke 10 s n'a eu aucun événement d'entrée ; la vraie chaîne causale et la photodiode indépendante restent à qualifier. Rapport : `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-02-STATUS.md`.
+
+## GPU05-ORACLE-03 — position Wayland vers observation sémantique typée
+
+**SOURCE PASS / 10 lois TypeScript + 1 loi Rust PASS / LIVE BLOCKED code 75 / CP03 OPEN.** Les événements boutons natifs portent maintenant coordonnées de surface, séquence et token. L'extension `WaylandOpticalSemanticProjector` réutilise `InteractionProjector` avec un repère explicite sur la fixture réelle, sans autorité de mutation. La liaison live Rust→TypeScript et l'oracle photodiode restent à implémenter/qualifier. Voir `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-03-STATUS.md`.

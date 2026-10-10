@@ -31,6 +31,8 @@ Deux intégrations consommateurs — Docklab et le harnais SP Joaillerie — ser
 
 La preuve **125 secondes / 74,956 FPS de moyenne / p95 13,478 ms / zéro frame écartée** est une observation physique locale via `wp_presentation` sur une surface Wayland attribuée au binaire natif, **pas** une garantie multi-GPU, une certification produit ou une mesure input-to-photon.
 
+ORACLE-03 prépare la **projection sémantique typée** des coordonnées Wayland vers `InteractionProjector` (10 lois TypeScript PASS, un test Rust PASS). L'essai Vulkan natif a été refusé par le garde GNU6 (code 75) : **aucun clic réel, aucune calibration physique ni acceptation CP03**. [Dossier ORACLE-03](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-03-STATUS.md).
+
 ORACLE-02 introduit un **témoin optique expérimental activé par entrée Wayland**, côté renderer : 15 nouveaux tests ciblés PASS et un smoke Vulkan 10 s sans frame écartée. **Aucun clic réel n'a été observé pendant ce run ; l'entrée-à-photon reste non qualifiée.** [Rapport ORACLE-02](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-02-STATUS.md).
 
 L'analyseur indépendant entrée-à-photon est en préparation : **23 tests de contrat/manifestes PASS**, capture matérielle **NOT RUN**. [ORACLE-01](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-01-STATUS.md).
