@@ -205,5 +205,15 @@
     "judgment_plane": "NOT_RUN",
     "product_transfer": "NOT_RUN",
     "public_security_claim": "NOT_AUTHORIZED"
+  },
+  "w14b_broker_net_02": {
+    "deno_broker_ipc": "LAB_PASS_9_OF_9",
+    "mxc_network_policy_refusal": "LAB_PASS_3_OF_3_POSITIVE_SPAWN_AND_TWO_REFUSALS",
+    "mxc_deno_broker_composite": "LAB_PASS_5_OF_5",
+    "mxc_egress_allow": "NOT_RUN_SLIRP4NETNS_MISSING",
+    "judgment_plane_grant": "NOT_RUN",
+    "deno_full_pinned_commit_runtime": "NOT_RUN_BROKER_SOURCE_BLOB_MATCHES_ONLY",
+    "product_mutations": "NONE",
+    "production_mutations": "NONE"
   }
 }

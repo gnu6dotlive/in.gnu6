@@ -82,3 +82,18 @@ Gates : MXC_BUILD=PASS; MXC_RUNTIME_FILESYSTEM=PASS_2_OF_2; DENO_RELEASE_SHA256=
 - Aucune publication produit, aucune mutation de production ou de la branche `in.gnu6/main`. Push de la branche de recherche uniquement, à contrôler indépendamment.
 
 Gates: W14_FILESYSTEM=LAB_PASS_REPEATED; W14_NETWORK=INCONCLUSIVE; W14_END_TO_END=OPEN; W14_PRODUCTION=NOT_AUTHORIZED.
+
+## 2026-10-10 — W14B Deno broker IPC × MXC network refusal and composite
+
+**LAB_PASS_BOUNDED / EGRESS_ALLOW_OPEN / JUDGMENT_PLANE_NOT_RUN.**
+
+- G00: reprise sur branche centrale propre `fc3945c` et SHA remote identique. Nouveau worktree et branche `research/upstream-rd-01-broker-net-02-20261010` isolés; aucun changement des sources upstream ni des projets bénéficiaires.
+- Deno officiel v2.9.7 : variable `DENO_PERMISSION_BROKER_PATH` découverte et broker IPC réel Unix testé avec requêtes JSON v1/id/pid/permission/value. **9/9 PASS** : allow sans autorisation CLI, deny avec et sans CLI allow, mauvais ID=exit87, réponse inconnue=exit87, déconnexion=exit87, contrôles sans broker deny/allow, socket absent=exit87.
+- Code broker Deno `runtime/permissions/broker.rs` : Git blob SHA `a7c70e963ed2a6a7bdc7c14bb8581c39b0ce119c` **identique** entre tag Deno v2.9.7 et commit source épinglé `a18ce337...` du 2026-10-06. Le binaire complet v2.9.7 n'est toujours **pas** issu de ce commit.
+- MXC SDK 1.0.0 sur `microsoft/mxc@c6f301d...` : **3/3 PASS borné** pour réseau : politique implicite default-deny → child spawn avec témoin; egress allow nécessitant `slirp4netns` absent → refus explicite avant spawn; ingress.default allow non supporté → refus explicite avant spawn. Cela ne qualifie **pas** un flux egress permis ni les règles réseau appliquées.
+- **Composite broker réel Deno dans MXC** : socket Unix témoin hébergé hors processus Deno et visible dans montage jetable MXC, sans `--allow-write` CLI; **5/5 PASS** : broker allow/MXC RW écrit, broker allow/MXC RO retourne `EROFS`, broker deny/MXC RW et RO retournent `NotCapable`, mauvais ID broker/MXC RW termine Deno code 87. Un seul appel broker `write` par scénario et absence d'erreurs serveur.
+- Contrat `15-W14B-BROKER-NET-02.md`, rapport `docs/agent-results/upstream-rd-01/w14b-broker-net-02.md`, preuves JSON dans `evidence/upstream-rd-01/broker-net-02/`, relecture reproductible `tools/upstream-rd-01/verify_w14b.py`.
+- Commits workers intégrés par cherry-pick depuis `dbde1466949033f9321e9fc831b865bb246d8424`, nouveau SHA central `9d13ea0`; remote push à vérifier séparément.
+- **Autorité encore manquante** : identité sécurisée du broker, grant signé/non forgeable, validation du scope/TTL et révocation via Gnosix Judgment Plane, tests host-network egress MXC avec outillage correct, Deno binary compilé au SHA épinglé, produit réel, multi-tenant.
+
+Gates : W14B_DENO_BROKER_IPC=PASS_9_OF_9; W14B_MXC_NETWORK_REFUSAL=PASS_3_OF_3; W14B_COMPOSITE_BROKER_OS=PASS_5_OF_5; W14B_MXC_EGRESS_ALLOW=NOT_RUN; W14B_JUDGMENT_PLANE=NOT_RUN; PRODUCT_TRANSFER=NOT_RUN; PUBLIC_SECURITY_CLAIM=NOT_AUTHORIZED.

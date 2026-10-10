@@ -1,7 +1,7 @@
 # W14 — MXC × Deno authorization-to-containment boundary
 
 Contract: `00-BASE.md` + `12-MXC-SECURITY-01.md` + `13-DENO-PERMISSION-01.md`.
-Status: **PARTIAL_LAB_PASS** — four executed MXC SDK × Deno filesystem cases; network cross-test INCONCLUSIVE due invalid host-loopback positive control; permission broker and Judgment Plane NOT_RUN. No authority to modify the Gnosix Judgment Plane, desktop MCP, in.gnu6 core, Coolify, secrets or production.
+Status: **PARTIAL_LAB_PASS_W14B** — initial filesystem 4/4 repeated; actual Deno Unix broker 9/9, MXC policy refusal 3/3 and real broker-inside-MXC 5/5 in follow-up W14B. The earlier host-loopback network cross-test remains INCONCLUSIVE; positive MXC egress and Judgment Plane are still NOT_RUN. See contract `15-W14B-BROKER-NET-02.md`. No authority to modify the Gnosix Judgment Plane, desktop MCP, in.gnu6 core, Coolify, secrets or production.
 
 ## Question
 Can a Deno-specified permission request be narrowed into a kernel-enforced execution boundary, with fail-closed refusal when the requested scope is unenforceable?
