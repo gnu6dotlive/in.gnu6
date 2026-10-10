@@ -9,3 +9,4 @@ blobin-cp01-hybrid = {path = "../CP01-HYBRID"}
 wgpu = {version = "=30.0.1", default-features = false, features=["std","vulkan","wgsl","parking_lot"]}
 bytemuck = "1.25.0"
 pollster = "0.4.0"
+png = "=0.18.1"
