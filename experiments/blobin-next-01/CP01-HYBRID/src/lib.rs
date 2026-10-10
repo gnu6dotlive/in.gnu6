@@ -1,5 +1,6 @@
 //! BLOB-NEXT-01 CP01 GEO-00: bounded, typed geometric seed; NOT qualified CP01.
-//! Certified signed meshes and true SDF<->MeshSolid booleans are intentionally absent.
+//! General signed meshes and true SDF<->MeshSolid booleans are intentionally absent; a narrow convex-only mesh query module is experimental.
+pub mod mesh;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub const MAX_NODES: usize = 256;
@@ -179,6 +180,10 @@ pub enum GeometryError {
     InvalidMesh,
     TooManyTriangles,
     NonFiniteResult,
+    NonManifold,
+    WrongWinding,
+    AmbiguousGeometry,
+    UnsupportedNonConvex,
 }
 impl MeshAsset {
     /// Preflight is deliberately NOT a solid certification: lacks self-intersection
@@ -229,6 +234,8 @@ pub struct NodeId(pub u64);
 pub enum NodeKind {
     Sdf(SdfLeaf),
     MeshSurface(MeshAsset),
+    /// Strictly convex certified mesh; arbitrary mesh certification remains unavailable.
+    ConvexSolid(mesh::CertifiedConvexSolid),
     Csg {
         op: CsgOp,
         left: NodeId,
@@ -345,6 +352,10 @@ impl SceneDocument {
                 semantic: Semantic::ExactDistance,
             },
             NodeKind::MeshSurface(_) => return Err(GeometryError::SurfaceHasNoSignedField),
+            NodeKind::ConvexSolid(s) => FieldSample {
+                distance: s.signed_distance(p)?,
+                semantic: Semantic::ExactDistance,
+            },
             NodeKind::Csg { op, left, right } => {
                 let a = self.eval(*left, p, memo)?.distance;
                 let b = self.eval(*right, p, memo)?.distance;
