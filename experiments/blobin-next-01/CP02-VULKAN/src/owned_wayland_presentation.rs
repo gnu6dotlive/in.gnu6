@@ -16,10 +16,14 @@ use presentation_tracker::{FeedbackOutcome, FeedbackTracker, PresentationReceipt
 use raw_window_handle::{
     RawDisplayHandle, RawWindowHandle, WaylandDisplayHandle, WaylandWindowHandle,
 };
-use std::{collections::HashSet, os::fd::AsRawFd, ptr::NonNull};
+use std::{
+    collections::{HashMap, HashSet},
+    os::fd::AsRawFd,
+    ptr::NonNull,
+};
 use wayland_client::{
     delegate_noop,
-    protocol::{wl_callback, wl_compositor, wl_registry, wl_surface},
+    protocol::{wl_callback, wl_compositor, wl_output, wl_registry, wl_surface},
     Connection, Dispatch, EventQueue, Proxy, QueueHandle,
 };
 use wayland_protocols::{
@@ -38,6 +42,8 @@ const MAX_QUEUED_CALLBACK_RECEIPTS: usize = 8;
 #[derive(Debug)]
 struct NativeState {
     compositor: Option<wl_compositor::WlCompositor>,
+    outputs: HashMap<u32, wl_output::WlOutput>,
+    output_names: HashMap<u32, String>,
     shell: Option<xdg_wm_base::XdgWmBase>,
     presentation: Option<wp_presentation::WpPresentation>,
     configured: bool,
@@ -53,6 +59,8 @@ impl Default for NativeState {
     fn default() -> Self {
         Self {
             compositor: None,
+            outputs: HashMap::new(),
+            output_names: HashMap::new(),
             shell: None,
             presentation: None,
             configured: false,
@@ -90,6 +98,10 @@ impl Dispatch<wl_registry::WlRegistry, ()> for NativeState {
                         (),
                     ));
                 }
+                "wl_output" if version >= 4 => {
+                    let output = registry.bind::<wl_output::WlOutput, _, _>(name, 4, qh, ());
+                    state.outputs.insert(output.id().protocol_id(), output);
+                }
                 "xdg_wm_base" if state.shell.is_none() => {
                     state.shell = Some(registry.bind::<xdg_wm_base::XdgWmBase, _, _>(
                         name,
@@ -109,6 +121,21 @@ impl Dispatch<wl_registry::WlRegistry, ()> for NativeState {
                 }
                 _ => {}
             }
+        }
+    }
+}
+
+impl Dispatch<wl_output::WlOutput, ()> for NativeState {
+    fn event(
+        state: &mut Self,
+        output: &wl_output::WlOutput,
+        event: wl_output::Event,
+        _: &(),
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        if let wl_output::Event::Name { name } = event {
+            state.output_names.insert(output.id().protocol_id(), name);
         }
     }
 }
@@ -256,12 +283,30 @@ pub struct OwnedWaylandPresentation {
 
 impl OwnedWaylandPresentation {
     pub fn open() -> Result<Self, String> {
+        Self::open_on(None)
+    }
+    pub fn open_on(requested_output: Option<&str>) -> Result<Self, String> {
         let connection = Connection::connect_to_env().map_err(|e| e.to_string())?;
         let mut events = connection.new_event_queue::<NativeState>();
         let qh = events.handle();
         let _registry = connection.display().get_registry(&qh, ());
         let mut state = NativeState::default();
         events.roundtrip(&mut state).map_err(|e| e.to_string())?;
+        if requested_output.is_some() {
+            // wl_output names arrive only after the registry bind roundtrip.
+            events.roundtrip(&mut state).map_err(|e| e.to_string())?;
+        }
+        let selected_output = requested_output
+            .map(|wanted| {
+                state
+                    .output_names
+                    .iter()
+                    .find(|(_, name)| name.as_str() == wanted)
+                    .and_then(|(id, _)| state.outputs.get(id))
+                    .cloned()
+                    .ok_or_else(|| format!("GPU05_REQUESTED_OUTPUT_UNAVAILABLE {wanted}"))
+            })
+            .transpose()?;
 
         let compositor = state.compositor.as_ref().ok_or("GPU05_NO_COMPOSITOR")?;
         let shell = state.shell.as_ref().ok_or("GPU05_NO_XDG_SHELL")?;
@@ -272,6 +317,14 @@ impl OwnedWaylandPresentation {
         let xdg_surface = shell.get_xdg_surface(&surface, &qh, ());
         let xdg_toplevel = xdg_surface.get_toplevel(&qh, ());
         xdg_toplevel.set_title("blob.in GPU-05 native owned surface".into());
+        if let Some(output) = selected_output.as_ref() {
+            // Protocol-owned monitor choice, not a Hyprland configuration edit.
+            xdg_toplevel.set_fullscreen(Some(output));
+            println!(
+                "GPU05_PINNED_OUTPUT name={} protocol=xdg_toplevel.fullscreen",
+                requested_output.unwrap_or_default()
+            );
+        }
         // Initial xdg_surface configure must precede the first Vulkan commit.
         surface.commit();
         for _ in 0..8 {
@@ -424,7 +477,10 @@ pub struct OwnedGpuWindow {
 }
 impl OwnedGpuWindow {
     pub fn open(instance: &wgpu::Instance) -> Result<Self, String> {
-        let host = OwnedWaylandPresentation::open()?;
+        Self::open_on(instance, None)
+    }
+    pub fn open_on(instance: &wgpu::Instance, output: Option<&str>) -> Result<Self, String> {
+        let host = OwnedWaylandPresentation::open_on(output)?;
         let display_ptr = NonNull::new(host.connection.backend().display_ptr().cast())
             .ok_or("GPU05_NULL_WAYLAND_DISPLAY")?;
         let wl_ptr =

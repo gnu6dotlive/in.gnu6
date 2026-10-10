@@ -46,6 +46,8 @@ struct Live {
     last_feedback_refresh_ns: Option<u32>,
     trace: Option<BufWriter<File>>,
     callback_trace: Option<BufWriter<File>>,
+    stage_trace: Option<BufWriter<File>>,
+    stage_origin: Instant,
     callback_sequences: Vec<u64>,
     callback_count: u64,
     token: String,
@@ -63,11 +65,13 @@ impl Live {
         update_rx: Option<Receiver<Vec<u8>>>,
         trace: Option<BufWriter<File>>,
         callback_trace: Option<BufWriter<File>>,
+        stage_trace: Option<BufWriter<File>>,
+        output: Option<&str>,
     ) -> Result<Self, Box<dyn Error>> {
         let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
         desc.backends = wgpu::Backends::VULKAN;
         let instance = wgpu::Instance::new(desc);
-        let gpu = OwnedGpuWindow::open(&instance)?;
+        let gpu = OwnedGpuWindow::open_on(&instance, output)?;
         if let Some(src) = stream.as_ref() {
             println!("GPU05_SCENE_STREAM frames={}", src.frame_count());
         }
@@ -359,6 +363,8 @@ impl Live {
             last_feedback_refresh_ns: None,
             trace,
             callback_trace,
+            stage_trace,
+            stage_origin: Instant::now(),
             callback_sequences: Vec::with_capacity(8),
             callback_count: 0,
             token,
@@ -370,6 +376,32 @@ impl Live {
             semantic_stream: stream,
         })
     }
+    /// CPU-side Instant clock is not the compositor presentation clock.
+    /// Correlate ONLY via frame_sequence, not cross-clock subtraction.
+    fn mark_stage(
+        &mut self,
+        sequence: u64,
+        step: &'static str,
+        measured_at: Instant,
+    ) -> Result<(), String> {
+        if let Some(out) = self.stage_trace.as_mut() {
+            let ns = measured_at
+                .saturating_duration_since(self.stage_origin)
+                .as_nanos();
+            serde_json::to_writer(
+                &mut *out,
+                &serde_json::json!({
+                    "type":"cpu_stage","frame_sequence":sequence,
+                    "stage":step,"time_since_host_ready_ns":ns,
+                    "wl_surface_token":self.token,
+                }),
+            )
+            .map_err(|e| e.to_string())?;
+            out.write_all(b"\n").map_err(|e| e.to_string())?;
+        }
+        Ok(())
+    }
+
     fn record_feedback(&mut self) -> Result<(), String> {
         for r in self.gpu.poll()? {
             let mut item = serde_json::json!({
@@ -392,6 +424,15 @@ impl Live {
                 item["tv_nsec"] = serde_json::json!((ns % 1_000_000_000u128) as u32);
                 item["refresh_ns"] = serde_json::json!(r.refresh_ns.unwrap_or(0));
             }
+            self.mark_stage(
+                r.frame_sequence,
+                if r.discarded {
+                    "compositor_discard_observed"
+                } else {
+                    "compositor_present_observed"
+                },
+                Instant::now(),
+            )?;
             if let Some(out) = self.trace.as_mut() {
                 serde_json::to_writer(&mut *out, &item).map_err(|e| e.to_string())?;
                 out.write_all(b"\n").map_err(|e| e.to_string())?;
@@ -402,6 +443,7 @@ impl Live {
                 return Err("GPU05_CALLBACK_APP_QUEUE_FULL".into());
             }
             self.callback_count += 1;
+            self.mark_stage(cb.frame_sequence, "frame_callback_observed", Instant::now())?;
             if let Some(out) = self.callback_trace.as_mut() {
                 serde_json::to_writer(
                     &mut *out,
@@ -448,6 +490,8 @@ impl Live {
                 }
             }
         }
+        let stage_seq = self.next_frame_sequence;
+        self.mark_stage(stage_seq, "before_acquire", Instant::now())?;
         let frame = match self.gpu.wgpu_surface().get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(v)
             | wgpu::CurrentSurfaceTexture::Suboptimal(v) => v,
@@ -481,6 +525,7 @@ impl Live {
             other => return Err(format!("SURFACE_UNAVAILABLE {other:?}")),
         };
         self.wsi_timeout_streak = 0;
+        self.mark_stage(stage_seq, "after_acquire", Instant::now())?;
         let observed_at = self.pause_started.unwrap_or_else(Instant::now);
         let seconds = observed_at
             .duration_since(self.started)
@@ -568,10 +613,14 @@ impl Live {
             pass.set_bind_group(0, &self.draw_bind, &[]);
             pass.draw(0..3, 0..1);
         }
+        self.mark_stage(stage_seq, "before_queue_submit", Instant::now())?;
         self.queue.submit([encoder.finish()]);
+        self.mark_stage(stage_seq, "after_queue_submit", Instant::now())?;
         self.gpu.arm(self.next_frame_sequence)?;
+        self.mark_stage(stage_seq, "after_feedback_arm", Instant::now())?;
         self.next_frame_sequence += 1;
         self.queue.present(frame);
+        self.mark_stage(stage_seq, "after_queue_present", Instant::now())?;
         self.record_feedback()?;
         // Measures successful queue.present calls ONLY, never compositor display timestamps.
         let submitted = Instant::now();
@@ -620,6 +669,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut scene = None;
     let mut output = None;
     let mut callback_output = None;
+    let mut stage_output = None;
+    let mut pinned_output: Option<String> = None;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -652,6 +703,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 callback_output = Some(value);
             }
+            "--pin-output" => {
+                let name = args.next().ok_or("--pin-output requires a monitor name")?;
+                if !matches!(name.as_str(), "HDMI-A-1" | "DP-2") {
+                    return Err("GPU05_OUTPUT_NOT_IN_REFERENCE_ALLOWLIST".into());
+                }
+                pinned_output = Some(name);
+            }
+            "--stage-jsonl" => {
+                let value = args.next().ok_or("--stage-jsonl requires path")?;
+                if !Path::new(&value).is_absolute() {
+                    return Err("GPU05_STAGE_TRACE_PATH_NOT_ABSOLUTE".into());
+                }
+                stage_output = Some(value);
+            }
             _ => return Err("GPU05_UNKNOWN_ARGUMENT".into()),
         }
     }
@@ -667,7 +732,21 @@ fn main() -> Result<(), Box<dyn Error>> {
         )),
         None => None,
     };
-    let mut live = pollster::block_on(Live::create(scene, None, trace, callback_trace))?;
+    let stage_trace = match stage_output {
+        Some(path) => Some(BufWriter::new(
+            OpenOptions::new().write(true).create_new(true).open(path)?,
+        )),
+        None => None,
+    };
+    let mut live = pollster::block_on(Live::create(
+        scene,
+        None,
+        trace,
+        callback_trace,
+        stage_trace,
+        pinned_output.as_deref(),
+    ))?;
+    println!("GPU05_PACER04_STAGES_CPU_CLOCK_INSTANT not_wayland_clock=true");
     let start = Instant::now();
     let mut pacing = FrameCallbackPacing::new();
     let mut abort_reason: Option<&'static str> = None;
@@ -750,6 +829,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         out.flush()?;
     }
     if let Some(out) = live.callback_trace.as_mut() {
+        out.flush()?;
+    }
+    if let Some(out) = live.stage_trace.as_mut() {
         out.flush()?;
     }
     println!("GPU05_PACER03_EXIT seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} callbacks={} callback_pending={} max_inflight={} wsi_timeouts={} wsi_occluded={} watchdog_trips={} aborted={} NOT_CP03",

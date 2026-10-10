@@ -80,6 +80,13 @@ wl_surface.frame callback trace SHA-256:
 - No GPU WSI timeout or systemd-oomd killing; Hyprland retained
   PID 2544527.
 
+## Follow-on GPU05-PACER-04
+
+A new 8-second Wayland-output-pinned HDMI-A-1 test presented 599/599
+frames at 74.839 FPS with zero discards. One startup frame #2 incurred
+a 31.475ms CPU queue.present call; different window mode prevents a
+controlled A/B. See GPU-05-PACER-04-STATUS.md for full evidence.
+
 ## Qualification limits and next gates
 
 The two samples used different output refresh rates, window geometries
