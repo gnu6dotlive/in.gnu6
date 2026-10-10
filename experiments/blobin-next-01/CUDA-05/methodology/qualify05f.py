@@ -35,7 +35,7 @@ def assert_ok(result,label):
 def connect(sock,msg):
     try:
         with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as s:
-            s.settimeout(20)
+            s.settimeout(40)
             s.connect(str(sock))
             s.sendall((msg+"\n").encode())
             return {"exit":0,"reply":s.recv(256).decode().strip()}

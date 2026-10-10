@@ -192,7 +192,16 @@ fn run() -> Result<(), String> {
             Ok(v) => v,
             Err(e) => format!("DENIED reason={}", e.replace(" ", "_")),
         };
-        writeln!(stream, "{response}").map_err(|e| e.to_string())?;
+        if let Err(error) = writeln!(stream, "{response}") {
+            // A dead client cannot retain authority. Revoke even if the GPU child
+            // finished after the client disappeared; do not kill the supervisor.
+            supervisor.revoke();
+            println!(
+                "CUDA05F_CLIENT_LOST index={i} kind={:?} revoked=true",
+                error.kind()
+            );
+            continue;
+        }
         println!("CUDA05F_EVENT index={i} {response}");
     }
     supervisor.revoke();
