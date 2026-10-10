@@ -1,0 +1,96 @@
+{
+  "cleanup_container": {
+    "code": 0,
+    "stderr": "",
+    "stdout": "cuda05e-f5c8a2e1f519-svc\n"
+  },
+  "cleanup_ownership": {
+    "code": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  "commands": [
+    {
+      "operation": "bounded_directory_ownership",
+      "result": {
+        "code": 0,
+        "stderr": "",
+        "stdout": ""
+      }
+    },
+    {
+      "operation": "start_disposable_supervisor",
+      "result": {
+        "code": 0,
+        "stderr": "",
+        "stdout": "1197eb07bf22f7d3a00019deda9f7f139737fb976609be2dd448d6c5f1fa7bbb\n"
+      }
+    }
+  ],
+  "expected": {
+    "authorized_uid": 1000,
+    "dac_rejected_uid": 65532,
+    "rejected_uid": 65533,
+    "service_uid": 65534,
+    "shared_gid": 1000
+  },
+  "image": "debian:trixie-slim",
+  "inspection": {
+    "command": {
+      "code": 0,
+      "stderr": "",
+      "stdout": "65534:1000||none|1153035\n"
+    },
+    "directory_group": 1000,
+    "directory_mode": "0o710",
+    "directory_owner": 65534,
+    "service_host_pid": 1153035,
+    "service_host_uid_quad": [
+      65534,
+      65534,
+      65534,
+      65534
+    ],
+    "socket_group": 1000,
+    "socket_mode": "0o660",
+    "socket_owner": 65534,
+    "userns_mode": ""
+  },
+  "limits": [
+    "single non-randomized trial",
+    "Docker daemon is privileged",
+    "no GPU operation"
+  ],
+  "observations": {
+    "authorized_after": {
+      "code": 0,
+      "reply": "ALLOWED"
+    },
+    "authorized_before": {
+      "code": 0,
+      "reply": "ALLOWED"
+    },
+    "rejected_connected": {
+      "code": 0,
+      "stderr": "",
+      "stdout": "DENIED\n"
+    },
+    "rejected_dac": {
+      "code": 13,
+      "stderr": "CONNECT_FAILED Permission denied\n",
+      "stdout": ""
+    }
+  },
+  "recorded_utc": "2026-10-09T23:48:28.687521+00:00",
+  "schema": "CUDA05E.PEERS.v1",
+  "service_exit": {
+    "code": 0,
+    "stderr": "",
+    "stdout": "0\n"
+  },
+  "service_log": {
+    "code": 0,
+    "stderr": "",
+    "stdout": "SERVICE_READY configured_uid=65534 allowed_uid=1000\nSERVICE_OBS index=0 peer_uid=1000 peer_gid=1000 peer_pid=0 decision=ALLOWED\nSERVICE_OBS index=1 peer_uid=65533 peer_gid=1000 peer_pid=0 decision=DENIED\nSERVICE_OBS index=2 peer_uid=1000 peer_gid=1000 peer_pid=0 decision=ALLOWED\nSERVICE_EXIT clean=PASS\n"
+  }
+}

@@ -1,7 +1,15 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
   "files": {
-    "includes": ["**", "!node_modules", "!coverage"]
+    "includes": [
+      "**",
+      "!node_modules",
+      "!coverage",
+      "!.tmp",
+      "!test-results",
+      "!playwright-report",
+      "!dist"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -17,5 +25,35 @@
       "suspicious": "error",
       "security": "error"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "benchmarks/**/*.mjs",
+        "tests/performance/**/*.ts",
+        "vitest.performance.config.ts",
+        "playwright.config.ts",
+        "qualification/pixi/vite.config.ts"
+      ],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off",
+            "noProcessGlobal": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["scripts/**/*.mjs"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noNodejsModules": "off",
+            "noProcessGlobal": "off"
+          }
+        }
+      }
+    }
+  ]
 }

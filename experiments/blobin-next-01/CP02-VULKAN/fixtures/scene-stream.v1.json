@@ -1,0 +1,175 @@
+{
+  "schema": "blobin.gpu03.scene-stream.v1",
+  "source": "in.gnu6",
+  "initial": {
+    "schemaVersion": 1,
+    "sequence": 10,
+    "sceneTime": 0.0,
+    "motionMode": "normal",
+    "entities": [
+      {
+        "entityId": "stage",
+        "role": "surface",
+        "visible": true,
+        "z": 0,
+        "worldPose": {
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "rotation": 0,
+          "scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        "shape": {
+          "kind": "rect",
+          "width": 400,
+          "height": 300,
+          "radius": 10
+        },
+        "accessibility": null
+      },
+      {
+        "entityId": "cavity-control",
+        "role": "control",
+        "visible": true,
+        "z": 0,
+        "worldPose": {
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "rotation": 0,
+          "scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        "shape": {
+          "kind": "rect",
+          "width": 24,
+          "height": 24,
+          "radius": 4
+        },
+        "accessibility": null
+      }
+    ]
+  },
+  "deltas": [
+    {
+      "schemaVersion": 1,
+      "fromSequence": 10,
+      "toSequence": 11,
+      "sceneTime": 1.0,
+      "motionMode": "normal",
+      "order": ["stage", "cavity-control"],
+      "births": [],
+      "updates": [
+        {
+          "entityId": "cavity-control",
+          "role": "control",
+          "visible": true,
+          "z": 0,
+          "worldPose": {
+            "position": {
+              "x": 10,
+              "y": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          },
+          "shape": {
+            "kind": "rect",
+            "width": 24,
+            "height": 24,
+            "radius": 4
+          },
+          "accessibility": null
+        }
+      ],
+      "deaths": []
+    },
+    {
+      "schemaVersion": 1,
+      "fromSequence": 11,
+      "toSequence": 12,
+      "sceneTime": 2.0,
+      "motionMode": "normal",
+      "order": ["stage", "cavity-control"],
+      "births": [],
+      "updates": [
+        {
+          "entityId": "cavity-control",
+          "role": "control",
+          "visible": true,
+          "z": 0,
+          "worldPose": {
+            "position": {
+              "x": -11,
+              "y": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          },
+          "shape": {
+            "kind": "rect",
+            "width": 24,
+            "height": 24,
+            "radius": 4
+          },
+          "accessibility": null
+        }
+      ],
+      "deaths": []
+    },
+    {
+      "schemaVersion": 1,
+      "fromSequence": 12,
+      "toSequence": 13,
+      "sceneTime": 3.0,
+      "motionMode": "normal",
+      "order": ["stage", "cavity-control"],
+      "births": [],
+      "updates": [
+        {
+          "entityId": "cavity-control",
+          "role": "control",
+          "visible": true,
+          "z": 0,
+          "worldPose": {
+            "position": {
+              "x": 0,
+              "y": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          },
+          "shape": {
+            "kind": "rect",
+            "width": 24,
+            "height": 24,
+            "radius": 4
+          },
+          "accessibility": null
+        }
+      ],
+      "deaths": []
+    }
+  ],
+  "binding": {
+    "kind": "cavity-control-x",
+    "entityId": "cavity-control",
+    "metersPerUnit": 0.01
+  }
+}

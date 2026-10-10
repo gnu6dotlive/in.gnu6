@@ -1,0 +1,1 @@
+F4B_PASS samples=8 idle_checks=8 gpu_patches=0 changed_pixels=960 dpr=1 reduced=false mode=auto semantic=b4fdb097b45a9772 p50_cpu_observed_gpu_roi_end_to_end_ms=None p95_cpu_observed_gpu_roi_end_to_end_ms=None destruction=NO_GPU_FOR_CONTROLLED_DESTRUCTION final_bytes=196608 prior_bytes=196608 out=/mnt/workbench/build/blobin-f4b-evidence/dpr1-reducedfalse-modeauto-destroytrue.tsv

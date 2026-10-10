@@ -1,0 +1,1 @@
+CUDA02_EXPECTED_NEGATIVE_PASS cuda_required=1 vulkan_required=1 cuda_library_missing=1 input_budget=1

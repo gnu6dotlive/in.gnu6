@@ -1,0 +1,18 @@
+UTC=2026-10-09T21:37:35Z
+BASELINE=05154acb11b48d2ae54c53c3ea65ba3caa819921
+BRANCH=feat/blobin-cuda-04c-qualification
+HARDWARE=NVIDIA GeForce RTX 3070, 8192 MiB, 615.71.09
+CUDA_COMPILER=Build cuda_13.4.r13.4/compiler.38855100_0
+RUSTC=rustc 1.97.0 (2d8144b78 2026-07-07)
+CARGO=cargo 1.97.0 (c980f4866 2026-06-30)
+LIBRARY_SHA256=b83a963c39e1f0e863ad85544e99ba2fa491a3baf2d1fe7cd160f1943e89fd45
+NATIVE_BUILD=nvcc -O3 -std=c++17 -arch=sm_86 -shared -Xcompiler -fPIC CUDA-03/native/resident.cu
+RUNTIME=cargo run --release --offline --locked --bin qualify04c -- --cuda-lib ABSOLUTE_NATIVE_LIBRARY --iterations 10
+MEASUREMENT=host-clock elapsed for ResidentBridge.evaluate; excludes CPU oracle verification; includes upload, dispatch, sync, full readback, and host cloning on each cache miss
+CACHE_HIT=host duration of copied cached samples; no GPU dispatch
+SAMPLE_RUN=one process, 10 mutation samples per configuration; no multi-session error bars
+CUDA_NATIVE_BOUNDARY=operator-provided native code executes within process; not verified or sandboxed
+QUALIFICATION=CUDA-04C final matrix with shape transpose
+NOTE=ten host update/readback samples per backend/count/DPR, one RTX 3070 session
+QUALIFIED_UTC=2026-10-09T21:39:53Z
+CUMULATIVE=56 passed across F1 F2 F3 F4 F4B F4C CUDA-02 CUDA-03 CUDA-04

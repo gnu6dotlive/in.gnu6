@@ -65,8 +65,8 @@ export function springAcceleration(
  *   x[n+1] = x[n] + v[n+1] dt
  *
  * Updating velocity first is materially more stable for damped springs than
- * explicit Euler at interactive frame rates. The blob.in specimen uses the
- * same useful idea.
+ * explicit Euler at interactive frame rates. This stability property is useful
+ * across both affine and contour dynamics.
  */
 export function integrateScalar(
   position: number,

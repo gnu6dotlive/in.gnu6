@@ -1,0 +1,27 @@
+{
+  "captured_utc": "2026-10-10T00:42:11.669314+00:00",
+  "contract_sha256": "9af8d1f9222c4be0a3e7febbe6c4318eba069fd540ae2c0de848f8aa766a1761",
+  "device": {
+    "exit": 0,
+    "output": "NVIDIA GeForce RTX 3070, 8192 MiB, 615.71.09"
+  },
+  "docker_image": {
+    "exit": 0,
+    "output": "sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f"
+  },
+  "glibc_boundary": "Host-compiled Rust binary requires host ELF interpreter via explicit RPATH /hostlib and host-driver ICD bind mounts",
+  "gpu_device_loss": "NOT_TESTED",
+  "kernel_release": "7.2.9-1-cachyos-bore-lto",
+  "nvcc": {
+    "exit": 0,
+    "output": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Sep_01_08:45:21_PDT_2026\nCuda compilation tools, release 13.4, V13.4.92\nBuild cuda_13.4.r13.4/compiler.38855100_0"
+  },
+  "preregistration_commit": "03ba7945fe6740b2cf35dc28656ba866f66c33fb",
+  "run_timestamp_utc": "2026-10-10T00:38:09.638408+00:00",
+  "runtime_scope": "disposable Docker lab; no installed service",
+  "rust": {
+    "exit": 0,
+    "output": "rustc 1.97.0 (2d8144b78 2026-07-07)"
+  },
+  "schema": "CUDA05F.ENVIRONMENT.v1"
+}

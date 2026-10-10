@@ -24,6 +24,7 @@ const deckSpec: DeckSpec = {
   hoverRadius: 180,
   hoverScale: 1.14,
   hoverLift: 42,
+  liftDirection: { x: 0, y: -1 },
   neighborYield: 24,
   neighborFalloff: 2.6,
 };
@@ -150,6 +151,53 @@ describe("Experience scenic/topological kernel", () => {
     expect(() => engine.mutate({ add: [card("a")] })).toThrow("Duplicate scene identity");
 
     expect(engine.snapshot().order).toEqual(ids("a", "b"));
+  });
+
+  it("updates shape without recreating scene identity or dynamic state", () => {
+    const engine = new SceneEngine();
+    const a = card("a", 25);
+    engine.mutate({ add: [a] });
+
+    const before = structuredClone(engine.snapshot().entities.get(a.id)!);
+    const orderBefore = [...engine.snapshot().order];
+
+    engine.setShape(a.id, {
+      kind: "polygon",
+      closed: true,
+      vertices: [
+        { x: 0, y: -70 },
+        { x: 50, y: 0 },
+        { x: 0, y: 70 },
+        { x: -50, y: 0 },
+      ],
+    });
+
+    const after = engine.snapshot().entities.get(a.id)!;
+
+    expect(after.id).toBe(a.id);
+    expect(engine.snapshot().order).toEqual(orderBefore);
+    expect(after.pose).toEqual(before.pose);
+    expect(after.velocity).toEqual(before.velocity);
+    expect(after.shape.kind).toBe("polygon");
+  });
+
+  it("rejects shape mutation for an absent identity without partial state", () => {
+    const engine = new SceneEngine();
+    const a = card("a");
+    engine.mutate({ add: [a] });
+
+    const before = engine.snapshot();
+
+    expect(() =>
+      engine.setShape(asEntityId("missing"), {
+        kind: "rect",
+        width: 10,
+        height: 10,
+        radius: 0,
+      }),
+    ).toThrow("Unknown scene entity");
+
+    expect(engine.snapshot()).toEqual(before);
   });
 
   it("moves targeted poses continuously under one spring owner", () => {

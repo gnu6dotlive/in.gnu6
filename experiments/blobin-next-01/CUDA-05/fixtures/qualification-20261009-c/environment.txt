@@ -1,0 +1,14 @@
+DATE_UTC=2026-10-09T22:33:36Z
+PARENT=5332dcb7f2c8ec63795f20ccd5e4d655a00f834e
+BRANCH=feat/blobin-cuda-05c-fault-isolation
+GPU=NVIDIA GeForce RTX 3070, 8192 MiB, 615.71.09
+RUST=rustc 1.97.0 (2d8144b78 2026-07-07)
+CUDA=Build cuda_13.4.r13.4/compiler.38855100_0
+SERVICE_UID=1000
+WORKER_SHA256=3df33908a6126dda1bed32a93a6acd2f64f8d2eaf1a8865147395dee5ee0142f
+CUDA_NATIVE_SHA256=4c8ff7d8115427165f513b0571b6d19b743f80c1b7ab4c9412d96925cc3bc943
+IDENTITY_STATUS=unshare --user --map-auto unsuccessful: newuidmap Could not set caps; separate host UID not qualified
+OPERATION=each child GPU fresh context, CUDA-02 CPU parity, bounded timeout and child reaping
+FAULT_SCOPE=child SIGKILL and sleep(30) in worker only; no physical GPU reset
+CLIENT_SCOPE=client and server share host UID; incorrect allowed UID test only
+PROVIDER_SCOPE=locally built SHA256 does not prove signed origin; native loader not sandboxed

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "batch_id": "BLOBIN-NEXT-01",
+  "visibility": "private",
+  "state": "CONTRACTS_READY_WORKERS_NOT_STARTED",
+  "source_base": "4de169d8159b0c59b629c5a3d14dc5c173a4eeac",
+  "worker_base_rule": "Freeze commit containing this batch, do not use historical source base for workers",
+  "worker_count": 8,
+  "worktree_policy": "unique Git worktree per worker; no shared writable worktree; preserve dirty neighbors",
+  "build_cache_policy": "per-worker bounded directory on /mnt/workbench, never /tmp",
+  "publication": false,
+  "push": false,
+  "execute_agents": false,
+  "historical_source_snapshot": "/mnt/workbench/build/appstack-b3-baseline-4603aed/engine/blob.in",
+  "source_copy_from_snapshot": false,
+  "shared": [
+    "docs/product-dossiers/blob.in/FUTURE_ENGINE.md",
+    "docs/product-dossiers/blob.in/EXPERIENCE_ATLAS.md",
+    "docs/product-dossiers/blob.in/TECH_RADAR.md"
+  ],
+  "common_contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/00-BASE.md",
+  "integrator_contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/09-INTEGRATOR.md",
+  "workers": [
+    {
+      "id": "G01",
+      "title": "Topology & signed fields",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G01.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G01.md",
+        "experiments/blobin-next-01/G01/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G02",
+      "title": "wgpu/WGSL GPU-native prototype",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G02.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G02.md",
+        "experiments/blobin-next-01/G02/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G03",
+      "title": "CPU-complete reference renderer",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G03.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G03.md",
+        "experiments/blobin-next-01/G03/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G04",
+      "title": "Material graph / bevel / heat math",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G04.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G04.md",
+        "experiments/blobin-next-01/G04/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G05",
+      "title": "Post-process and resilience graph",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G05.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G05.md",
+        "experiments/blobin-next-01/G05/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G06",
+      "title": "Topology-first UX experiments",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G06.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G06.md",
+        "experiments/blobin-next-01/G06/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G07",
+      "title": "Gnosix GPUI / host adapter research",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G07.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G07.md",
+        "experiments/blobin-next-01/G07/"
+      ],
+      "scratch_is_prototype_not_product": true
+    },
+    {
+      "id": "G08",
+      "title": "Qualification / benchmark / fidelity harness",
+      "contract": "contracts/agent-batches/2026-10-08/BLOBIN-NEXT-01/G08.md",
+      "exclusive_writes": [
+        "docs/agent-results/blobin-next-01/G08.md",
+        "experiments/blobin-next-01/G08/"
+      ],
+      "scratch_is_prototype_not_product": true
+    }
+  ]
+}

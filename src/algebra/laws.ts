@@ -56,7 +56,61 @@ export function inspectSceneLaws(state: SceneState): LawViolation[] {
     }
   }
 
+  /**
+   * Parent is a partial function parent : E ⇀ E.
+   *
+   * Admissibility requires every repeated parent walk to terminate at null:
+   *
+   *   ∀e∈E, ∃n≥0 : parentⁿ(e) = null
+   *
+   * A cycle would make composed world pose undefined, so it is rejected at
+   * scene admission rather than discovered later by a renderer/query.
+   */
+  for (const id of entityIds) {
+    const seen = new Set<EntityId>();
+    let cursor: EntityId | null = id;
+
+    while (cursor) {
+      if (seen.has(cursor)) {
+        violations.push({
+          law: "HIERARCHY_IS_ACYCLIC",
+          detail: "parent cycle reaches " + cursor + " from " + id,
+        });
+        break;
+      }
+
+      seen.add(cursor);
+      cursor = state.entities.get(cursor)?.parent ?? null;
+    }
+  }
+
+  /**
+   * R is a set of semantic triples:
+   *
+   *   R ⊆ K × E × E
+   *
+   * Therefore multiplicity of the same triple is invalid.
+   */
+  const relationKeys = new Set<string>();
   for (const relation of state.relations) {
+    if (!validRelationKind(relation.kind)) {
+      violations.push({
+        law: "RELATION_KIND_IS_EXPLICIT",
+        detail:
+          "relation kind must be attached or ext:<name>, received " + JSON.stringify(relation.kind),
+      });
+    }
+
+    const relationKey = relation.kind + "\u0000" + relation.from + "\u0000" + relation.to;
+
+    if (relationKeys.has(relationKey)) {
+      violations.push({
+        law: "RELATIONS_ARE_SET",
+        detail: "duplicate relation " + relation.kind + ": " + relation.from + " -> " + relation.to,
+      });
+    }
+    relationKeys.add(relationKey);
+
     if (!state.entities.has(relation.from) || !state.entities.has(relation.to)) {
       violations.push({
         law: "RELATION_ENDPOINTS_EXIST",
@@ -75,6 +129,12 @@ export function inspectSceneLaws(state: SceneState): LawViolation[] {
   }
 
   return violations;
+}
+
+function validRelationKind(kind: string): boolean {
+  if (kind === "attached") return true;
+  if (!kind.startsWith("ext:")) return false;
+  return kind.length > "ext:".length;
 }
 
 export function assertSceneLaws(state: SceneState): void {

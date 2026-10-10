@@ -1,0 +1,6 @@
+step	mode	epoch	left_id	right_id	semantic_digest	components	holes	selected_backend	max_channel	mean_abs
+0	Split	0	2970288129	2970288130	b4fdb097b45a9772	2	0	gpu	1	0.000003
+1	Merged	1	2970288129	2970288130	f567b7cdcd2a2e12	1	0	gpu	0	0.000000
+2	Hollow	2	2970288129	2970288130	9bba8ba166c3bab2	1	1	gpu	0	0.000000
+3	Merged	3	2970288129	2970288130	8ede704ee8dd4768	1	0	gpu	0	0.000000
+4	Split	4	2970288129	2970288130	3494761abf321e6e	2	0	gpu	1	0.000003

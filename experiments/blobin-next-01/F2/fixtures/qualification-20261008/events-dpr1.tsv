@@ -1,0 +1,5 @@
+step	action	epoch_before	epoch_after	components_before	components_after	holes_before	holes_after	semantic_digest_before	semantic_digest_after
+1	Merge	0	1	2	1	0	0	b4fdb097b45a9772	f567b7cdcd2a2e12
+2	PunchHole	1	2	1	1	0	1	f567b7cdcd2a2e12	9bba8ba166c3bab2
+3	SealHole	2	3	1	1	1	0	9bba8ba166c3bab2	8ede704ee8dd4768
+4	Split	3	4	1	2	0	0	8ede704ee8dd4768	3494761abf321e6e

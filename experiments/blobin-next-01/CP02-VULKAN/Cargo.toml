@@ -1,0 +1,19 @@
+[package]
+name = "blobin-cp02-vulkan-probe"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+blobin-cp01-hybrid = {path = "../CP01-HYBRID"}
+wgpu = {version = "=30.0.1", default-features = false, features=["std","vulkan","wgsl","parking_lot"]}
+bytemuck = "1.25.0"
+pollster = "0.4.0"
+png = "=0.18.1"
+winit = { version = "=0.30.13", default-features = false, features = ["wayland", "wayland-dlopen", "rwh_06"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+libc = "0.2"
+wayland-client = { version = "=0.31.15", features = ["system"] }
+wayland-protocols = { version = "=0.32.13", features = ["client"] }
+raw-window-handle = "0.6.2"

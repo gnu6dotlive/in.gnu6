@@ -88,17 +88,40 @@ export interface SceneEntity {
 }
 
 /**
- * General directed relation over identities.
+ * Relation vocabulary.
+ *
+ * Repeated evidence currently justifies one core semantic family:
+ *
+ *   attached(a,b)
+ *
+ * Other meanings remain extensible without pretending that an arbitrary raw
+ * string is already core ontology:
+ *
+ *   ext:<explicit-name>
  *
  * Examples:
- *   follows(A,B)
- *   attachedTo(submenu,invoker)
- *   occludes(topCard,bottomCard)
+ *   ext:depends-on
+ *   ext:follows
  *
- * Relations encode meaning that would otherwise degrade into local booleans.
+ * Derived spatial facts such as occlusion do not need to become stored scene
+ * relations merely because they can be expressed as a pair.
+ */
+export type SceneRelationKind = "attached" | `ext:${string}`;
+
+/**
+ * Directed relation over semantic identities.
+ *
+ * Let E be the finite entity set. Then:
+ *
+ *   R ⊆ K × E × E
+ *
+ * where K is SceneRelationKind.
+ *
+ * R is a mathematical set, not a multiset: the same
+ * (kind, from, to) triple may occur at most once.
  */
 export interface SceneRelation {
-  kind: string;
+  kind: SceneRelationKind;
   from: EntityId;
   to: EntityId;
 }
@@ -146,7 +169,7 @@ export interface SpringLaw {
  *   for every entity e and property q:
  *     |Owner(e,q)| <= 1
  *
- * This formalizes the SP Joaillerie donor lesson:
+ * This formalizes a general motion-ownership rule:
  * one animation clock per property, per node.
  */
 export interface PoseTarget {

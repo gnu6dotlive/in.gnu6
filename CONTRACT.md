@@ -83,6 +83,12 @@ No state implies the next one.
 
 Public API: **UNDECIDED**.
 
+**2026-10-10 amendment:** operator grants repository-public visibility permission
+**after** a verified full-history secrets, rights/license and personal-data
+publication gate. This is not a license grant or permission to publish npm
+packages, expose consumer data or declare API stability.
+See `docs/public/PUBLICATION-READINESS.md`.
+
 Until an operator decision changes this:
 - package remains `private: true`;
 - no npm/public registry publication;
@@ -110,14 +116,27 @@ The challenge must name:
 
 An accidental regression is not a challenge.
 
-## 11. Current bootstrap boundary
+## 11. Bootstrap provenance boundary
 
-The initial repository imports the semantic seed from:
+The initial repository imported the semantic seed from:
 
 `gnu6-live @ b07be200ac3dbec8e6dd896c84bb043390ea4260`
 
-The first gate is simple:
+The first gate was:
 
 > The same 18 seed laws/tests must pass in this repository before new capability work starts.
 
-No Dock wiring, renderer selection, PixiJS dependency or public API is authorized by repository creation.
+At repository creation, no Dock wiring, renderer selection, PixiJS dependency or public API was authorized **by the act of repository creation itself**.
+
+Later decisions are governed by the Questlog and their own evidence. In particular:
+- PixiJS 8.22.0 / WebGL was later selected and ratified as the MQ-12 reference browser provider;
+- that selection remains subordinate to the replaceable renderer contract;
+- public API and package publication remain undecided / unauthorized.
+
+## 12. Questlog authority
+
+`QUESTLOG.md` defines the current Main Questline completeness contract and the operator-prioritized Side Quest registry.
+
+The Main Questline may expand when reality reveals missing necessary invariants. It must not be shortened merely to make completion easier.
+
+Side Quests remain optional unless explicitly promoted because evidence shows they are causally necessary for a Main Quest exit gate.

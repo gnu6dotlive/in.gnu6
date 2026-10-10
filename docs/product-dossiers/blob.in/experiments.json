@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "id": "BLOBIN-NEXT-01",
+  "recorded_at": "2026-10-08",
+  "state": "DESIGN_ONLY_NOT_IMPLEMENTED",
+  "source_document": "docs/product-dossiers/blob.in/EXPERIENCE_ATLAS.md",
+  "execution_gate": "requires independently qualified Rust GPU and CPU execution",
+  "experiments": [
+    {
+      "id": "E01",
+      "name": "Membrane Dock",
+      "topology_challenge": "elastic boundary / anchor-preserving topology",
+      "render_challenge": "curvature-aware bevel",
+      "falsifier": "identity, no intersections, cold idle",
+      "earliest_phase": "F2",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E02",
+      "name": "Topology Bloom",
+      "topology_challenge": "merge/split/radial hole lifecycle",
+      "render_challenge": "SDF booleans / cutout lighting",
+      "falsifier": "component-hole count and stable IDs",
+      "earliest_phase": "F2",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E03",
+      "name": "Liquid Tabs",
+      "topology_challenge": "semantic membership vs merged silhouette",
+      "render_challenge": "ceramic seam / edge highlight",
+      "falsifier": "single focus owner across split",
+      "earliest_phase": "F3",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E04",
+      "name": "Cutout Aperture",
+      "topology_challenge": "nested portal holes and clip ownership",
+      "render_challenge": "rim / clip / stencil",
+      "falsifier": "hit-test and occlusion consistency",
+      "earliest_phase": "F2",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E05",
+      "name": "Relief Focus",
+      "topology_challenge": "focus-owned local height impulse",
+      "render_challenge": "heightmap / normals / bevel",
+      "falsifier": "keyboard visibility and finite normals",
+      "earliest_phase": "F1",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E06",
+      "name": "Heatfield Atlas",
+      "topology_challenge": "synthetic local interaction field",
+      "render_challenge": "heatmap / diffusion / isolines",
+      "falsifier": "privacy and reproducible decay",
+      "earliest_phase": "F3",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E07",
+      "name": "Glass Geological Layers",
+      "topology_challenge": "layer relationship and containment",
+      "render_challenge": "stratified materials / blur",
+      "falsifier": "overlap order and readable fallback",
+      "earliest_phase": "F3",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E08",
+      "name": "Reactive Boundary Flow",
+      "topology_challenge": "graph-directed border pulses",
+      "render_challenge": "arclength border shader",
+      "falsifier": "pulse path and reduced-motion endpoint",
+      "earliest_phase": "F3",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E09",
+      "name": "Notification Metamorph",
+      "topology_challenge": "bubble-card-token identity continuity",
+      "render_challenge": "bevel inversion / bloom",
+      "falsifier": "focus and content continuous",
+      "earliest_phase": "F4",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E10",
+      "name": "Topology Canvas Lab",
+      "topology_challenge": "direct boolean graph editing",
+      "render_challenge": "SDF / mesh cross-views",
+      "falsifier": "Euler characteristic and exact event log",
+      "earliest_phase": "F2",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E11",
+      "name": "GPU Failure Theatre",
+      "topology_challenge": "device loss with CPU continuity",
+      "render_challenge": "pass graph restart / downgrade",
+      "falsifier": "same semantic digest and no blank frame",
+      "earliest_phase": "F1",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E12",
+      "name": "Temporal Echo Without Ghosts",
+      "topology_challenge": "current identity despite visual trails",
+      "render_challenge": "feedback decay / history buffers",
+      "falsifier": "ghosts unclickable and resets",
+      "earliest_phase": "F4",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E13",
+      "name": "Archipelago of 50",
+      "topology_challenge": "multi-entity stress under reparent",
+      "render_challenge": "atlas eviction / dynamic blur",
+      "falsifier": "memory and frame p95 bounded",
+      "earliest_phase": "F4",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E14",
+      "name": "Curvature Forge",
+      "topology_challenge": "material/border grammar playground",
+      "render_challenge": "bevel, chalk, ceramic, metallic",
+      "falsifier": "unchanged contour + no alpha fringe",
+      "earliest_phase": "F3",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E15",
+      "name": "Cross-surface Handoff",
+      "topology_challenge": "host-authorized ownership transfer",
+      "render_challenge": "offscreen texture DPI reanchor",
+      "falsifier": "host grant, stable identity",
+      "earliest_phase": "F5",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    },
+    {
+      "id": "E16",
+      "name": "Shadow Without Shape",
+      "topology_challenge": "degraded high contrast mode",
+      "render_challenge": "no-effect flat legible raster",
+      "falsifier": "identical nav and focus order",
+      "earliest_phase": "F4",
+      "status": "DESIGN_ONLY",
+      "gpu_verified": false,
+      "cpu_verified": false
+    }
+  ]
+}
