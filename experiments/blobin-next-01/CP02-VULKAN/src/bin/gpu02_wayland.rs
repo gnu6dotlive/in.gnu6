@@ -1,7 +1,10 @@
 //! GPU-02: private Wayland host of the actual GPU-01 signed-mesh shader.
 //! Uses Vulkan compute -> GPU-only copy -> Vulkan textured draw -> Wayland present.
 //! No static PNG, CPU pixel substitution or BLOB-FRAME-v1 schema changes.
+#[path = "../scene_bridge.rs"]
+mod scene_bridge;
 use blobin_cp01_hybrid::gltf::import_glb;
+use scene_bridge::SceneStream;
 use std::{
     error::Error,
     sync::Arc,
@@ -38,10 +41,14 @@ struct Live {
     paused: bool,
     pause_started: Option<Instant>,
     paused_total: Duration,
+    semantic_stream: Option<SceneStream>,
 }
 
 impl Live {
-    async fn create(window: Arc<Window>) -> Result<Self, Box<dyn Error>> {
+    async fn create(
+        window: Arc<Window>,
+        stream: Option<SceneStream>,
+    ) -> Result<Self, Box<dyn Error>> {
         let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
         desc.backends = wgpu::Backends::VULKAN;
         let instance = wgpu::Instance::new(desc);
@@ -304,6 +311,7 @@ impl Live {
             paused: false,
             pause_started: None,
             paused_total: Duration::ZERO,
+            semantic_stream: stream,
         })
     }
     fn resize(&mut self, width: u32, height: u32) {
@@ -331,7 +339,19 @@ impl Live {
         self.queue.write_buffer(
             &self.params,
             0,
-            bytemuck::cast_slice(&[seconds, self.yaw, 0.0, 0.0]),
+            bytemuck::cast_slice(&[
+                seconds,
+                self.yaw,
+                self.semantic_stream.as_ref().map_or_else(
+                    || (seconds * 0.75).sin() * 0.11,
+                    |stream| stream.cavity_offset_at(seconds),
+                ),
+                if self.semantic_stream.is_some() {
+                    0.0
+                } else {
+                    seconds
+                },
+            ]),
         );
         let mut encoder = self
             .device
@@ -410,6 +430,7 @@ impl Live {
 #[derive(Default)]
 struct Application {
     state: Option<Live>,
+    stream: Option<SceneStream>,
     error: Option<String>,
 }
 impl ApplicationHandler for Application {
@@ -423,8 +444,10 @@ impl ApplicationHandler for Application {
         match el
             .create_window(attrs)
             .map_err(|e| e.to_string())
-            .and_then(|w| pollster::block_on(Live::create(Arc::new(w))).map_err(|e| e.to_string()))
-        {
+            .and_then(|w| {
+                pollster::block_on(Live::create(Arc::new(w), self.stream.clone()))
+                    .map_err(|e| e.to_string())
+            }) {
             Ok(s) => {
                 s.window.request_redraw();
                 self.state = Some(s);
@@ -477,9 +500,30 @@ impl ApplicationHandler for Application {
     }
 }
 fn main() -> Result<(), Box<dyn Error>> {
+    let mut args = std::env::args().skip(1);
+    let stream = match args.next().as_deref() {
+        None => None,
+        Some("--scene-stream") => {
+            let path = args.next().ok_or("--scene-stream requires a file path")?;
+            if args.next().is_some() {
+                return Err("unexpected GPU03 arguments".into());
+            }
+            let parsed = SceneStream::load(std::path::Path::new(&path))?;
+            println!(
+                "GPU03_SEMANTIC_SCENE_ACCEPTED frames={} source=in.gnu6 read_only=true",
+                parsed.frame_count()
+            );
+            Some(parsed)
+        }
+        Some(_) => return Err("usage: gpu02_wayland [--scene-stream /absolute/file.json]".into()),
+    };
     let loop_ = EventLoop::new()?;
     loop_.set_control_flow(ControlFlow::Wait);
-    let mut app = Application::default();
+    let mut app = Application {
+        state: None,
+        stream,
+        error: None,
+    };
     loop_.run_app(&mut app)?;
     match app.error {
         Some(e) => Err(e.into()),

@@ -8,7 +8,7 @@ struct Pixels { values:array<u32>, }
 @group(0) @binding(1) var<storage,read> samples:Samples;
 @group(0) @binding(2) var<storage,read_write> sample_out:Samples;
 @group(0) @binding(3) var<storage,read_write> output:Pixels;
-struct Animation { time:f32, yaw:f32, unused_a:f32, unused_b:f32, }
+struct Animation { time:f32, yaw:f32, sphere_offset_x:f32, camera_time:f32, }
 @group(0) @binding(4) var<uniform> animation:Animation;
 
 fn triangle_distance(p:vec3<f32>,a:vec3<f32>,b:vec3<f32>,c:vec3<f32>)->f32 {
@@ -49,7 +49,7 @@ fn tetra_signed(p:vec3<f32>)->f32 {
  return -near;
 }
 fn sphere_signed(p:vec3<f32>)->f32 {
- return distance(p,vec3<f32>(0.42+sin(animation.time*0.75)*0.11,0.34,0.47))-0.38;
+ return distance(p,vec3<f32>(0.42+animation.sphere_offset_x,0.34,0.47))-0.38;
 }
 fn hybrid(p:vec3<f32>)->f32 {
  return max(tetra_signed(p),-sphere_signed(p));
@@ -73,7 +73,7 @@ fn render(@builtin(global_invocation_id) id:vec3<u32>) {
  let w:u32=640u;let h:u32=432u;
  if id.x>=w || id.y>=h{return;}
  let uv=(vec2<f32>(f32(id.x)+0.5,f32(id.y)+0.5)/vec2<f32>(f32(w),f32(h)))*2.0-vec2<f32>(1.0);
- let eye=vec3<f32>(0.24+2.1*cos(0.78+animation.yaw+animation.time*0.23),1.6+0.12*sin(animation.time*0.19),0.24+2.1*sin(0.78+animation.yaw+animation.time*0.23));
+ let eye=vec3<f32>(0.24+2.1*cos(0.78+animation.yaw+animation.camera_time*0.23),1.6+0.12*sin(animation.camera_time*0.19),0.24+2.1*sin(0.78+animation.yaw+animation.camera_time*0.23));
  let focus=vec3<f32>(0.24,0.23,0.24);
  let forward=normalize(focus-eye);
  let right=normalize(cross(forward,vec3<f32>(0.0,1.0,0.0)));
