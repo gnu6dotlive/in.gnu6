@@ -74,6 +74,13 @@ The new run provides a real independent proof of >60 presented FPS
 on this 12-second sample, with zero discarded, but is NOT a CP03
 HYBRID-60 acceptance pass.
 
+## Follow-on qualification
+
+PACER-03 is now locally qualified for real wl_surface.frame callback
+identity and terminal feedback accounting. It has not solved the
+alternating-vblank cadence or 75Hz first-frame discard. See
+GPU-05-PACER-03-STATUS.md for attributed physical traces and limits.
+
 ## Remaining blockers / next experiments
 
 - GPU05-PACER-03: measured wl_surface.frame callback or a predictive

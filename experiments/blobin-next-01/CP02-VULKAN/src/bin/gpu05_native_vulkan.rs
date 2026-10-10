@@ -1,12 +1,12 @@
 //! GPU-05 native owned Wayland surface, actual signed tetra/SDF shader, Vulkan WSI.
-#[path = "../frame_pacing02.rs"]
-mod frame_pacing02;
+#[path = "../frame_pacing03.rs"]
+mod frame_pacing03;
 #[path = "../owned_wayland_presentation.rs"]
 mod owned_wayland_presentation;
 #[path = "../scene_bridge.rs"]
 mod scene_bridge;
 use blobin_cp01_hybrid::gltf::import_glb;
-use frame_pacing02::AdaptiveFramePacing;
+use frame_pacing03::FrameCallbackPacing;
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
 use std::{
@@ -45,6 +45,9 @@ struct Live {
     discarded_frames: u64,
     last_feedback_refresh_ns: Option<u32>,
     trace: Option<BufWriter<File>>,
+    callback_trace: Option<BufWriter<File>>,
+    callback_sequences: Vec<u64>,
+    callback_count: u64,
     token: String,
     yaw: f32,
     pause_started: Option<Instant>,
@@ -59,6 +62,7 @@ impl Live {
         stream: Option<SceneStream>,
         update_rx: Option<Receiver<Vec<u8>>>,
         trace: Option<BufWriter<File>>,
+        callback_trace: Option<BufWriter<File>>,
     ) -> Result<Self, Box<dyn Error>> {
         let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
         desc.backends = wgpu::Backends::VULKAN;
@@ -354,6 +358,9 @@ impl Live {
             discarded_frames: 0,
             last_feedback_refresh_ns: None,
             trace,
+            callback_trace,
+            callback_sequences: Vec::with_capacity(8),
+            callback_count: 0,
             token,
             yaw: 0.0,
             pause_started: None,
@@ -389,6 +396,26 @@ impl Live {
                 serde_json::to_writer(&mut *out, &item).map_err(|e| e.to_string())?;
                 out.write_all(b"\n").map_err(|e| e.to_string())?;
             }
+        }
+        for cb in self.gpu.frame_callbacks()? {
+            if self.callback_sequences.len() >= 8 {
+                return Err("GPU05_CALLBACK_APP_QUEUE_FULL".into());
+            }
+            self.callback_count += 1;
+            if let Some(out) = self.callback_trace.as_mut() {
+                serde_json::to_writer(
+                    &mut *out,
+                    &serde_json::json!({
+                        "type":"wl_surface.frame.done",
+                        "frame_sequence":cb.frame_sequence,
+                        "callback_data_ms":cb.compositor_callback_ms,
+                        "wl_surface_token":self.token,
+                    }),
+                )
+                .map_err(|e| e.to_string())?;
+                out.write_all(b"\n").map_err(|e| e.to_string())?;
+            }
+            self.callback_sequences.push(cb.frame_sequence);
         }
         Ok(())
     }
@@ -571,10 +598,12 @@ impl Live {
                 self.submit_intervals_ms.clear();
             }
             println!(
-                "GPU05_FEEDBACK presented={} discarded={} pending={}",
+                "GPU05_FEEDBACK presented={} discarded={} pending={} frame_callbacks={} callback_pending={}",
                 self.presented_frames,
                 self.discarded_frames,
-                self.gpu.pending()
+                self.gpu.pending(),
+                self.callback_count,
+                self.gpu.callback_pending()
             );
             if let Some(out) = self.trace.as_mut() {
                 out.flush().map_err(|e| e.to_string())?;
@@ -590,6 +619,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut seconds = 8u64;
     let mut scene = None;
     let mut output = None;
+    let mut callback_output = None;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -613,6 +643,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 output = Some(value);
             }
+            "--callback-jsonl" => {
+                let value = args
+                    .next()
+                    .ok_or("--callback-jsonl requires absolute path")?;
+                if !Path::new(&value).is_absolute() {
+                    return Err("GPU05_CALLBACK_TRACE_PATH_NOT_ABSOLUTE".into());
+                }
+                callback_output = Some(value);
+            }
             _ => return Err("GPU05_UNKNOWN_ARGUMENT".into()),
         }
     }
@@ -622,20 +661,34 @@ fn main() -> Result<(), Box<dyn Error>> {
         )),
         None => None,
     };
-    let mut live = pollster::block_on(Live::create(scene, None, trace))?;
+    let callback_trace = match callback_output {
+        Some(path) => Some(BufWriter::new(
+            OpenOptions::new().write(true).create_new(true).open(path)?,
+        )),
+        None => None,
+    };
+    let mut live = pollster::block_on(Live::create(scene, None, trace, callback_trace))?;
     let start = Instant::now();
-    let mut pacing = AdaptiveFramePacing::new();
+    let mut pacing = FrameCallbackPacing::new();
     let mut abort_reason: Option<&'static str> = None;
-    println!("GPU05_PACER02_ACTIVE max_inflight=2 feedback_refresh_learned=true");
+    println!(
+        "GPU05_PACER03_ACTIVE frame_credit=wl_surface.frame max_wp_inflight=2 watchdog_ms=250"
+    );
     while start.elapsed() < Duration::from_secs(seconds) && !live.gpu.closed() {
         let before_feedback = live.presented_frames + live.discarded_frames;
         live.record_feedback()?;
         let now = start.elapsed();
-        if live.presented_frames + live.discarded_frames > before_feedback {
-            pacing.feedback_observed(now);
-            if let Some(refresh) = live.last_feedback_refresh_ns {
-                pacing.observe_refresh(refresh);
+        for seq in std::mem::take(&mut live.callback_sequences) {
+            if let Err(reason) = pacing.on_frame_callback(seq, now) {
+                abort_reason = Some(reason);
+                break;
             }
+        }
+        if abort_reason.is_some() {
+            break;
+        }
+        if live.presented_frames + live.discarded_frames > before_feedback {
+            pacing.on_presentation_feedback(now);
         }
         match pacing.should_submit(live.gpu.pending(), now) {
             Ok(true) => {}
@@ -651,18 +704,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         let before_seq = live.next_frame_sequence;
         let before_feedback = live.presented_frames + live.discarded_frames;
         if let Err(e) = live.render() {
-            eprintln!("GPU05_PACER02_FRAME_ABORT reason={e}");
-            abort_reason = Some("GPU05_PACER02_FRAME_ERROR");
+            eprintln!("GPU05_PACER03_FRAME_ABORT reason={e}");
+            abort_reason = Some("GPU05_PACER03_FRAME_ERROR");
             break;
         }
+        let after_render = start.elapsed();
         if live.next_frame_sequence > before_seq {
-            pacing.submitted(start.elapsed());
+            if let Err(reason) = pacing.submitted(before_seq, after_render) {
+                abort_reason = Some(reason);
+                break;
+            }
+        }
+        for seq in std::mem::take(&mut live.callback_sequences) {
+            if let Err(reason) = pacing.on_frame_callback(seq, after_render) {
+                abort_reason = Some(reason);
+                break;
+            }
+        }
+        if abort_reason.is_some() {
+            break;
         }
         if live.presented_frames + live.discarded_frames > before_feedback {
-            pacing.feedback_observed(start.elapsed());
-            if let Some(refresh) = live.last_feedback_refresh_ns {
-                pacing.observe_refresh(refresh);
-            }
+            pacing.on_presentation_feedback(after_render);
         }
         std::thread::sleep(Duration::from_millis(1));
     }
@@ -670,7 +733,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     // No new frames are produced during this bounded shutdown drain.
     for _ in 0..200 {
         live.record_feedback()?;
-        if live.gpu.pending() == 0 {
+        // A terminal frame callback can arrive during the shutdown drain.
+        // Count its exact sequence without granting another GPU submission.
+        for seq in std::mem::take(&mut live.callback_sequences) {
+            pacing.on_frame_callback(seq, start.elapsed())?;
+        }
+        if live.gpu.pending() == 0
+            && live.gpu.callback_pending() == 0
+            && pacing.callback_pending() == 0
+        {
             break;
         }
         std::thread::sleep(Duration::from_millis(2));
@@ -678,16 +749,26 @@ fn main() -> Result<(), Box<dyn Error>> {
     if let Some(out) = live.trace.as_mut() {
         out.flush()?;
     }
-    println!("GPU05_PACER02_EXIT seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} max_inflight={} refresh_ns={} refresh_learned={} wsi_timeouts={} wsi_occluded={} pacing_stall_events={} aborted={} NOT_CP03",
+    if let Some(out) = live.callback_trace.as_mut() {
+        out.flush()?;
+    }
+    println!("GPU05_PACER03_EXIT seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} callbacks={} callback_pending={} max_inflight={} wsi_timeouts={} wsi_occluded={} watchdog_trips={} aborted={} NOT_CP03",
         start.elapsed().as_secs_f64(),live.next_frame_sequence-1,
         live.presented_frames,live.discarded_frames,live.gpu.pending(),
-        pacing.max_inflight(),pacing.refresh_ns(),pacing.learned_refresh(),
-        live.wsi_timeout_total,live.wsi_occluded_total,pacing.stalled_events(),abort_reason.is_some());
+        pacing.callbacks(),pacing.callback_pending(),
+        pacing.max_inflight(),live.wsi_timeout_total,live.wsi_occluded_total,
+        pacing.watchdog_trips(),abort_reason.is_some());
     if let Some(reason) = abort_reason {
         return Err(reason.into());
     }
     if live.gpu.pending() != 0 {
         return Err("GPU05_UNRESOLVED_FEEDBACK_ON_SHUTDOWN".into());
+    }
+    if live.gpu.callback_pending() != 0 || pacing.callback_pending() != 0 {
+        return Err("GPU05_UNRESOLVED_FRAME_CALLBACK_ON_SHUTDOWN".into());
+    }
+    if pacing.callbacks() != live.next_frame_sequence - 1 {
+        return Err("GPU05_FRAME_CALLBACK_IDENTITY_PARTITION_MISMATCH".into());
     }
     Ok(())
 }

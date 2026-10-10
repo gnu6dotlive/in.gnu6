@@ -1,5 +1,5 @@
-//! EXPERIMENTAL / SOURCE-ONLY: Wayland presentation feedback on an *owned* surface.
-//! Not compiled, not imported by the existing GPU-04/05 binaries.
+//! EXPERIMENTAL: Wayland presentation + frame callback on an owned surface.
+//! Used only in isolated GPU05-PACER worktree binaries.
 //! The eventual Vulkan host must use this exact connection and wl_surface for
 //! both its Vulkan WSI and wp_presentation.feedback requests.
 //!
@@ -16,16 +16,24 @@ use presentation_tracker::{FeedbackOutcome, FeedbackTracker, PresentationReceipt
 use raw_window_handle::{
     RawDisplayHandle, RawWindowHandle, WaylandDisplayHandle, WaylandWindowHandle,
 };
-use std::{os::fd::AsRawFd, ptr::NonNull};
+use std::{collections::HashSet, os::fd::AsRawFd, ptr::NonNull};
 use wayland_client::{
     delegate_noop,
-    protocol::{wl_compositor, wl_registry, wl_surface},
+    protocol::{wl_callback, wl_compositor, wl_registry, wl_surface},
     Connection, Dispatch, EventQueue, Proxy, QueueHandle,
 };
 use wayland_protocols::{
     wp::presentation_time::client::{wp_presentation, wp_presentation_feedback},
     xdg::shell::client::{xdg_surface, xdg_toplevel, xdg_wm_base},
 };
+
+#[derive(Debug, Clone, Copy)]
+pub struct FrameCallbackReceipt {
+    pub frame_sequence: u64,
+    pub compositor_callback_ms: u32,
+}
+const MAX_CALLBACKS: usize = 2;
+const MAX_QUEUED_CALLBACK_RECEIPTS: usize = 8;
 
 #[derive(Debug)]
 struct NativeState {
@@ -36,6 +44,8 @@ struct NativeState {
     suggested_size: Option<(u32, u32)>,
     closed: bool,
     tracker: FeedbackTracker,
+    callback_pending: HashSet<u64>,
+    callback_receipts: Vec<FrameCallbackReceipt>,
     protocol_error: Option<&'static str>,
 }
 
@@ -49,6 +59,8 @@ impl Default for NativeState {
             suggested_size: None,
             closed: false,
             tracker: FeedbackTracker::new(),
+            callback_pending: HashSet::new(),
+            callback_receipts: Vec::new(),
             protocol_error: None,
         }
     }
@@ -148,6 +160,32 @@ impl Dispatch<wp_presentation_feedback::WpPresentationFeedback, u32> for NativeS
             if let Err(e) = state.tracker.resolved(*feedback_id, outcome) {
                 state.protocol_error = Some(e);
             }
+        }
+    }
+}
+
+impl Dispatch<wl_callback::WlCallback, u64> for NativeState {
+    fn event(
+        state: &mut Self,
+        _: &wl_callback::WlCallback,
+        event: wl_callback::Event,
+        frame_sequence: &u64,
+        _: &Connection,
+        _: &QueueHandle<Self>,
+    ) {
+        if let wl_callback::Event::Done { callback_data } = event {
+            if !state.callback_pending.remove(frame_sequence) {
+                state.protocol_error = Some("GPU05_UNSOLICITED_OR_REPEATED_FRAME_CALLBACK");
+                return;
+            }
+            if state.callback_receipts.len() >= MAX_QUEUED_CALLBACK_RECEIPTS {
+                state.protocol_error = Some("GPU05_FRAME_CALLBACK_RECEIPTS_NOT_DRAINED");
+                return;
+            }
+            state.callback_receipts.push(FrameCallbackReceipt {
+                frame_sequence: *frame_sequence,
+                compositor_callback_ms: callback_data,
+            });
         }
     }
 }
@@ -271,6 +309,12 @@ impl OwnedWaylandPresentation {
         if let Some(reason) = self.state.protocol_error {
             return Err(reason.into());
         }
+        if self.state.callback_pending.len() >= MAX_CALLBACKS {
+            return Err("GPU05_TOO_MANY_PENDING_FRAME_CALLBACKS".into());
+        }
+        if self.state.callback_pending.contains(&frame_seq) {
+            return Err("GPU05_DUPLICATE_FRAME_CALLBACK_SEQUENCE".into());
+        }
         let id = self.next_feedback_id;
         let next_id = id.checked_add(1).ok_or("GPU05_FEEDBACK_ID_EXHAUSTED")?;
         let presentation = self
@@ -283,6 +327,10 @@ impl OwnedWaylandPresentation {
             .tracker
             .requested(id, frame_seq)
             .map_err(|e| e.to_owned())?;
+        // Both requests are directed to the *same* wl_surface before the
+        // upcoming Vulkan WSI commit. Never use an independent client.
+        self.state.callback_pending.insert(frame_seq);
+        let _callback = self.surface.frame(&self.qh, frame_seq);
         let _feedback = presentation.feedback(&self.surface, &self.qh, id);
         self.connection.flush().map_err(|e| e.to_string())?;
         self.next_feedback_id = next_id;
@@ -322,6 +370,17 @@ impl OwnedWaylandPresentation {
             return Err(e.into());
         }
         Ok(self.state.tracker.drain_receipts())
+    }
+
+    pub fn drain_frame_callbacks(&mut self) -> Result<Vec<FrameCallbackReceipt>, String> {
+        if let Some(reason) = self.state.protocol_error {
+            return Err(reason.into());
+        }
+        Ok(std::mem::take(&mut self.state.callback_receipts))
+    }
+
+    pub fn frame_callback_pending(&self) -> usize {
+        self.state.callback_pending.len()
     }
 
     /// Only for diagnostics: roundtrip may block and change frame pacing.
@@ -392,6 +451,12 @@ impl OwnedGpuWindow {
     }
     pub fn poll(&mut self) -> Result<Vec<PresentationReceipt>, String> {
         self.host.poll_feedback()
+    }
+    pub fn frame_callbacks(&mut self) -> Result<Vec<FrameCallbackReceipt>, String> {
+        self.host.drain_frame_callbacks()
+    }
+    pub fn callback_pending(&self) -> usize {
+        self.host.frame_callback_pending()
     }
     pub fn clock(&self) -> Option<u32> {
         self.host.clock_id()
