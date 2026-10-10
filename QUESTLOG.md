@@ -1713,3 +1713,9 @@ de licence ni les gates de confidentialité.
 
 **Priorité opérateur :** chantier transversal progressif, ne remplace
 pas les Main Quests ni la falsification de GPU-05.
+
+## GPU05-ORACLE-01 — mesure indépendante entrée-à-photon
+
+**SOURCE + 23 TESTS PASS / PHYSICAL NOT RUN / CP03 OPEN.**
+
+L'oracle dual-canal matériel (contact et photodiode sur une seule horloge) est désormais défini et falsifiable. Les hash SHA-256 d'endurance et de PACER-07 sont reconciliés sans nouveau benchmark. Il reste à implémenter le chemin d'entrée utilisateur vers la scène optique et à disposer d'une acquisition matérielle calibrée, attestée indépendamment. Détails : `experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-01-STATUS.md`.

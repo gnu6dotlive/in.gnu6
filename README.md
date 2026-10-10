@@ -31,6 +31,8 @@ Deux intégrations consommateurs — Docklab et le harnais SP Joaillerie — ser
 
 La preuve **125 secondes / 74,956 FPS de moyenne / p95 13,478 ms / zéro frame écartée** est une observation physique locale via `wp_presentation` sur une surface Wayland attribuée au binaire natif, **pas** une garantie multi-GPU, une certification produit ou une mesure input-to-photon.
 
+L'analyseur indépendant entrée-à-photon est en préparation : **23 tests de contrat/manifestes PASS**, capture matérielle **NOT RUN**. [ORACLE-01](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-01-STATUS.md).
+
 Voir [PACER-07](experiments/blobin-next-01/CP02-VULKAN/GPU-05-PACER-07-STATUS.md) et [ENDURANCE-01](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ENDURANCE-01-STATUS.md). Les traces brutes restent dans le registre local de preuves ; les rapports distinguent les artefacts effectivement reproductibles des portes d’acceptation encore ouvertes.
 
 ## Reproduire sans amplifier l’autorité
