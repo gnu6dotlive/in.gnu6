@@ -1,0 +1,11 @@
+[package]
+name = "blobin-cp02-vulkan-probe"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+blobin-cp01-hybrid = {path = "../CP01-HYBRID"}
+wgpu = {version = "=30.0.1", default-features = false, features=["std","vulkan","wgsl","parking_lot"]}
+bytemuck = "1.25.0"
+pollster = "0.4.0"
