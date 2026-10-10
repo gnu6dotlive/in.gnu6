@@ -1,0 +1,30 @@
+{
+  "gate": "PASS_2_OF_2",
+  "source_commit": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "sdk_version": "1.0.0",
+  "runner_sha256": "d7a6e97f30b59552f87e0e9d19b906a4514cf3305914de82770d66c069987af0",
+  "results": [
+    {
+      "mode": "ro",
+      "pass": true,
+      "exit_code": 0,
+      "stdout": "GNU6-MXC-TEMP-FIXTURE\nWRITE_DENIED\nMXC_CHILD_EXIT=0\n",
+      "stderr": "sh: line 1: marker.txt: Read-only file system\n",
+      "marker_present": false
+    },
+    {
+      "mode": "rw",
+      "pass": true,
+      "exit_code": 0,
+      "stdout": "GNU6-MXC-TEMP-FIXTURE\nWRITE_ALLOWED\nMXC_CHILD_EXIT=0\n",
+      "stderr": "",
+      "marker_present": true
+    }
+  ],
+  "sentinel_intact": true,
+  "limitations": [
+    "Local Linux host, Process/Bubblewrap backend only",
+    "No external broker, service tenancy or production authority",
+    "Probe binary is a separate local Rust fixture; source repo untouched"
+  ]
+}
