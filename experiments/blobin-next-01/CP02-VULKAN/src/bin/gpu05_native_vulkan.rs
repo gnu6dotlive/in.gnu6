@@ -13,6 +13,8 @@ mod optical_probe;
 mod owned_wayland_presentation;
 #[path = "../scene_bridge.rs"]
 mod scene_bridge;
+#[path = "../semantic_observer_out.rs"]
+mod semantic_observer_out;
 #[path = "../startup_policy.rs"]
 mod startup_policy;
 use blobin_cp01_hybrid::gltf::import_glb;
@@ -23,6 +25,7 @@ use host_stall_probe::{thread_cpu_time_ns, HostStallProbe};
 use optical_probe::{OpticalProbe, Transition};
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
+use semantic_observer_out::SemanticPublisher;
 use startup_policy::StartupPolicy;
 use std::{
     collections::BTreeMap,
@@ -51,6 +54,7 @@ struct Live {
     optical_uniform: Option<wgpu::Buffer>,
     optical_probe: Option<OpticalProbe>,
     optical_trace: Option<BufWriter<File>>,
+    semantic_observer: Option<SemanticPublisher>,
     optical_feedback_pending: BTreeMap<u64, (u64, bool)>,
     started: Instant,
     report_at: Instant,
@@ -428,6 +432,7 @@ impl Live {
             optical_uniform,
             optical_probe: optical_trace.as_ref().map(|_| OpticalProbe::new()),
             optical_trace,
+            semantic_observer: None,
             optical_feedback_pending: BTreeMap::new(),
             started: Instant::now(),
             report_at: Instant::now(),
@@ -487,6 +492,11 @@ impl Live {
     }
 
     fn optical_event(&mut self, value: serde_json::Value) -> Result<(), String> {
+        if value.get("type").and_then(serde_json::Value::as_str) == Some("wayland_button") {
+            if let Some(bridge) = self.semantic_observer.as_ref() {
+                bridge.emit(&value)?;
+            }
+        }
         if let Some(out) = self.optical_trace.as_mut() {
             serde_json::to_writer(&mut *out, &value).map_err(|e| e.to_string())?;
             out.write_all(b"\n").map_err(|e| e.to_string())?;
@@ -594,6 +604,7 @@ impl Live {
                 "surface_x":button.surface_x,"surface_y":button.surface_y,
                 "coordinates_space":"surface_logical_pixels",
                 "wl_surface_token":self.token,
+                "scene_frame_sequence":self.semantic_stream.as_ref().map(SceneStream::latest_sequence),
                 "host_receive_elapsed_ns":now.as_nanos(),
                 "timing_class":"unattested_wayland_software_input",
             }))?;
@@ -871,6 +882,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut initial_feedback_mode = StartupMode::Current;
     let mut optical_trace_output: Option<String> = None;
     let mut host_stall_output: Option<String> = None;
+    let mut semantic_observer_socket: Option<String> = None;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -936,6 +948,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 optical_trace_output = Some(value);
             }
+            "--semantic-observer-socket" => {
+                let path = args
+                    .next()
+                    .ok_or("--semantic-observer-socket needs absolute path")?;
+                if !Path::new(&path).is_absolute() {
+                    return Err("ORACLE05_SOCKET_PATH_NOT_ABSOLUTE".into());
+                }
+                semantic_observer_socket = Some(path);
+            }
             "--host-stall-jsonl" => {
                 let path = args
                     .next()
@@ -999,6 +1020,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         )),
         None => None,
     };
+    if semantic_observer_socket.is_some() && (optical_trace.is_none() || scene.is_none()) {
+        return Err("ORACLE05_REQUIRES_OPTICAL_TRACE_AND_QUALIFIED_SCENE".into());
+    }
     let mut live = pollster::block_on(Live::create(
         scene,
         None,
@@ -1008,6 +1032,28 @@ fn main() -> Result<(), Box<dyn Error>> {
         pinned_output.as_deref(),
         optical_trace,
     ))?;
+    if let Some(socket) = semantic_observer_socket.as_ref() {
+        let sequence = live
+            .semantic_stream
+            .as_ref()
+            .ok_or("ORACLE05_SCENE_MISSING")?
+            .latest_sequence();
+        live.semantic_observer = Some(SemanticPublisher::connect(
+            Path::new(socket),
+            serde_json::json!({
+                "type":"hello","schema":"blobin.gpu05.semantic-witness.v1",
+                "surface_token":live.token,
+                "scene_frame_sequence":sequence,
+                "scene_source":"in.gnu6-verified-scene-stream-v1",
+                "coordinate_space":"surface_logical_pixels",
+                "consumer_authority":"read_only_observation",
+                "calibration_status":"fixture_declared_not_physically_verified",
+            }),
+        )?);
+        println!(
+            "ORACLE05_LOCAL_BRIDGE_CONNECTED scene_sequence={sequence} no_scene_mutation=true"
+        );
+    }
     let app_ready_mono_ns = monotonic_now_ns()?;
     println!("GPU05_PACER04_STAGES_CPU_CLOCK_INSTANT not_wayland_clock=true");
     // Deliberate one-variable A/B after scene import, device setup and
@@ -1233,6 +1279,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     if let Some(out) = live.optical_trace.as_mut() {
         out.flush()?;
+    }
+    if let Some(bridge) = live.semantic_observer.as_mut() {
+        let delivered = bridge.finish()?;
+        println!(
+            "ORACLE05_LOCAL_BRIDGE_SENT_POINTER_EVENTS={} receipt_is_not_semantic_ack=true",
+            delivered
+        );
     }
     if live.optical_probe.is_some() {
         println!(

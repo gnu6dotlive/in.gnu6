@@ -89,6 +89,8 @@ publication gate. This is not a license grant or permission to publish npm
 packages, expose consumer data or declare API stability.
 See `docs/public/PUBLICATION-READINESS.md`.
 
+Observed 2026-10-10: GitHub visibility is PUBLIC. Outstanding rights, privacy, disclosure, API and distribution gates remain OPEN; repository visibility grants none of these authorities.
+
 Until an operator decision changes this:
 - package remains `private: true`;
 - no npm/public registry publication;

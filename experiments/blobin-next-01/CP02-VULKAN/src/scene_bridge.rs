@@ -332,6 +332,12 @@ impl SceneStream {
         Ok(sequence)
     }
 
+    pub fn latest_sequence(&self) -> u64 {
+        self.frames
+            .last()
+            .expect("validated scene stream contains initial frame")
+            .sequence
+    }
     pub fn latest_offset(&self) -> f32 {
         self.offset(self.frames.last().expect("qualified initial source frame"))
     }
