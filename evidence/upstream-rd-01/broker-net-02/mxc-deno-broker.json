@@ -1,0 +1,135 @@
+{
+  "gate": "PASS_5_OF_5",
+  "source_mxc_commit": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "deno_binary_release": "2.9.7",
+  "deno_pinned_full_tree_executed": false,
+  "broker_source_blob_same_in_v2_9_7_and_pinned": true,
+  "cases": [
+    {
+      "mode": "rw",
+      "broker": "allow",
+      "exit": 0,
+      "stdout": "{\"ok\":true,\"gate\":\"DENO_WRITE_COMPLETED\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+      "result": {
+        "ok": true,
+        "gate": "DENO_WRITE_COMPLETED"
+      },
+      "marker": "COMPOSITE_ALLOWED\n",
+      "broker_requests": [
+        {
+          "v": 1,
+          "pid": 2,
+          "id": 1,
+          "datetime": "2026-10-10T14:36:18.052761939+00:00",
+          "permission": "write",
+          "value": "/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-vqkw1t4h/marker.txt"
+        }
+      ],
+      "server_errors": [],
+      "pass": true
+    },
+    {
+      "mode": "ro",
+      "broker": "allow",
+      "exit": 0,
+      "stdout": "{\"ok\":false,\"name\":\"Error\",\"message\":\"Read-only file system (os error 30): writefile '/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-1_jrpumi/marker.txt'\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+      "result": {
+        "ok": false,
+        "name": "Error",
+        "message": "Read-only file system (os error 30): writefile '/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-1_jrpumi/marker.txt'"
+      },
+      "marker": null,
+      "broker_requests": [
+        {
+          "v": 1,
+          "pid": 2,
+          "id": 1,
+          "datetime": "2026-10-10T14:36:18.087722564+00:00",
+          "permission": "write",
+          "value": "/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-1_jrpumi/marker.txt"
+        }
+      ],
+      "server_errors": [],
+      "pass": true
+    },
+    {
+      "mode": "rw",
+      "broker": "deny",
+      "exit": 0,
+      "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-p836xdln/marker.txt\\\", run again with the --allow-write flag\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+      "result": {
+        "ok": false,
+        "name": "NotCapable",
+        "message": "Requires write access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-p836xdln/marker.txt\", run again with the --allow-write flag"
+      },
+      "marker": null,
+      "broker_requests": [
+        {
+          "v": 1,
+          "pid": 2,
+          "id": 1,
+          "datetime": "2026-10-10T14:36:18.122689228+00:00",
+          "permission": "write",
+          "value": "/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-p836xdln/marker.txt"
+        }
+      ],
+      "server_errors": [],
+      "pass": true
+    },
+    {
+      "mode": "ro",
+      "broker": "deny",
+      "exit": 0,
+      "stdout": "{\"ok\":false,\"name\":\"NotCapable\",\"message\":\"Requires write access to \\\"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-5pgxtgc2/marker.txt\\\", run again with the --allow-write flag\"}\nMXC_CHILD_EXIT=0\n",
+      "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\n",
+      "result": {
+        "ok": false,
+        "name": "NotCapable",
+        "message": "Requires write access to \"/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-5pgxtgc2/marker.txt\", run again with the --allow-write flag"
+      },
+      "marker": null,
+      "broker_requests": [
+        {
+          "v": 1,
+          "pid": 2,
+          "id": 1,
+          "datetime": "2026-10-10T14:36:18.157862234+00:00",
+          "permission": "write",
+          "value": "/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-5pgxtgc2/marker.txt"
+        }
+      ],
+      "server_errors": [],
+      "pass": true
+    },
+    {
+      "mode": "rw",
+      "broker": "wrong_id",
+      "exit": 87,
+      "stdout": "MXC_CHILD_EXIT=87\n",
+      "stderr": "\u001b[0m\u001b[33mWarning\u001b[0m Permission broker is an experimental feature\nCustom { kind: Other, error: \"Permission broker response ID mismatch\" }\n",
+      "result": null,
+      "marker": null,
+      "broker_requests": [
+        {
+          "v": 1,
+          "pid": 2,
+          "id": 1,
+          "datetime": "2026-10-10T14:36:18.191669676+00:00",
+          "permission": "write",
+          "value": "/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/gnu6-mxc-deno-only-m9w9d3fk/marker.txt"
+        }
+      ],
+      "server_errors": [],
+      "pass": true
+    }
+  ],
+  "limitations": [
+    "Experimental Unix broker used; no Judgment Plane issuer validation",
+    "Same-host filesystem Unix socket, no multi-tenant identity",
+    "Only one Linux platform and MXC Process/Bubblewrap",
+    "Not a network positive egress qualification"
+  ]
+}

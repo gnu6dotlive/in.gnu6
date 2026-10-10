@@ -1,0 +1,39 @@
+{
+  "gate": "PASS_3_OF_3",
+  "mxc_sdk": "1.0.0",
+  "source_pin": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "test_type": "actual SDK v1 Process/Bubblewrap on local Linux",
+  "cases": [
+    {
+      "mode": "default-deny",
+      "exit": 0,
+      "marker_present": true,
+      "stderr": "",
+      "stdout": "MXC_EXIT=0\n",
+      "pass": true
+    },
+    {
+      "mode": "egress-allow",
+      "exit": 3,
+      "marker_present": false,
+      "stderr": "MXC_SDK_ERROR:backend_error: Bubblewrap: network.egress requires 'slirp4netns' on PATH: No such file or directory (os error 2). Install slirp4netns or use ruleless network.egress.default='deny'.\n",
+      "stdout": "",
+      "pass": true
+    },
+    {
+      "mode": "ingress-allow",
+      "exit": 3,
+      "marker_present": false,
+      "stderr": "MXC_SDK_ERROR:backend_error: Bubblewrap: network.ingress.default='allow' is not supported. The sandbox runs in a private network namespace reached through slirp, which has no route in until a host port is forwarded to it, and the schema carries no port list to forward. A listener inside the sandbox is reachable from the sandbox only. Use network.ingress.default='deny'.\n",
+      "stdout": "",
+      "pass": true
+    }
+  ],
+  "egress_supported_here": false,
+  "limitations": [
+    "slirp4netns absent; no successful MXC egress-allow run",
+    "No positive egress network control",
+    "No production execution",
+    "Refusal to spawn does not certify every host policy"
+  ]
+}
