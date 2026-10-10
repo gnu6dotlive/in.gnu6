@@ -1,0 +1,43 @@
+{
+  "gate": "PASS_TWO_SIDED_HOST_ORACLE",
+  "positive_control": {
+    "command": [
+      "/usr/bin/bwrap",
+      "--unshare-user",
+      "--unshare-pid",
+      "--ro-bind",
+      "...truncated-argv"
+    ],
+    "exitcode": 0,
+    "stderr": "",
+    "result": {
+      "connected": true,
+      "error": null,
+      "net_namespace": "net:[4026531833]"
+    }
+  },
+  "isolated_test": {
+    "command": [
+      "/usr/bin/bwrap",
+      "--unshare-user",
+      "--unshare-pid",
+      "--unshare-net",
+      "...truncated-argv"
+    ],
+    "exitcode": 0,
+    "stderr": "",
+    "result": {
+      "connected": false,
+      "error": "[Errno 111] Connection refused",
+      "errno": 111,
+      "net_namespace": "net:[4026533818]"
+    }
+  },
+  "host_namespace": "net:[4026531833]",
+  "target": "ephemeral loopback TCP listener only",
+  "limitations": [
+    "not MXC SDK or Deno runtime",
+    "isolation depends on kernel, bwrap and run environment",
+    "ro-bind / / discloses readable host paths, not a confidentiality sandbox"
+  ]
+}

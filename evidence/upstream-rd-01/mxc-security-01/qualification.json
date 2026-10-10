@@ -1,0 +1,46 @@
+{
+  "source_sha": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "path": "src/mxc-sdk/src/backends/bubblewrap/common/bwrap_runner.rs",
+  "source_sha256": "dff7230ca68bdd683222f40ca2beb0c3b363073d7b6fcdd6c48ff5e362e6d374",
+  "gate_source_order": "PASS",
+  "mutation_gates": {
+    "validate_common(request)?": "RED_CONFIRMED",
+    "self.validate_prepared(request)?": "RED_CONFIRMED",
+    "normalize_object_conflicts(": "RED_CONFIRMED",
+    "check_delegation(&request.policy)": "RED_CONFIRMED",
+    "resolve_denied_paths(&request.policy": "RED_CONFIRMED",
+    "check_pin_against_denied_hosts(request)": "RED_CONFIRMED",
+    "self.spawn_bwrap(": "RED_CONFIRMED"
+  },
+  "source_order": [
+    "validate_common(request)?",
+    "self.validate_prepared(request)?",
+    "normalize_object_conflicts(",
+    "check_delegation(&request.policy)",
+    "resolve_denied_paths(&request.policy",
+    "check_pin_against_denied_hosts(request)",
+    "self.spawn_bwrap("
+  ],
+  "sdk_runtime_test": "NOT_RUN",
+  "cargo_dependency_resolution": {
+    "argv": [
+      "cargo",
+      "tree",
+      "-p",
+      "mxc-sdk",
+      "--offline",
+      "--locked",
+      "--depth",
+      "1"
+    ],
+    "exit_code": 101,
+    "stderr": "error: no matching package named `cidr` found\nlocation searched: crates.io index\nrequired by package `mxc-sdk v1.0.0 (/mnt/workbench/workspaces/gnu.in.labs/.probes/upstream-rd-01/mxc-c6f301/src/mxc-sdk)`\nnote: offline mode (via `--offline`) can sometimes cause surprising resolution failures\nhelp: if this error is too confusing you may wish to retry without `--offline`\n",
+    "classification": "OFFLINE_RESOLUTION_BLOCKED"
+  },
+  "limitations": [
+    "No MXC SDK execution",
+    "No permission audit logs from MXC SDK",
+    "Static ordering does not establish runtime enforcement",
+    "This host is not a proxy for network policy across all Linux versions"
+  ]
+}
