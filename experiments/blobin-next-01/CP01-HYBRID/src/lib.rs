@@ -1,5 +1,5 @@
-//! BLOB-NEXT-01 CP01 GEO-00: bounded, typed geometric seed; NOT qualified CP01.
-//! General signed meshes and true SDF<->MeshSolid booleans are intentionally absent; a narrow convex-only mesh query module is experimental.
+//! BLOB-NEXT-01 CP01 GEO-02: bounded 3D geometry + CPU SDF/mesh CSG; NOT qualified CP01.
+//! Generic imported meshes are NOT certified. Mixed CPU SDF/MeshSolid booleans operate only on sealed convex meshes or bounded generated non-convex extrusions; the GPU path is not implemented.
 pub mod mesh;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -234,6 +234,7 @@ pub struct NodeId(pub u64);
 pub enum NodeKind {
     Sdf(SdfLeaf),
     MeshSurface(MeshAsset),
+    MeshSolid(mesh::CertifiedMeshSolid),
     /// Strictly convex certified mesh; arbitrary mesh certification remains unavailable.
     ConvexSolid(mesh::CertifiedConvexSolid),
     Csg {
@@ -352,6 +353,10 @@ impl SceneDocument {
                 semantic: Semantic::ExactDistance,
             },
             NodeKind::MeshSurface(_) => return Err(GeometryError::SurfaceHasNoSignedField),
+            NodeKind::MeshSolid(s) => FieldSample {
+                distance: s.signed_distance(p)?,
+                semantic: Semantic::ExactDistance,
+            },
             NodeKind::ConvexSolid(s) => FieldSample {
                 distance: s.signed_distance(p)?,
                 semantic: Semantic::ExactDistance,

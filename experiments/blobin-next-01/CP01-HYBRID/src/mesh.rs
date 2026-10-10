@@ -317,3 +317,227 @@ impl CertifiedConvexSolid {
         self.mesh.ray_trace(ray)
     }
 }
+
+/// A rigorously scoped non-convex solid created from a *simple*, consistently
+/// CCW polygon extruded along Z. This constructor proves validity by geometry
+/// generation, NOT by accepting and "certifying" arbitrary imported meshes.
+#[derive(Debug, Clone)]
+pub struct ExtrudedPrism {
+    mesh: MeshAsset,
+    polygon: Vec<[f64; 2]>,
+    z_min: f64,
+    z_max: f64,
+    diameter: f64,
+}
+
+fn orient2(a: [f64; 2], b: [f64; 2], c: [f64; 2]) -> f64 {
+    (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+}
+
+fn between_points_2d(a: [f64; 2], b: [f64; 2], c: [f64; 2], eps: f64) -> bool {
+    // c on or near segment ab, includes endpoints.
+    orient2(a, b, c).abs() <= eps
+        && c[0] >= a[0].min(b[0]) - eps
+        && c[0] <= a[0].max(b[0]) + eps
+        && c[1] >= a[1].min(b[1]) - eps
+        && c[1] <= a[1].max(b[1]) + eps
+}
+
+fn segments_touch_or_cross(a: [f64; 2], b: [f64; 2], c: [f64; 2], d: [f64; 2], eps: f64) -> bool {
+    let o1 = orient2(a, b, c);
+    let o2 = orient2(a, b, d);
+    let o3 = orient2(c, d, a);
+    let o4 = orient2(c, d, b);
+    // A distant endpoint on the infinite supporting line is not a segment
+    // intersection; e.g. the disjoint collinear edges of an L-shaped contour.
+    if (o1.abs() <= eps && between_points_2d(a, b, c, eps))
+        || (o2.abs() <= eps && between_points_2d(a, b, d, eps))
+        || (o3.abs() <= eps && between_points_2d(c, d, a, eps))
+        || (o4.abs() <= eps && between_points_2d(c, d, b, eps))
+    {
+        return true;
+    }
+    if [o1, o2, o3, o4].iter().any(|v| v.abs() <= eps) {
+        return false; // parallel/disjoint edge, or a conservative near-touch excluded above
+    }
+    (o1.is_sign_positive() != o2.is_sign_positive())
+        && (o3.is_sign_positive() != o4.is_sign_positive())
+}
+
+fn polygon_contains_xy(poly: &[[f64; 2]], x: f64, y: f64) -> bool {
+    let mut inside = false;
+    for i in 0..poly.len() {
+        let a = poly[i];
+        let b = poly[(i + 1) % poly.len()];
+        if (a[1] > y) != (b[1] > y) {
+            let crossing_x = a[0] + (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]);
+            if crossing_x > x {
+                inside = !inside;
+            }
+        }
+    }
+    inside
+}
+
+impl ExtrudedPrism {
+    pub fn build(poly: Vec<[f64; 2]>, z_min: f64, z_max: f64) -> Result<Self, GeometryError> {
+        const MAX_POLYGON_VERTICES: usize = 64;
+        if poly.len() < 3
+            || poly.len() > MAX_POLYGON_VERTICES
+            || !z_min.is_finite()
+            || !z_max.is_finite()
+            || z_max <= z_min
+            || !poly.iter().flatten().all(|v| v.is_finite())
+        {
+            return Err(GeometryError::InvalidInput);
+        }
+        let mut lo = [poly[0][0], poly[0][1], z_min];
+        let mut hi = [poly[0][0], poly[0][1], z_max];
+        for v in &poly {
+            for j in 0..2 {
+                lo[j] = lo[j].min(v[j]);
+                hi[j] = hi[j].max(v[j]);
+            }
+        }
+        let diameter = Vec3::new(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]).norm();
+        if !(1e-3..=1e3).contains(&diameter) {
+            return Err(GeometryError::AmbiguousGeometry);
+        }
+        let eps = diameter * 1e-10;
+        let eps_area = eps * diameter;
+        let n = poly.len();
+        let mut area2 = 0.0;
+        for i in 0..n {
+            let a = poly[i];
+            let b = poly[(i + 1) % n];
+            area2 += a[0] * b[1] - a[1] * b[0];
+            if (b[0] - a[0]).hypot(b[1] - a[1]) < eps {
+                return Err(GeometryError::AmbiguousGeometry);
+            }
+            if orient2(poly[(i + n - 1) % n], a, b).abs() <= eps_area {
+                return Err(GeometryError::AmbiguousGeometry);
+            }
+        }
+        if area2 <= eps_area {
+            return Err(GeometryError::WrongWinding);
+        }
+        for i in 0..n {
+            for j in (i + 1)..n {
+                if j == i + 1 || (i == 0 && j == n - 1) {
+                    continue;
+                }
+                if segments_touch_or_cross(
+                    poly[i],
+                    poly[(i + 1) % n],
+                    poly[j],
+                    poly[(j + 1) % n],
+                    eps_area,
+                ) {
+                    return Err(GeometryError::AmbiguousGeometry);
+                }
+            }
+        }
+        // Ear clipping on a proven simple CCW polygon.
+        let mut loop_ids: Vec<usize> = (0..n).collect();
+        let mut caps: Vec<[usize; 3]> = Vec::with_capacity(n - 2);
+        while loop_ids.len() > 3 {
+            let mut ear = None;
+            for k in 0..loop_ids.len() {
+                let ia = loop_ids[(k + loop_ids.len() - 1) % loop_ids.len()];
+                let ib = loop_ids[k];
+                let ic = loop_ids[(k + 1) % loop_ids.len()];
+                let a = poly[ia];
+                let b = poly[ib];
+                let c = poly[ic];
+                if orient2(a, b, c) <= eps_area {
+                    continue;
+                }
+                let contains_any = loop_ids.iter().copied().any(|m| {
+                    if m == ia || m == ib || m == ic {
+                        return false;
+                    }
+                    let p = poly[m];
+                    orient2(a, b, p) >= -eps_area
+                        && orient2(b, c, p) >= -eps_area
+                        && orient2(c, a, p) >= -eps_area
+                });
+                if !contains_any {
+                    ear = Some((k, [ia, ib, ic]));
+                    break;
+                }
+            }
+            let (k, indices) = ear.ok_or(GeometryError::AmbiguousGeometry)?;
+            caps.push(indices);
+            loop_ids.remove(k);
+        }
+        caps.push([loop_ids[0], loop_ids[1], loop_ids[2]]);
+        let mut vertices = Vec::with_capacity(2 * n);
+        for &z in &[z_min, z_max] {
+            vertices.extend(poly.iter().map(|p| Vec3::new(p[0], p[1], z)));
+        }
+        let mut triangles = Vec::with_capacity(4 * n - 4);
+        for [a, b, c] in caps {
+            triangles.push([c as u32, b as u32, a as u32]);
+            triangles.push([(n + a) as u32, (n + b) as u32, (n + c) as u32]);
+        }
+        for i in 0..n {
+            let j = (i + 1) % n;
+            triangles.push([i as u32, j as u32, (n + j) as u32]);
+            triangles.push([i as u32, (n + j) as u32, (n + i) as u32]);
+        }
+        let mesh = MeshAsset {
+            vertices,
+            triangles,
+        };
+        if mesh.preflight()? != crate::MeshPreflight::ClosedCandidateNotCertified {
+            return Err(GeometryError::NonManifold);
+        }
+        Ok(Self {
+            mesh,
+            polygon: poly,
+            z_min,
+            z_max,
+            diameter,
+        })
+    }
+    pub fn mesh(&self) -> &MeshAsset {
+        &self.mesh
+    }
+    pub fn signed_distance(&self, p: Vec3) -> Result<f64, GeometryError> {
+        if !p.finite() {
+            return Err(GeometryError::InvalidInput);
+        }
+        let nearest = self.mesh.closest_surface(p)?.unsigned_distance;
+        if nearest <= self.diameter * REL_EPS {
+            return Ok(0.0);
+        }
+        let inside =
+            p.z > self.z_min && p.z < self.z_max && polygon_contains_xy(&self.polygon, p.x, p.y);
+        Ok(if inside { -nearest } else { nearest })
+    }
+    pub fn ray_trace(&self, ray: Ray) -> Result<RayTrace, GeometryError> {
+        self.mesh.ray_trace(ray)
+    }
+}
+
+/// No caller may make an arbitrary imported surface a signed volumetric mesh.
+/// Both variants require a checked constructor.
+#[derive(Debug, Clone)]
+pub enum CertifiedMeshSolid {
+    Convex(CertifiedConvexSolid),
+    Extruded(ExtrudedPrism),
+}
+impl CertifiedMeshSolid {
+    pub fn signed_distance(&self, p: Vec3) -> Result<f64, GeometryError> {
+        match self {
+            Self::Convex(s) => s.signed_distance(p),
+            Self::Extruded(s) => s.signed_distance(p),
+        }
+    }
+    pub fn mesh(&self) -> &MeshAsset {
+        match self {
+            Self::Convex(s) => s.mesh(),
+            Self::Extruded(s) => s.mesh(),
+        }
+    }
+}

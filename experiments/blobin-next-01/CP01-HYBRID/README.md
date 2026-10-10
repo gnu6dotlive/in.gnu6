@@ -10,3 +10,7 @@ Reproduce offline:
 3. cargo fmt -- --check
 
 Next GEO-01: independently instrumented mesh topology, self-intersection, closest-point and inside/outside reference; static glTF subset; certified MeshSolid and real mixed CSG. Freeze fixtures (10,000 samples / 1,000 rays), record tolerance violations and adversarial failures. No claim of 60 FPS or GPU support follows from this crate.
+
+## GEO-02 scope
+
+Sealed CertifiedMeshSolid supports conservatively validated convex meshes and generated non-convex prisms from simple CCW polygons (no arbitrary mesh import). SceneDocument evaluates unions, intersections, and both subtraction directions between these meshes and SDFs on CPU. A separate analytical L-prism oracle tests 10,000 signed-distance points, 2,000 mixed CSG points and 1,000 rays. **This is not a qualified CP01**, nor any Vulkan GPU hybrid rendering or signed certification of imported arbitrary meshes.
