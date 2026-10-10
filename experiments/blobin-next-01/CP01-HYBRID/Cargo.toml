@@ -1,0 +1,12 @@
+[package]
+name = "blobin-cp01-hybrid"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[profile.dev]
+debug = 0
+incremental = false

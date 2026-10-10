@@ -1,0 +1,13 @@
+{
+  "schema": "blobin.cp01.geometry-seed/1",
+  "status": "PREREG_ONLY",
+  "coordinates": {"handedness": "right", "up": "+Y", "units": "meters"},
+  "fixtures": [
+    {"id": "sphere-origin-r1", "kind": "SdfSphere", "radius": 1.0, "samples": [{"p":[0,0,0],"distance":-1.0},{"p":[1,0,0],"distance":0.0},{"p":[2,0,0],"distance":1.0}]},
+    {"id": "box-origin-h1", "kind": "SdfBox", "half_extents":[1,1,1], "samples":[{"p":[0,0,0],"distance":-1.0},{"p":[1,0,0],"distance":0.0},{"p":[2,0,0],"distance":1.0}]},
+    {"id": "capsule-y", "kind": "SdfCapsule", "a":[0,-1,0], "b":[0,1,0], "radius":0.5, "samples":[{"p":[0,0,0],"distance":-0.5},{"p":[0,2,0],"distance":0.5}]},
+    {"id": "open-triangle", "kind": "MeshSurface", "solid_eligible": false},
+    {"id": "closed-cube-candidate", "kind": "MeshSurface", "solid_eligible": "UNQUALIFIED_UNTIL_FULL_CERTIFICATION"},
+    {"id": "self-intersecting-mesh", "kind": "InvalidMesh", "solid_eligible": false}
+  ]
+}
