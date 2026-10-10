@@ -1,0 +1,209 @@
+{
+  "worker": "W06",
+  "repo": "trymirai/uzu",
+  "source_commit": "23f365fc43cd7df0c4e6d6d2415c553a94e37a08",
+  "method": "GitHub contents at immutable commit; bounded regex inventory, not code execution",
+  "files": [
+    {
+      "path": "crates/uzu-engine/src/backends/mod.rs",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "c9e4b8f1d53d27849ae91c08263f7d899642af1c",
+      "sha256": "6d03f951f841e85b72cc07cde2a392d10e6c0c8cf433391c9651bfebb5dba441",
+      "line_count": 37,
+      "url": "https://github.com/trymirai/uzu/blob/23f365fc43cd7df0c4e6d6d2415c553a94e37a08/crates/uzu-engine/src/backends/mod.rs",
+      "signals": [
+        {
+          "query": "metal",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 6,
+          "anchors": [
+            {
+              "line": 5,
+              "text": "#[cfg(backend = \"metal\")]"
+            },
+            {
+              "line": 6,
+              "text": "pub mod metal;"
+            },
+            {
+              "line": 21,
+              "text": "let default = if cfg!(backend = \"metal\") {"
+            }
+          ]
+        },
+        {
+          "query": "cpu",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 6,
+          "anchors": [
+            {
+              "line": 3,
+              "text": "#[cfg(backend = \"cpu\")]"
+            },
+            {
+              "line": 4,
+              "text": "pub mod cpu;"
+            },
+            {
+              "line": 23,
+              "text": "} else if cfg!(backend = \"cpu\") {"
+            }
+          ]
+        },
+        {
+          "query": "cuda",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "grammar",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "feature",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "crates/uzu-engine/Cargo.toml",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "56ec4b73e04b1918336aa232eec665b3ea8978e1",
+      "sha256": "8bb33903b4ea46d225d0a15d9e47cea3d880a746e86fef79b7da3ad3e9910d1e",
+      "line_count": 109,
+      "url": "https://github.com/trymirai/uzu/blob/23f365fc43cd7df0c4e6d6d2415c553a94e37a08/crates/uzu-engine/Cargo.toml",
+      "signals": [
+        {
+          "query": "metal",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 4,
+          "anchors": [
+            {
+              "line": 16,
+              "text": "default = [\"cpu\", \"metal\", \"grammar\"]"
+            },
+            {
+              "line": 20,
+              "text": "metal = ["
+            },
+            {
+              "line": 30,
+              "text": "\"dep:metal\","
+            }
+          ]
+        },
+        {
+          "query": "cpu",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 2,
+          "anchors": [
+            {
+              "line": 16,
+              "text": "default = [\"cpu\", \"metal\", \"grammar\"]"
+            },
+            {
+              "line": 18,
+              "text": "cpu = [] # TODO: move libm here"
+            }
+          ]
+        },
+        {
+          "query": "cuda",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "grammar",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 16,
+              "text": "default = [\"cpu\", \"metal\", \"grammar\"]"
+            },
+            {
+              "line": 33,
+              "text": "grammar = [\"dep:xgrammar\", \"dep:schemars\"]"
+            },
+            {
+              "line": 81,
+              "text": "xgrammar = { workspace = true, optional = true }"
+            }
+          ]
+        },
+        {
+          "query": "feature",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 9,
+          "anchors": [
+            {
+              "line": 15,
+              "text": "[features]"
+            },
+            {
+              "line": 52,
+              "text": "serde_json = { workspace = true, features = [\"unbounded_depth\"], optional = true }"
+            },
+            {
+              "line": 54,
+              "text": "xxhash-rust = { workspace = true, features = [\"xxh3\"], optional = true }"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "crates/uzu-engine/src/backends/cpu/mod.rs",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "f569a2da4e7f96f43ed1e7cb63e3072c21ae8ba5",
+      "sha256": "6f51ad2139a82df869e792fa540f16a331de5fc0df3d38da9d7249cd3e3731ed",
+      "line_count": 8,
+      "url": "https://github.com/trymirai/uzu/blob/23f365fc43cd7df0c4e6d6d2415c553a94e37a08/crates/uzu-engine/src/backends/cpu/mod.rs",
+      "signals": [
+        {
+          "query": "metal",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "cpu",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 8,
+              "text": "pub use backend::Cpu;"
+            }
+          ]
+        },
+        {
+          "query": "cuda",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "grammar",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "feature",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN",
+  "product_status": "NOT_RUN"
+}

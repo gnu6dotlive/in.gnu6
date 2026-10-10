@@ -1,0 +1,211 @@
+{
+  "worker": "W03",
+  "repo": "denoland/deno",
+  "source_commit": "a18ce33715e30cd2b0d99c7e322ef11a65490e4d",
+  "method": "GitHub contents at immutable commit; bounded regex inventory, not code execution",
+  "files": [
+    {
+      "path": "runtime/permissions.rs",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "029f502cab5d125fc1564e40bd74d45efa3d1c3a",
+      "sha256": "ff11bd746fe00534480f1e3fd176289ab2161da9bed81e963c8d7ed2b21fc7f9",
+      "line_count": 2,
+      "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/runtime/permissions.rs",
+      "signals": [
+        {
+          "query": "permission",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 2,
+              "text": "pub use deno_permissions::RuntimePermissionDescriptorParser;"
+            }
+          ]
+        },
+        {
+          "query": "op",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "// Copyright 2018-2026 the Deno authors. MIT license."
+            }
+          ]
+        },
+        {
+          "query": "runtime",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 2,
+              "text": "pub use deno_permissions::RuntimePermissionDescriptorParser;"
+            }
+          ]
+        },
+        {
+          "query": "cef",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "supervisor",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "runtime/README.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "c3e482828989406a328b0c329af14ba9d7924f52",
+      "sha256": "09629835c4562331400894d9241f536db937bc8b879176b8a6a940141d9bd5eb",
+      "line_count": 45,
+      "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/runtime/README.md",
+      "signals": [
+        {
+          "query": "permission",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "op",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 8,
+              "text": "Deno's operating system bindings (ops)."
+            },
+            {
+              "line": 19,
+              "text": "encapsulating `deno_core::JsRuntime` with a set of ops used to implement `Deno`"
+            },
+            {
+              "line": 26,
+              "text": "runtime's properties:"
+            }
+          ]
+        },
+        {
+          "query": "runtime",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 7,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "# `deno_runtime` crate"
+            },
+            {
+              "line": 3,
+              "text": "[![crates](https://img.shields.io/crates/v/deno_runtime.svg)](https://crates.io/crates/deno_runtime)"
+            },
+            {
+              "line": 4,
+              "text": "[![docs](https://docs.rs/deno_runtime/badge.svg)](https://docs.rs/deno_runtime)"
+            }
+          ]
+        },
+        {
+          "query": "cef",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "supervisor",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "doc/desktop-architecture.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "792b54c9e4c1b2686fb5e78acf19593e91bf63e8",
+      "sha256": "f25ce6fae36d9130cf196513956340f01bd0c94f1fa1197a885a0f5a63aedd9f",
+      "line_count": 169,
+      "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/doc/desktop-architecture.md",
+      "signals": [
+        {
+          "query": "permission",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "op",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 39,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "# Deno Desktop — internals"
+            },
+            {
+              "line": 3,
+              "text": "How `deno desktop` actually wires a native window to a Deno runtime. This skips"
+            },
+            {
+              "line": 10,
+              "text": "The usual embedding has the app `dlopen` a UI lib. Desktop is inverted. The"
+            }
+          ]
+        },
+        {
+          "query": "runtime",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 13,
+          "anchors": [
+            {
+              "line": 3,
+              "text": "How `deno desktop` actually wires a native window to a Deno runtime. This skips"
+            },
+            {
+              "line": 12,
+              "text": "system WebView); the **Deno runtime is a cdylib** named `libdenort`"
+            },
+            {
+              "line": 14,
+              "text": "`--runtime <path-to-dylib>`, `dlopen`s it, and calls into it through a C ABI."
+            }
+          ]
+        },
+        {
+          "query": "cef",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 11,
+              "text": "**executable is the native backend** (`laufey` for CEF, `laufey_webview` for the"
+            }
+          ]
+        },
+        {
+          "query": "supervisor",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 2,
+          "anchors": [
+            {
+              "line": 146,
+              "text": "The `deno desktop --hmr` supervisor owns the child, catches code 75, and"
+            },
+            {
+              "line": 148,
+              "text": "Ctrl-C handling, and temp-entrypoint cleanup with the supervisor"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN",
+  "product_status": "NOT_RUN"
+}

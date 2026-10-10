@@ -1,0 +1,83 @@
+{
+  "repo": "denoland/deno",
+  "pinned_commit": "a18ce33715e30cd2b0d99c7e322ef11a65490e4d",
+  "source_gate": "PASS",
+  "mutations": {
+    "broker:if response.id != id": "RED_CONFIRMED",
+    "broker:Permission broker response ID mismatch": "RED_CONFIRMED",
+    "broker:\"allow\" => BrokerResponse::Allow": "RED_CONFIRMED",
+    "broker:\"deny\" => BrokerResponse::Deny": "RED_CONFIRMED",
+    "broker:Permission broker unknown result variant": "RED_CONFIRMED",
+    "broker:std::process::exit(BROKER_EXIT_CODE)": "RED_CONFIRMED",
+    "lib:if let Some(resp) = maybe_check_with_broker": "RED_CONFIRMED",
+    "lib:BrokerResponse::Allow =>": "RED_CONFIRMED",
+    "lib:BrokerResponse::Deny { message } =>": "RED_CONFIRMED",
+    "lib:match self {\n      PermissionState::Granted => {": "RED_CONFIRMED"
+  },
+  "source_files": [
+    {
+      "sha256": "c7dededd7dd0b913af323a395cc3f30ffb33cc5d61b7b2143aabefbf87346e0f",
+      "blob_sha": "a7c70e963ed2a6a7bdc7c14bb8581c39b0ce119c",
+      "path": "runtime/permissions/broker.rs",
+      "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/runtime/permissions/broker.rs"
+    },
+    {
+      "sha256": "55ad3c2ca869f271613306f5afbac6e601904ff6278318c81cc644285206ca0c",
+      "blob_sha": "231f03503ac64b5702ffaab4b9f096a7a1c84553",
+      "path": "runtime/permissions/lib.rs",
+      "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/runtime/permissions/lib.rs"
+    }
+  ],
+  "anchors": {
+    "runtime/permissions/broker.rs": [
+      {
+        "keyword": "if response.id != id",
+        "line": 105
+      },
+      {
+        "keyword": "Permission broker response ID mismatch",
+        "line": 107
+      },
+      {
+        "keyword": "\"allow\" => BrokerResponse::Allow",
+        "line": 112
+      },
+      {
+        "keyword": "\"deny\" => BrokerResponse::Deny",
+        "line": 113
+      },
+      {
+        "keyword": "Permission broker unknown result variant",
+        "line": 118
+      },
+      {
+        "keyword": "std::process::exit(BROKER_EXIT_CODE)",
+        "line": 62
+      }
+    ],
+    "runtime/permissions/lib.rs": [
+      {
+        "keyword": "if let Some(resp) = maybe_check_with_broker",
+        "line": 531
+      },
+      {
+        "keyword": "BrokerResponse::Allow =>",
+        "line": 533
+      },
+      {
+        "keyword": "BrokerResponse::Deny { message } =>",
+        "line": 537
+      },
+      {
+        "keyword": "match self {\n      PermissionState::Granted => {",
+        "line": 552
+      }
+    ]
+  },
+  "runtime_status": "NOT_RUN_DENO_BINARY_UNAVAILABLE",
+  "limitations": [
+    "Textual source invariants only; not proof of actual Deno permissions at runtime",
+    "Broker presence is optional and application permission state still has separate semantics",
+    "Unknown result and response-ID guard coverage inspected, not executed"
+  ]
+}

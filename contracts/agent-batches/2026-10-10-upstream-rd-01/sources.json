@@ -1,0 +1,89 @@
+{
+  "captured_at_utc": "2026-10-10T13:13:26.570872+00:00",
+  "sources": [
+    {
+      "repo": "microsoft/mxc",
+      "commit_sha": "c6f301d53a1430c4c921a05c57af838f7392348f",
+      "default_branch": "main",
+      "license_spdx": "MIT",
+      "archived": false,
+      "pushed_at": "2026-10-10T00:17:30Z",
+      "readme_blob_sha": "1e5a99e60829128e18210a96396efd9de9b4eb42",
+      "commit_summary": [
+        "[docs] Glossary + simplify doc terms (#1454)"
+      ],
+      "url": "https://github.com/microsoft/mxc",
+      "errors": []
+    },
+    {
+      "repo": "GLinnik21/plx-native",
+      "commit_sha": "35ca8790072621d6cbad8e75eb70fb1fc3f24915",
+      "default_branch": "main",
+      "license_spdx": "GPL-3.0",
+      "archived": false,
+      "pushed_at": "2026-10-10T10:54:52Z",
+      "readme_blob_sha": "756e96c334db0a1819412b24de3671709cc94c79",
+      "commit_summary": [
+        "AGENTS.md: branches may carry any number of commits; the squash happens at merge (#592)"
+      ],
+      "url": "https://github.com/GLinnik21/plx-native",
+      "errors": []
+    },
+    {
+      "repo": "denoland/deno",
+      "commit_sha": "a18ce33715e30cd2b0d99c7e322ef11a65490e4d",
+      "default_branch": "main",
+      "license_spdx": "MIT",
+      "archived": false,
+      "pushed_at": "2026-10-07T13:56:06Z",
+      "readme_blob_sha": "8173eb951062916cc112a8fb7c0e120b1c945975",
+      "commit_summary": [
+        "fix(completions): complete script paths for bare deno run in zsh (#36976)"
+      ],
+      "url": "https://github.com/denoland/deno",
+      "errors": []
+    },
+    {
+      "repo": "longbridge/gpui-kit",
+      "commit_sha": "ed27c6293b585acc40c10be7138534243bee5841",
+      "default_branch": "main",
+      "license_spdx": "NOASSERTION",
+      "archived": false,
+      "pushed_at": "2026-10-10T10:05:47Z",
+      "readme_blob_sha": "cbe94c3bc87f58cb50370837ad60f42d5a8a55fa",
+      "commit_summary": [
+        "text: Keep inline HTML mark highlights in Markdown (#3425)"
+      ],
+      "url": "https://github.com/longbridge/gpui-kit",
+      "errors": []
+    },
+    {
+      "repo": "sharkdp/hyperfine",
+      "commit_sha": "b33755fe1fca8bcc1f182c773ca3ab040bfe517d",
+      "default_branch": "master",
+      "license_spdx": "Apache-2.0",
+      "archived": false,
+      "pushed_at": "2026-10-07T21:12:04Z",
+      "readme_blob_sha": "10d5ac1a9224477c0df5dc1934acb21374c2dba0",
+      "commit_summary": [
+        "hyperfine 2.0"
+      ],
+      "url": "https://github.com/sharkdp/hyperfine",
+      "errors": []
+    },
+    {
+      "repo": "trymirai/uzu",
+      "commit_sha": "23f365fc43cd7df0c4e6d6d2415c553a94e37a08",
+      "default_branch": "main",
+      "license_spdx": "MIT",
+      "archived": false,
+      "pushed_at": "2026-10-10T12:59:58Z",
+      "readme_blob_sha": "50e108411d7fb1640ddf8ecff415ae15a0de567d",
+      "commit_summary": [
+        "Mac app fixes and improvements (part 3) (#921)"
+      ],
+      "url": "https://github.com/trymirai/uzu",
+      "errors": []
+    }
+  ]
+}

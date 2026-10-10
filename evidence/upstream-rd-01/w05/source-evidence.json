@@ -1,0 +1,249 @@
+{
+  "worker": "W05",
+  "repo": "sharkdp/hyperfine",
+  "source_commit": "b33755fe1fca8bcc1f182c773ca3ab040bfe517d",
+  "method": "GitHub contents at immutable commit; bounded regex inventory, not code execution",
+  "files": [
+    {
+      "path": "src/metric.rs",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "894b37c9914e0e7e4172b934d32954f2b82c0612",
+      "sha256": "a22964835ee21d6de0a417c18101efc470090b4fcf722807471568f13f21e557",
+      "line_count": 505,
+      "url": "https://github.com/sharkdp/hyperfine/blob/b33755fe1fca8bcc1f182c773ca3ab040bfe517d/src/metric.rs",
+      "signals": [
+        {
+          "query": "rss",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "perf",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "metric",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 49,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "//! Metric selection, descriptive statistics, and display units."
+            },
+            {
+              "line": 10,
+              "text": "pub enum Metric {"
+            },
+            {
+              "line": 23,
+              "text": "impl Metric {"
+            }
+          ]
+        },
+        {
+          "query": "shell",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 97,
+              "text": "pub fn ensure_available(self, shell: bool) -> Result<()> {"
+            },
+            {
+              "line": 100,
+              "text": "!shell,"
+            },
+            {
+              "line": 101,
+              "text": "\"Metric '{}' is unavailable when a shell is enabled\","
+            }
+          ]
+        },
+        {
+          "query": "benchmark",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 5,
+              "text": "use crate::benchmark::measurement::{Measurement, Measurements};"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/options.rs",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "d2d41305a002ee8b6b68dbf8f04ee9cb7a752cef",
+      "sha256": "70d3755db945b1a26981c96996fa37b4d2137b803d7f566b02c84830734dfe9c",
+      "line_count": 538,
+      "url": "https://github.com/sharkdp/hyperfine/blob/b33755fe1fca8bcc1f182c773ca3ab040bfe517d/src/options.rs",
+      "signals": [
+        {
+          "query": "rss",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "perf",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 2,
+          "anchors": [
+            {
+              "line": 163,
+              "text": "// Typically only stdout is performance-relevant, so just pipe that"
+            },
+            {
+              "line": 186,
+              "text": "/// The main settings for a hyperfine benchmark session"
+            }
+          ]
+        },
+        {
+          "query": "metric",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 23,
+          "anchors": [
+            {
+              "line": 12,
+              "text": "use crate::metric::{Metric, MetricSelection};"
+            },
+            {
+              "line": 224,
+              "text": "/// Displayed metrics, with the primary metric first."
+            },
+            {
+              "line": 225,
+              "text": "pub metrics: Vec<MetricSelection>,"
+            }
+          ]
+        },
+        {
+          "query": "shell",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 50,
+          "anchors": [
+            {
+              "line": 18,
+              "text": "pub const DEFAULT_SHELL: &str = \"sh\";"
+            },
+            {
+              "line": 21,
+              "text": "pub const DEFAULT_SHELL: &str = \"cmd.exe\";"
+            },
+            {
+              "line": 23,
+              "text": "/// Shell to use for executing benchmarked commands"
+            }
+          ]
+        },
+        {
+          "query": "benchmark",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 22,
+          "anchors": [
+            {
+              "line": 23,
+              "text": "/// Shell to use for executing benchmarked commands"
+            },
+            {
+              "line": 101,
+              "text": "/// Bounds for the number of benchmark runs"
+            },
+            {
+              "line": 103,
+              "text": "/// Minimum number of benchmark runs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/main.rs",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "a07d8a24701fc55c808f703f8917fea25fc0be9b",
+      "sha256": "43dee1e9056db5e1eaff29b73698ac464bd4e760fecc22ed5026b34c0f45a00b",
+      "line_count": 102,
+      "url": "https://github.com/sharkdp/hyperfine/blob/b33755fe1fca8bcc1f182c773ca3ab040bfe517d/src/main.rs",
+      "signals": [
+        {
+          "query": "rss",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "perf",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 1,
+          "anchors": [
+            {
+              "line": 54,
+              "text": "hyperfine --env 'OMP_NUM_THREADS=8 CFLAGS=\\\"-O3 -march=native\\\"' 'my_command'\\n\\n\\"
+            }
+          ]
+        },
+        {
+          "query": "metric",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 2,
+          "anchors": [
+            {
+              "line": 24,
+              "text": "pub mod metric;"
+            },
+            {
+              "line": 73,
+              "text": "let export_manager = ExportManager::from_cli_arguments(&cli_arguments, &options.metrics)?;"
+            }
+          ]
+        },
+        {
+          "query": "shell",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 9,
+          "anchors": [
+            {
+              "line": 30,
+              "text": "pub mod shell_syntax;"
+            },
+            {
+              "line": 45,
+              "text": "&& !cli_arguments.get_flag(\"no-shell\")"
+            },
+            {
+              "line": 46,
+              "text": "&& cli_arguments.get_one::<String>(\"shell\").is_none()"
+            }
+          ]
+        },
+        {
+          "query": "benchmark",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 9,
+              "text": "use benchmark::scheduler::Scheduler;"
+            },
+            {
+              "line": 19,
+              "text": "pub mod benchmark;"
+            },
+            {
+              "line": 76,
+              "text": "scheduler.run_benchmarks()?;"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN",
+  "product_status": "NOT_RUN"
+}

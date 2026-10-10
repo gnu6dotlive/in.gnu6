@@ -1,0 +1,506 @@
+[
+  {
+    "repo": "microsoft/mxc",
+    "pin": "c6f301d53a1430c4c921a05c57af838f7392348f",
+    "files": [
+      {
+        "path": "docs/backends/bwrap/bubblewrap-backend.md",
+        "sha256": "19ba1251504df4cf7dea0ebc7290b1d0da4d1b8e1f9e5cf272cd070795552242",
+        "github_blob_sha": "bc9b7417d16f01a8019415d32ea9ba5bc1f84666",
+        "line_count": 877,
+        "anchors": [
+          {
+            "line": 1,
+            "snippet": "# Bubblewrap Backend"
+          },
+          {
+            "line": 5,
+            "snippet": "The Bubblewrap backend provides **unprivileged Linux sandboxing** using"
+          },
+          {
+            "line": 6,
+            "snippet": "[Bubblewrap](https://github.com/containers/bubblewrap) (`bwrap`). It uses"
+          },
+          {
+            "line": 10,
+            "snippet": "> **Status:** Stable — the default Linux backend."
+          },
+          {
+            "line": 16,
+            "snippet": "> `enforcementMode`, host lists, `allowLocalNetwork`, and `network.proxy`"
+          },
+          {
+            "line": 17,
+            "snippet": "> are rejected by supported contracts. Typed Rust requests no longer"
+          },
+          {
+            "line": 19,
+            "snippet": "> Bubblewrap still rejects enforceable-looking requests it cannot honor"
+          },
+          {
+            "line": 22,
+            "snippet": "> directional deny defaults."
+          }
+        ],
+        "url": "https://github.com/microsoft/mxc/blob/c6f301d53a1430c4c921a05c57af838f7392348f/docs/backends/bwrap/bubblewrap-backend.md"
+      },
+      {
+        "path": "docs/container-lifecycle.md",
+        "sha256": "303d991c4d2a09844abdb097858ac3b93b15ac2f7c70df71c4aa48c225baba50",
+        "github_blob_sha": "360617d6d709763616401ad804ae4f4d5dd58661",
+        "line_count": 89,
+        "anchors": [
+          {
+            "line": 16,
+            "snippet": "All public types, operations, probes, backend/platform discovery, telemetry,"
+          },
+          {
+            "line": 20,
+            "snippet": "| Capability | Rust | .NET | Node |"
+          },
+          {
+            "line": 37,
+            "snippet": "- .NET asynchronous cancellation tokens are last. Rust remains synchronous."
+          },
+          {
+            "line": 42,
+            "snippet": "Rust enum variants, SDK-owned .NET subclasses, and Node discriminated unions."
+          },
+          {
+            "line": 47,
+            "snippet": "workloads instead of attaching a workload to the host application's console."
+          },
+          {
+            "line": 48,
+            "snippet": "See the launch-choice tables for [Rust](api-reference/rust/v1/api.md#choosing-a-launch-operation),"
+          },
+          {
+            "line": 53,
+            "snippet": "execution result. Backend policy and feature support remain native-engine"
+          },
+          {
+            "line": 71,
+            "snippet": "Backend-specific policy, idempotence, concurrency, cleanup, and error mapping"
+          }
+        ],
+        "url": "https://github.com/microsoft/mxc/blob/c6f301d53a1430c4c921a05c57af838f7392348f/docs/container-lifecycle.md"
+      }
+    ]
+  },
+  {
+    "repo": "GLinnik21/plx-native",
+    "pin": "35ca8790072621d6cbad8e75eb70fb1fc3f24915",
+    "files": [
+      {
+        "path": "docs/perf-damage-tracking-verdict.md",
+        "sha256": "d46b0e40675eb58fc0d5299fb6ecca3e0f012ba5fd374f7b037959f0b262672f",
+        "github_blob_sha": "c44f03619f8f7c0d41b899da09bcfdade3c87d1d",
+        "line_count": 217,
+        "anchors": [
+          {
+            "line": 1,
+            "snippet": "# Verdict: no per-region damage tracking"
+          },
+          {
+            "line": 15,
+            "snippet": ">    frame's rasterized quads moved `GPU_ACTIVE` by −0.81%, with `ARITH_WORDS` −0.08% and"
+          },
+          {
+            "line": 19,
+            "snippet": ">    proven armed: `GPU_ACTIVE` +0.03%, `surface-manager` inside its own 6.3% on-leg spread, and"
+          },
+          {
+            "line": 30,
+            "snippet": ">    **This driver does not ADVERTISE the extension and implements it anyway.** A 480x270 damage"
+          },
+          {
+            "line": 31,
+            "snippet": ">    rect declared while still drawing everything takes `GPU_ACTIVE` 7,531,684 → 542,012 and"
+          },
+          {
+            "line": 33,
+            "snippet": ">    the real damage distribution extrapolates to roughly half an animating frame and near zero on"
+          },
+          {
+            "line": 35,
+            "snippet": ">    `egl-partial-update-and-damage.md`."
+          },
+          {
+            "line": 44,
+            "snippet": "**No — and not because immediate mode forbids it.** Every number we have is CPU (`/proc` jiffy deltas, `idle.rs:13-19`), and per-region damage removes GPU"
+          }
+        ],
+        "url": "https://github.com/GLinnik21/plx-native/blob/35ca8790072621d6cbad8e75eb70fb1fc3f24915/docs/perf-damage-tracking-verdict.md"
+      },
+      {
+        "path": "docs/module-layers.md",
+        "sha256": "f4ee63fed0ff9f198c69932007c2cc55099651281494c9928a1aa515b7800d3c",
+        "github_blob_sha": "0153dfa762c5a1173602016c1a27b67a094db5a2",
+        "line_count": 1865,
+        "anchors": [
+          {
+            "line": 1,
+            "snippet": "# Module layers: getting rust-modules out of one big cycle"
+          },
+          {
+            "line": 14,
+            "snippet": "`plx_data`, `plx_session`, `plx_media`, `plx_appkit` and `plx_screens`** (`rust-modules/base/`,"
+          },
+          {
+            "line": 18,
+            "snippet": "`rust-modules/src/` is the last layer, `app`, and it stays the top crate `plxnative-modules`: the"
+          },
+          {
+            "line": 38,
+            "snippet": "rustc compiles and caches per **crate**. `plxnative-modules` is one 441k-line crate. Any edit"
+          },
+          {
+            "line": 49,
+            "snippet": "`ci/module_graph.py` reads every place a module **names** another one out of the Rust tokens:"
+          },
+          {
+            "line": 80,
+            "snippet": "| `net`/`stream` → `plex` | The transport read `ResolvePin`, `url_host`, `user_agent` and `Origin` from the Plex layer above it. L6 moved the URL types to"
+          },
+          {
+            "line": 122,
+            "snippet": "| app | `crate app dev lab capture remote focusprobe shot coldstart textinput system release_line port` | 42k | 12% |"
+          },
+          {
+            "line": 127,
+            "snippet": "the split has not happened. Of the last 33 commits that touched `rust-modules/src` at baseline, 26"
+          }
+        ],
+        "url": "https://github.com/GLinnik21/plx-native/blob/35ca8790072621d6cbad8e75eb70fb1fc3f24915/docs/module-layers.md"
+      }
+    ]
+  },
+  {
+    "repo": "denoland/deno",
+    "pin": "a18ce33715e30cd2b0d99c7e322ef11a65490e4d",
+    "files": [
+      {
+        "path": "doc/architecture.md",
+        "sha256": "1e9a31ae0259967ffd8cc6a350e7d748d448ca3329786cb378c3fe546ae5f499",
+        "github_blob_sha": "90b7af2e35bb8c0c161646bdf7ab7e789055436f",
+        "line_count": 131,
+        "anchors": [
+          {
+            "line": 15,
+            "snippet": "|  libs/*          deno_core + supporting crates (V8 bridge) |"
+          },
+          {
+            "line": 17,
+            "snippet": "|  V8 + Tokio      JavaScript engine and async runtime       |"
+          },
+          {
+            "line": 53,
+            "snippet": "- `runtime/permissions/` — the permission model that gates every sensitive op"
+          },
+          {
+            "line": 54,
+            "snippet": "(read, write, net, env, run, ffi, sys). Permissions are checked in Rust at the"
+          },
+          {
+            "line": 59,
+            "snippet": "Each directory under `ext/` is a self-contained extension: a Rust crate that"
+          },
+          {
+            "line": 70,
+            "snippet": "- Node compatibility: `ext/node` (the bulk of the `node:*` builtins, both Rust"
+          },
+          {
+            "line": 75,
+            "snippet": "1. Rust `#[op2]` functions that do the privileged work and take a permission"
+          },
+          {
+            "line": 88,
+            "snippet": "`deno_core` repository. This is the bridge between Rust and V8: it owns the op"
+          }
+        ],
+        "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/doc/architecture.md"
+      },
+      {
+        "path": "doc/desktop-architecture.md",
+        "sha256": "f25ce6fae36d9130cf196513956340f01bd0c94f1fa1197a885a0f5a63aedd9f",
+        "github_blob_sha": "792b54c9e4c1b2686fb5e78acf19593e91bf63e8",
+        "line_count": 169,
+        "anchors": [
+          {
+            "line": 8,
+            "snippet": "## The inversion: Deno is the library, not the host"
+          },
+          {
+            "line": 11,
+            "snippet": "**executable is the native backend** (`laufey` for CEF, `laufey_webview` for the"
+          },
+          {
+            "line": 13,
+            "snippet": "(`crate-type = [\"cdylib\"]`, `cli/rt_desktop/`). The backend is launched with"
+          },
+          {
+            "line": 23,
+            "snippet": "Deno is a guest the backend boots and drives."
+          },
+          {
+            "line": 29,
+            "snippet": "The closure body is the runtime entrypoint the backend calls after `init`."
+          },
+          {
+            "line": 35,
+            "snippet": "`laufey` crate's ABI version drifts from what the shipped backend speaks,"
+          },
+          {
+            "line": 39,
+            "snippet": "the backend binary version is pinned, and downloads are integrity-checked"
+          },
+          {
+            "line": 41,
+            "snippet": "— no TOFU on the GitHub releases page. `LaufeyBackendResolver` resolves in"
+          }
+        ],
+        "url": "https://github.com/denoland/deno/blob/a18ce33715e30cd2b0d99c7e322ef11a65490e4d/doc/desktop-architecture.md"
+      }
+    ]
+  },
+  {
+    "repo": "longbridge/gpui-kit",
+    "pin": "ed27c6293b585acc40c10be7138534243bee5841",
+    "files": [
+      {
+        "path": "docs/ARCHITECTURE.md",
+        "sha256": "f49ee6955801d3571143b6d804fec1122af25fb347a50563d25e4ff0d7fa3a90",
+        "github_blob_sha": "e6469e41e5b0337dee7661110aa414008174ead5",
+        "line_count": 618,
+        "anchors": [
+          {
+            "line": 7,
+            "snippet": "`crates/base/src/lib.rs` and the Rust API documentation remain authoritative for"
+          },
+          {
+            "line": 76,
+            "snippet": "They provide a stable element identity, event normalization, focus behavior,"
+          },
+          {
+            "line": 77,
+            "snippet": "keyboard activation, accessibility semantics, controlled values, and optional"
+          },
+          {
+            "line": 92,
+            "snippet": "- trigger and content focus transfer;"
+          },
+          {
+            "line": 96,
+            "snippet": "- focus trapping;"
+          },
+          {
+            "line": 109,
+            "snippet": "measurement, subscriptions, history, focus, or incremental updates. State is"
+          },
+          {
+            "line": 113,
+            "snippet": "Stateful systems expose application rendering seams rather than leaking their"
+          },
+          {
+            "line": 115,
+            "snippet": "`CalendarItemState` to an item renderer. Tree owns flattening, expansion,"
+          }
+        ],
+        "url": "https://github.com/longbridge/gpui-kit/blob/ed27c6293b585acc40c10be7138534243bee5841/docs/ARCHITECTURE.md"
+      },
+      {
+        "path": "docs/ACCESSIBILITY-UI-TESTING.md",
+        "sha256": "50a879edba2180261847cb4e2109eb18b4a8bb7162967103230defbe6e29969b",
+        "github_blob_sha": "67c6626a1555c97f11919513ee42302852ad64a1",
+        "line_count": 80,
+        "anchors": [
+          {
+            "line": 1,
+            "snippet": "# Accessibility-driven UI testing"
+          },
+          {
+            "line": 4,
+            "snippet": "accessibility tree by default for behavior that depends on focus, keyboard"
+          },
+          {
+            "line": 18,
+            "snippet": "Do not use a bare `cargo run` process for accessibility testing. macOS cannot"
+          },
+          {
+            "line": 23,
+            "snippet": "## Drive the accessibility tree"
+          },
+          {
+            "line": 25,
+            "snippet": "1. Read the complete accessibility tree for"
+          },
+          {
+            "line": 27,
+            "snippet": "2. Locate controls by role, accessible label, placeholder, and current value."
+          },
+          {
+            "line": 28,
+            "snippet": "3. Prefer actions on accessibility element indexes over screen coordinates."
+          },
+          {
+            "line": 32,
+            "snippet": "state, value, label, focus, selection, and exposed secondary actions."
+          }
+        ],
+        "url": "https://github.com/longbridge/gpui-kit/blob/ed27c6293b585acc40c10be7138534243bee5841/docs/ACCESSIBILITY-UI-TESTING.md"
+      }
+    ]
+  },
+  {
+    "repo": "sharkdp/hyperfine",
+    "pin": "b33755fe1fca8bcc1f182c773ca3ab040bfe517d",
+    "files": [
+      {
+        "path": "README.md",
+        "sha256": "03e31b51fd816c72b12c0f4d7ce9db3245b6a11647a34bea6803caa6b5180353",
+        "github_blob_sha": "10d5ac1a9224477c0df5dc1934acb21374c2dba0",
+        "line_count": 497,
+        "anchors": [
+          {
+            "line": 14,
+            "snippet": "* Support for various performance metrics and hardware counters."
+          },
+          {
+            "line": 17,
+            "snippet": "* Warmup runs can be executed before the actual benchmark."
+          },
+          {
+            "line": 51,
+            "snippet": "### Warmup runs and preparation commands"
+          },
+          {
+            "line": 56,
+            "snippet": "If you want to run the benchmark on a warm cache, you can use the `-w`/`--warmup` option to"
+          },
+          {
+            "line": 59,
+            "snippet": "hyperfine -S --warmup 3 'grep -R TODO *'"
+          },
+          {
+            "line": 68,
+            "snippet": "To use this specific command with hyperfine, call `sudo -v` to temporarily gain sudo permissions"
+          },
+          {
+            "line": 112,
+            "snippet": "By default, benchmarked commands, including warmup runs, are executed directly, without an intermediate shell (`--shell=none`)."
+          },
+          {
+            "line": 173,
+            "snippet": "--env 'RAYON_NUM_THREADS=8' './benchmark-rust'"
+          }
+        ],
+        "url": "https://github.com/sharkdp/hyperfine/blob/b33755fe1fca8bcc1f182c773ca3ab040bfe517d/README.md"
+      },
+      {
+        "path": "Cargo.toml",
+        "sha256": "0073da9ab06c2d547622e8043fd5d1d2ef7dacb64628b982083e01f1154f5250",
+        "github_blob_sha": "0b06967b6acb81b5b960bfe5cc4d6fbd2e7cf417",
+        "line_count": 89,
+        "anchors": [
+          {
+            "line": 13,
+            "snippet": "rust-version = \"1.97.0\""
+          },
+          {
+            "line": 26,
+            "snippet": "rust_decimal = \"1.43\""
+          }
+        ],
+        "url": "https://github.com/sharkdp/hyperfine/blob/b33755fe1fca8bcc1f182c773ca3ab040bfe517d/Cargo.toml"
+      }
+    ]
+  },
+  {
+    "repo": "trymirai/uzu",
+    "pin": "23f365fc43cd7df0c4e6d6d2415c553a94e37a08",
+    "files": [
+      {
+        "path": "crates/uzu-engine/src/backends/mod.rs",
+        "sha256": "6d03f951f841e85b72cc07cde2a392d10e6c0c8cf433391c9651bfebb5dba441",
+        "github_blob_sha": "c9e4b8f1d53d27849ae91c08263f7d899642af1c",
+        "line_count": 37,
+        "anchors": [
+          {
+            "line": 3,
+            "snippet": "#[cfg(backend = \"cpu\")]"
+          },
+          {
+            "line": 5,
+            "snippet": "#[cfg(backend = \"metal\")]"
+          },
+          {
+            "line": 6,
+            "snippet": "pub mod metal;"
+          },
+          {
+            "line": 8,
+            "snippet": "use crate::backends::common::Backend;"
+          },
+          {
+            "line": 10,
+            "snippet": "pub trait BackendSelection {"
+          },
+          {
+            "line": 14,
+            "snippet": "fn select<B: Backend>(self) -> Result<Self::Output, Self::Error>;"
+          },
+          {
+            "line": 17,
+            "snippet": "pub fn select_backend<S: BackendSelection>("
+          },
+          {
+            "line": 21,
+            "snippet": "let default = if cfg!(backend = \"metal\") {"
+          }
+        ],
+        "url": "https://github.com/trymirai/uzu/blob/23f365fc43cd7df0c4e6d6d2415c553a94e37a08/crates/uzu-engine/src/backends/mod.rs"
+      },
+      {
+        "path": "crates/uzu-engine/Cargo.toml",
+        "sha256": "8bb33903b4ea46d225d0a15d9e47cea3d880a746e86fef79b7da3ad3e9910d1e",
+        "github_blob_sha": "56ec4b73e04b1918336aa232eec665b3ea8978e1",
+        "line_count": 109,
+        "anchors": [
+          {
+            "line": 4,
+            "snippet": "rust-version.workspace = true"
+          },
+          {
+            "line": 16,
+            "snippet": "default = [\"cpu\", \"metal\", \"grammar\"]"
+          },
+          {
+            "line": 20,
+            "snippet": "metal = ["
+          },
+          {
+            "line": 29,
+            "snippet": "\"dep:xxhash-rust\","
+          },
+          {
+            "line": 30,
+            "snippet": "\"dep:metal\","
+          },
+          {
+            "line": 54,
+            "snippet": "xxhash-rust = { workspace = true, features = [\"xxh3\"], optional = true }"
+          },
+          {
+            "line": 77,
+            "snippet": "xxhash-rust = { workspace = true, features = [\"xxh3\"], optional = true }"
+          },
+          {
+            "line": 78,
+            "snippet": "metal = { workspace = true, optional = true }"
+          }
+        ],
+        "url": "https://github.com/trymirai/uzu/blob/23f365fc43cd7df0c4e6d6d2415c553a94e37a08/crates/uzu-engine/Cargo.toml"
+      }
+    ]
+  }
+]

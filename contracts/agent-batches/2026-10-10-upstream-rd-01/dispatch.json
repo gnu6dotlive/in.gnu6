@@ -1,0 +1,186 @@
+{
+  "program": "UPSTREAM-R&D-01",
+  "created_at": "2026-10-10",
+  "repo": "tension-atoi/in.gnu6",
+  "visibility": "private",
+  "branch": "research/upstream-rd-01-20261010",
+  "base_sha": "4042faa1e0e4ac49c3d640495b7f159e209c70fa",
+  "excluded_local_main_sha": "d160639e804c244a84197d8dc4906ffa2df313e8",
+  "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/00-BASE.md",
+  "operator_authority": [
+    "read",
+    "isolated-worktrees",
+    "non-destructive-experiments",
+    "documentation",
+    "qualified-branch-commit-push"
+  ],
+  "forbidden": [
+    "production",
+    "secrets",
+    "force-push",
+    "main-merge",
+    "automatic-release",
+    "product-authority-amplification"
+  ],
+  "source_manifest": "contracts/agent-batches/2026-10-10-upstream-rd-01/sources.json",
+  "worker_execution": "SIX_PARALLEL_DETERMINISTIC_WORKERS_COMPLETE; NO_AUTONOMOUS_LLM_AGENTS",
+  "intake_execution": "6 upstreams in parallel via authenticated GitHub CLI; 12 exact-source files inspected",
+  "workers": [
+    {
+      "id": "W01",
+      "upstream": "microsoft/mxc",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/01-MXC.md",
+      "depends_on": [
+        "G00",
+        "G01"
+      ],
+      "write_set": [
+        "docs/agent-results/upstream-rd-01/w01.md",
+        "evidence/upstream-rd-01/w01/"
+      ],
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
+    },
+    {
+      "id": "W02",
+      "upstream": "GLinnik21/plx-native",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/02-PLXNATIVE.md",
+      "depends_on": [
+        "G00",
+        "G01"
+      ],
+      "write_set": [
+        "docs/agent-results/upstream-rd-01/w02.md",
+        "evidence/upstream-rd-01/w02/"
+      ],
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
+    },
+    {
+      "id": "W03",
+      "upstream": "denoland/deno",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/03-DENO.md",
+      "depends_on": [
+        "G00",
+        "G01"
+      ],
+      "write_set": [
+        "docs/agent-results/upstream-rd-01/w03.md",
+        "evidence/upstream-rd-01/w03/"
+      ],
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
+    },
+    {
+      "id": "W04",
+      "upstream": "longbridge/gpui-kit",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/04-GPUI-KIT.md",
+      "depends_on": [
+        "G00",
+        "G01"
+      ],
+      "write_set": [
+        "docs/agent-results/upstream-rd-01/w04.md",
+        "evidence/upstream-rd-01/w04/"
+      ],
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
+    },
+    {
+      "id": "W05",
+      "upstream": "sharkdp/hyperfine",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/05-HYPERFINE.md",
+      "depends_on": [
+        "G00",
+        "G01"
+      ],
+      "write_set": [
+        "docs/agent-results/upstream-rd-01/w05.md",
+        "evidence/upstream-rd-01/w05/"
+      ],
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
+    },
+    {
+      "id": "W06",
+      "upstream": "trymirai/uzu",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/06-UZU.md",
+      "depends_on": [
+        "G00",
+        "G01"
+      ],
+      "write_set": [
+        "docs/agent-results/upstream-rd-01/w06.md",
+        "evidence/upstream-rd-01/w06/"
+      ],
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
+    }
+  ],
+  "stages": [
+    {
+      "id": "W07",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/07-CROSS-ANALYSIS.md",
+      "depends_on": [
+        "W01",
+        "W02",
+        "W03",
+        "W04",
+        "W05",
+        "W06"
+      ],
+      "state": "SOURCE_CROSS_ANALYSIS_COMPLETE"
+    },
+    {
+      "id": "W08",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/08-EXPERIMENTS.md",
+      "depends_on": [
+        "W01",
+        "W02",
+        "W03",
+        "W04",
+        "W05",
+        "W06"
+      ],
+      "state": "HOST_BWRAP_BOUNDARY_FIXTURE_PASS__UPSTREAM_SDK_NOT_RUN"
+    },
+    {
+      "id": "W09",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/09-INTEGRATION.md",
+      "depends_on": [
+        "W07",
+        "W08"
+      ],
+      "state": "INTEGRATOR_RECONCILED_SOURCE_WORKERS__NO_PRODUCT_TRANSFER"
+    },
+    {
+      "id": "W10",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/10-DOCS-SURFACES.md",
+      "depends_on": [
+        "W09"
+      ],
+      "state": "PRIVATE_DOCS_BRIDGE_COMPLETE__PUBLIC_DRAFT_ONLY_NO_SITE_DEPLOY"
+    },
+    {
+      "id": "W11",
+      "contract": "contracts/agent-batches/2026-10-10-upstream-rd-01/11-RELEASE-GATES.md",
+      "depends_on": [
+        "W09",
+        "W10"
+      ],
+      "state": "PARTIAL_PENDING_REMOTE_VERIFICATION"
+    }
+  ],
+  "deep_inspection": "18 additional pinned files verified (three per upstream), plus 12 intake files",
+  "mx_deno_security_slice": {
+    "scope": "MXC_W01A_AND_DENO_W03A",
+    "mxc_source_guard": "PASS_7_OF_7_MUTATIONS",
+    "mxc_host_loopback": "PASS_TWO_SIDED_HOST_ORACLE_NOT_MXC_SDK",
+    "mxc_sdk_runtime": "NOT_RUN_OFFLINE_CIDR_DEPENDENCY_MISSING",
+    "deno_broker_source": "PASS_10_OF_10_MUTATIONS",
+    "deno_runtime": "NOT_RUN_BINARY_ABSENT",
+    "mxc_deno_joint_gate": "DESIGNED_NOT_EXECUTED",
+    "product_implementations": "UNCHANGED",
+    "public_surface": "NOT_DEPLOYED"
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "worker": "W01",
+  "repo": "microsoft/mxc",
+  "source_commit": "c6f301d53a1430c4c921a05c57af838f7392348f",
+  "method": "GitHub contents at immutable commit; bounded regex inventory, not code execution",
+  "files": [
+    {
+      "path": "docs/logging-access-denied.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "309c656c87bb722204852f5de1c25bc45595b947",
+      "sha256": "fd276e025e32b975bdb0a3fae50ebed6b11f4d3ca910e8b61feefa0121e832d1",
+      "line_count": 415,
+      "url": "https://github.com/microsoft/mxc/blob/c6f301d53a1430c4c921a05c57af838f7392348f/docs/logging-access-denied.md",
+      "signals": [
+        {
+          "query": "deny",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 11,
+          "anchors": [
+            {
+              "line": 5,
+              "text": "MXC sandboxes are **deny-by-default**: when a workload touches a file, registry"
+            },
+            {
+              "line": 27,
+              "text": "| `learningModeLogging`   | Logs every **failed** access check (deny-and-record). | **Unchanged** — accesses stay denied. |"
+            },
+            {
+              "line": 28,
+              "text": "| `permissiveLearningMode`| Logs **every** access check and **allows** it (audit / allow-all). | **Weakened** — the container no longer enforces deny-by-default. |"
+            }
+          ]
+        },
+        {
+          "query": "permission",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "audit",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 15,
+          "anchors": [
+            {
+              "line": 28,
+              "text": "| `permissiveLearningMode`| Logs **every** access check and **allows** it (audit / allow-all). | **Weakened** — the container no longer enforces deny-by-default. |"
+            },
+            {
+              "line": 37,
+              "text": "### `permissiveLearningMode` — audit / allow-all"
+            },
+            {
+              "line": 39,
+              "text": "The OS records **every** access check and **allows** it. This is an audit mode:"
+            }
+          ]
+        },
+        {
+          "query": "bwrap",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "network",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 6,
+          "anchors": [
+            {
+              "line": 160,
+              "text": "> Native PSEC capture represents `runtimeConfig.networkProxy` with the PSEC"
+            },
+            {
+              "line": 212,
+              "text": "failing to read a non-network event's schema, sets"
+            },
+            {
+              "line": 224,
+              "text": "- `resourceType` is one of `file`, `ui`, `network`, `capability`, `other`;"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/api-reference/README.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "4638c61716b554250f1654c84cfe0ff61541a95a",
+      "sha256": "387a60b05184d7476158b16d32355e85cb4d58f9cb3383e81cf1ce3f281361c2",
+      "line_count": 68,
+      "url": "https://github.com/microsoft/mxc/blob/c6f301d53a1430c4c921a05c57af838f7392348f/docs/api-reference/README.md",
+      "signals": [
+        {
+          "query": "deny",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "permission",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "audit",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "bwrap",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "network",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "docs/backends/bwrap/bubblewrap-backend.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "bc9b7417d16f01a8019415d32ea9ba5bc1f84666",
+      "sha256": "19ba1251504df4cf7dea0ebc7290b1d0da4d1b8e1f9e5cf272cd070795552242",
+      "line_count": 877,
+      "url": "https://github.com/microsoft/mxc/blob/c6f301d53a1430c4c921a05c57af838f7392348f/docs/backends/bwrap/bubblewrap-backend.md",
+      "signals": [
+        {
+          "query": "deny",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 48,
+          "anchors": [
+            {
+              "line": 22,
+              "text": "> directional deny defaults."
+            },
+            {
+              "line": 38,
+              "text": "The deny-by-default baseline (see [How It Works](#how-it-works)) emits its"
+            },
+            {
+              "line": 62,
+              "text": "Ruleless `egress.default: \"deny\"` instead uses `--unshare-net` alone and"
+            }
+          ]
+        },
+        {
+          "query": "permission",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "audit",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "bwrap",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 17,
+          "anchors": [
+            {
+              "line": 6,
+              "text": "[Bubblewrap](https://github.com/containers/bubblewrap) (`bwrap`). It uses"
+            },
+            {
+              "line": 39,
+              "text": "read-only mounts via `--ro-bind-try` (bwrap 0.3.1+) and the sandbox"
+            },
+            {
+              "line": 40,
+              "text": "environment is built with `--clearenv` (bwrap 0.5.0+), so **bwrap 0.5.0 or"
+            }
+          ]
+        },
+        {
+          "query": "network",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 71,
+          "anchors": [
+            {
+              "line": 12,
+              "text": "> **Supported contracts (v0.9+):** use `network.egress` /"
+            },
+            {
+              "line": 13,
+              "text": "> `network.ingress` and, for proxy requests, `runtimeConfig.networkProxy`."
+            },
+            {
+              "line": 16,
+              "text": "> `enforcementMode`, host lists, `allowLocalNetwork`, and `network.proxy`"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN",
+  "product_status": "NOT_RUN"
+}
