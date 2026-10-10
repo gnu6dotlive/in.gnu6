@@ -1,0 +1,234 @@
+{
+  "worker": "W04",
+  "repo": "longbridge/gpui-kit",
+  "source_commit": "ed27c6293b585acc40c10be7138534243bee5841",
+  "method": "GitHub contents at immutable commit; bounded regex inventory, not code execution",
+  "files": [
+    {
+      "path": "docs/gpui-shell.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "c9deaffffedcb4235072ffe25d028b007fe82b4d",
+      "sha256": "c37c65b73ae0f21b6fc336a34a12cda95e46e3dfdd29904e563985d1a71d38c9",
+      "line_count": 4592,
+      "url": "https://github.com/longbridge/gpui-kit/blob/ed27c6293b585acc40c10be7138534243bee5841/docs/gpui-shell.md",
+      "signals": [
+        {
+          "query": "capabilit",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 80,
+          "anchors": [
+            {
+              "line": 5,
+              "text": "> compatibility, capability semantics and module behavior may change between"
+            },
+            {
+              "line": 41,
+              "text": "layout, text input, the overlay stack, the theme tokens, and the capability"
+            },
+            {
+              "line": 50,
+              "text": "3. a capability-gated system API (`fs`, `localStorage`, clipboard,"
+            }
+          ]
+        },
+        {
+          "query": "QuickJS",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 62,
+          "anchors": [
+            {
+              "line": 18,
+              "text": "default scripting language, running on QuickJS."
+            },
+            {
+              "line": 80,
+              "text": "`rquickjs 0.12`. LLRT supplies Standard Runtime implementations and data types;"
+            },
+            {
+              "line": 99,
+              "text": "| `buffer`, `path`, `url`, `crypto`, `zlib` | LLRT implementation in the existing QuickJS context                                                                                             "
+            }
+          ]
+        },
+        {
+          "query": "accessib",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 4,
+          "anchors": [
+            {
+              "line": 977,
+              "text": "Button \"increment\" :accessibility_label[Str(\"Increment\")] .h[Number(28.0)] .bg[Str(\"primary\")] :hover(.opacity[Number(0.9)]) :on_click(fn)"
+            },
+            {
+              "line": 1120,
+              "text": "carries the input semantics, the focused state style, and the accessibility role"
+            },
+            {
+              "line": 1967,
+              "text": "`checked`, `accessibility_label`, `href`, `id`, `transition`, `spring`, and the"
+            }
+          ]
+        },
+        {
+          "query": "focus",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 42,
+          "anchors": [
+            {
+              "line": 16,
+              "text": "owns rendering, layout, text editing, focus, overlays, and system access; the"
+            },
+            {
+              "line": 295,
+              "text": "`ToastStackState` own stacking geometry, `FocusTrapElement` owns focus trapping"
+            },
+            {
+              "line": 435,
+              "text": "makes a hot reload keep the window, the focus, and the element identities while"
+            }
+          ]
+        },
+        {
+          "query": "license",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 3,
+          "anchors": [
+            {
+              "line": 3789,
+              "text": "#### What that licenses, and what it does not"
+            },
+            {
+              "line": 3791,
+              "text": "It licenses designing the surface. The assumption the whole idea rested on is"
+            },
+            {
+              "line": 3796,
+              "text": "It does not license expecting the full `C_op` back. The census and the fill"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "docs/ACCESSIBILITY-UI-TESTING.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "67c6626a1555c97f11919513ee42302852ad64a1",
+      "sha256": "50a879edba2180261847cb4e2109eb18b4a8bb7162967103230defbe6e29969b",
+      "line_count": 80,
+      "url": "https://github.com/longbridge/gpui-kit/blob/ed27c6293b585acc40c10be7138534243bee5841/docs/ACCESSIBILITY-UI-TESTING.md",
+      "signals": [
+        {
+          "query": "capabilit",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "QuickJS",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "accessib",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 13,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "# Accessibility-driven UI testing"
+            },
+            {
+              "line": 4,
+              "text": "accessibility tree by default for behavior that depends on focus, keyboard"
+            },
+            {
+              "line": 18,
+              "text": "Do not use a bare `cargo run` process for accessibility testing. macOS cannot"
+            }
+          ]
+        },
+        {
+          "query": "focus",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 4,
+          "anchors": [
+            {
+              "line": 4,
+              "text": "accessibility tree by default for behavior that depends on focus, keyboard"
+            },
+            {
+              "line": 32,
+              "text": "state, value, label, focus, selection, and exposed secondary actions."
+            },
+            {
+              "line": 42,
+              "text": "Use real key events after focusing the target through the accessibility tree."
+            }
+          ]
+        },
+        {
+          "query": "license",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        }
+      ]
+    },
+    {
+      "path": "LICENSE-DOCS.md",
+      "status": "VERIFIED_SOURCE",
+      "blob_sha": "645d5d4eb3e806ce68f08b2b76aba4a3b462cf9d",
+      "sha256": "8a9ccf144b2d5bf5aae56abdc6e723e17e1ba4de1f5d515b3b644288fd4fc16f",
+      "line_count": 7,
+      "url": "https://github.com/longbridge/gpui-kit/blob/ed27c6293b585acc40c10be7138534243bee5841/LICENSE-DOCS.md",
+      "signals": [
+        {
+          "query": "capabilit",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "QuickJS",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "accessib",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "focus",
+          "status": "NOT_FOUND_IN_FILE",
+          "total_matching_lines": 0,
+          "anchors": []
+        },
+        {
+          "query": "license",
+          "status": "PRESENT_IN_FILE",
+          "total_matching_lines": 4,
+          "anchors": [
+            {
+              "line": 1,
+              "text": "# Documentation license"
+            },
+            {
+              "line": 3,
+              "text": "From the revision that adds this notice, documentation prose and original illustrations for which GPUI Kit holds the rights needed to grant this license in `website/docs/`, `website/base/`, "
+            },
+            {
+              "line": 5,
+              "text": "When copying or adapting that material, credit **GPUI Kit**, link to the source page and the CC BY 4.0 license, and indicate if you made changes. For example: “Adapted from GPUI Kit, [page t"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN",
+  "product_status": "NOT_RUN"
+}
