@@ -586,6 +586,11 @@ impl Live {
             self.optical_event(serde_json::json!({
                 "type":"wayland_button","button":"BTN_LEFT",
                 "pressed":button.pressed,"compositor_event_time_ms":button.compositor_time_ms,
+                "provider_id":"wayland-gpu05-owned-surface",
+                "pointer_id":"primary","provider_sequence":button.provider_sequence,
+                "surface_x":button.surface_x,"surface_y":button.surface_y,
+                "coordinates_space":"surface_logical_pixels",
+                "wl_surface_token":self.token,
                 "host_receive_elapsed_ns":now.as_nanos(),
                 "timing_class":"unattested_wayland_software_input",
             }))?;

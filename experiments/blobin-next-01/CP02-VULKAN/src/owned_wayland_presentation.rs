@@ -42,6 +42,24 @@ pub struct FrameCallbackReceipt {
 pub struct OpticalPointerButton {
     pub pressed: bool,
     pub compositor_time_ms: u32,
+    pub provider_sequence: u64,
+    pub surface_x: f64,
+    pub surface_y: f64,
+}
+fn valid_pointer_coordinate(x: f64, y: f64) -> bool {
+    x.is_finite() && y.is_finite() && (0.0..=4096.0).contains(&x) && (0.0..=4096.0).contains(&y)
+}
+#[cfg(test)]
+mod optical_pointer_tests {
+    use super::valid_pointer_coordinate;
+    #[test]
+    fn finite_surface_coordinates_required() {
+        assert!(valid_pointer_coordinate(128.25, 64.5));
+        assert!(!valid_pointer_coordinate(f64::NAN, 1.0));
+        assert!(!valid_pointer_coordinate(1.0, f64::INFINITY));
+        assert!(!valid_pointer_coordinate(-1.0, 5.0));
+        assert!(!valid_pointer_coordinate(50.0, 4097.0));
+    }
 }
 const MAX_OPTICAL_POINTER_EVENTS: usize = 16;
 const MAX_CALLBACKS: usize = 2;
@@ -55,6 +73,8 @@ struct NativeState {
     pointer: Option<wl_pointer::WlPointer>,
     optical_surface: Option<wl_surface::WlSurface>,
     pointer_inside: bool,
+    pointer_position: Option<(f64, f64)>,
+    pointer_sequence: u64,
     optical_events: Vec<OpticalPointerButton>,
     outputs: HashMap<u32, wl_output::WlOutput>,
     output_names: HashMap<u32, String>,
@@ -78,6 +98,8 @@ impl Default for NativeState {
             pointer: None,
             optical_surface: None,
             pointer_inside: false,
+            pointer_position: None,
+            pointer_sequence: 0,
             optical_events: Vec::with_capacity(MAX_OPTICAL_POINTER_EVENTS),
             outputs: HashMap::new(),
             output_names: HashMap::new(),
@@ -168,6 +190,7 @@ impl Dispatch<wl_seat::WlSeat, ()> for NativeState {
             }
             if !caps.contains(wl_seat::Capability::Pointer) {
                 state.pointer_inside = false;
+                state.pointer_position = None;
                 // No pointer input can be accepted after capability removal.
             }
         }
@@ -183,14 +206,37 @@ impl Dispatch<wl_pointer::WlPointer, ()> for NativeState {
         _: &QueueHandle<Self>,
     ) {
         match event {
-            wl_pointer::Event::Enter { surface, .. } => {
+            wl_pointer::Event::Enter {
+                surface,
+                surface_x,
+                surface_y,
+                ..
+            } => {
                 state.pointer_inside = state
                     .optical_surface
                     .as_ref()
                     .is_some_and(|own| *own == surface);
+                state.pointer_position =
+                    if state.pointer_inside && valid_pointer_coordinate(surface_x, surface_y) {
+                        Some((surface_x, surface_y))
+                    } else {
+                        None
+                    };
+            }
+            wl_pointer::Event::Motion {
+                surface_x,
+                surface_y,
+                ..
+            } if state.pointer_inside => {
+                state.pointer_position = if valid_pointer_coordinate(surface_x, surface_y) {
+                    Some((surface_x, surface_y))
+                } else {
+                    None
+                };
             }
             wl_pointer::Event::Leave { .. } => {
                 state.pointer_inside = false;
+                state.pointer_position = None;
             }
             wl_pointer::Event::Button {
                 button,
@@ -207,9 +253,21 @@ impl Dispatch<wl_pointer::WlPointer, ()> for NativeState {
                     state.protocol_error = Some("ORACLE02_POINTER_EVENT_QUEUE_FULL");
                     return;
                 }
+                let Some((surface_x, surface_y)) = state.pointer_position else {
+                    state.protocol_error = Some("ORACLE03_BUTTON_WITHOUT_SURFACE_POSITION");
+                    return;
+                };
+                let Some(provider_sequence) = state.pointer_sequence.checked_add(1) else {
+                    state.protocol_error = Some("ORACLE03_POINTER_SEQUENCE_EXHAUSTED");
+                    return;
+                };
+                state.pointer_sequence = provider_sequence;
                 state.optical_events.push(OpticalPointerButton {
                     pressed,
                     compositor_time_ms: time,
+                    provider_sequence,
+                    surface_x,
+                    surface_y,
                 });
             }
             _ => {}
