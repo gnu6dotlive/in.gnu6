@@ -182,5 +182,18 @@
     "mxc_deno_joint_gate": "DESIGNED_NOT_EXECUTED",
     "product_implementations": "UNCHANGED",
     "public_surface": "NOT_DEPLOYED"
+  },
+  "mx_deno_runtime_slice": {
+    "mxc_sdk": "PASS_2_OF_2_FILESYSTEM_LOCAL",
+    "mxc_build": "PASS_CARGO_CHECK_PINNED_SOURCE",
+    "deno_release": "v2.9.7_SHA256_VERIFIED",
+    "deno_permissions": "PASS_6_OF_6",
+    "deno_pinned_source_runtime": "NOT_RUN_MISMATCH_RELEASE_DATE",
+    "deno_broker_live": "NOT_RUN",
+    "joint_authority_boundary": "NOT_RUN",
+    "github_visibility_snapshot": {
+      "tension-atoi/gnosix": "PUBLIC",
+      "tension-atoi/in.gnu6": "PRIVATE_AT_CHECK"
+    }
   }
 }

@@ -57,3 +57,14 @@ No public API, release, donor vendoring, merge main, source deletion, control pl
 - Deux worktrees temporaires isolés réconciliés par cherry-pick: MXC `4dd46289001f1e128a0b599807df0a8c5be59bff`, Deno `0102ce58873f72f8f18397ababc6f085df8c2f0f` ; chaque write-set unique, aucun autre projet modifié.
 
 Gates: MXC_SOURCE=PASS, MXC_HOST_LOOPBACK=PASS, MXC_SDK_RUNTIME=NOT_RUN/BLOCKED_DEPENDENCY; DENO_BROKER_SOURCE=PASS, DENO_RUNTIME=NOT_RUN/BINARY_ABSENT; COMPOSITE_MXC_DENO=DESIGNED_ONLY; PUBLICATION=PRIVATE_GIT_BRANCH_ONLY.
+
+## 2026-10-10 — Tranche MXC/Deno exécutables · runtime-02
+
+- Préflight: branche `f6f1e23` propre et synchronisée. Deux branches/worktrees neufs à write-sets disjoints.
+- **MXC 1.0.0** : `microsoft/mxc@c6f301d53a1430c4c921a05c57af838f7392348f` checkout exact; Cargo fetch dans cache isolé; `cargo check --offline --locked -p mxc-sdk --lib` PASS (Rust 1.97.1). Harnais Rust du SDK compilé dans répertoire de laboratoire; scénario readonly : lecture réussie et écriture refusée avec fichier marqueur absent; scénario readwrite : écriture du marqueur réussie. **MXC_SDK_FILESYSTEM=PASS_2_OF_2**. Aucun code amont modifié. Référence `docs/agent-results/upstream-rd-01/mxc-runtime-02.md`.
+- **Deno v2.9.7** : release officielle Linux téléchargée et archive SHA-256 vérifiée; exécutable isolé dans `.probes`. Six permissions réellement exercées : read absent, read exact allow, autre chemin refusé, deny explicite prioritaire, réseau local refusé par défaut, réseau local exact allow. **DENO_RUNTIME=PASS_6_OF_6**; refus `NotCapable`. Deno v2.9.7 est antérieur au SHA source 2026-10-06 : **non équivalent à la qualification du commit épinglé ni de son broker**.
+- Les preuves, harnais et rapports ont été acquis sur branches MXC `a70a7c5` et Deno `2d38a5a`, puis réconciliés par cherry-pick sur le lot central. Aucun projet bénéficiaire ni politique de production modifié.
+- **W14 MXC×Deno composite** : non exécuté. MXC et Deno séparément qualifiés sur des fixtures ne prouvent ni l'intégration des deux, ni la non-amplification de `ExecutionGrant`.
+- Visibilité GitHub, contrôle ponctuel du 2026-10-10 : `tension-atoi/gnosix` PUBLIC confirmé; `tension-atoi/in.gnu6` PRIVATE selon l'API au moment de la vérification, malgré une annonce de publication. Aucune mutation de visibilité demandée ou réalisée dans cette tranche.
+
+Gates : MXC_BUILD=PASS; MXC_RUNTIME_FILESYSTEM=PASS_2_OF_2; DENO_RELEASE_SHA256=PASS; DENO_RUNTIME_PERMISSIONS=PASS_6_OF_6; DENO_PINNED_RUNTIME=NOT_RUN; DENO_BROKER_LIVE=NOT_RUN; MXC_DENO_COMPOSITE=NOT_RUN; PRODUCT_TRANSFER=NOT_RUN; GIT_REMOTE=TO_VERIFY_AFTER_PUSH.
