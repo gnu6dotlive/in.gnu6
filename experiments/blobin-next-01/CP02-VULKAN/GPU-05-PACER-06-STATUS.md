@@ -71,6 +71,13 @@ Current / gated CPU stage JSONL:
 `066e8aa0168542d2a0c89f4f3f2bd9dd0fe0865d571d309405c1780f9ec864ea` /
 `cc81422276e3d43172deb27747980621cef94382c92fe2fd3ff1c2861b06716f`.
 
+## PACER-07 reversed-order update
+
+Independent reversed-order local result: first frame PRESENTED with
+await-first-feedback and DISCARDED with current startup.
+First submit-to-present latency 3.204ms vs 18.838ms, not
+input-to-photon. See GPU-05-PACER-07-STATUS.md. CP03 OPEN.
+
 ## Next checkpoint — PACER-07
 
 Independently repeat the **matched same-binary startup A/B** at the same pinned monitor and workload, ideally reversing variant order, to test whether elimination of frame-1 discard is reproducible. If validated, inspect alternative monotonic compositor-ready signals / Wayland configure ordering and evaluate a production-admissible startup state machine with explicit bounded authority. Measure startup first-frame latency and 120s steady-state **separately**.

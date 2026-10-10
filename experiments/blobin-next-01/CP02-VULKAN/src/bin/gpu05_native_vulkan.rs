@@ -1,6 +1,8 @@
 //! GPU-05 native owned Wayland surface, actual signed tetra/SDF shader, Vulkan WSI.
 #[path = "../first_frame_barrier.rs"]
 mod first_frame_barrier;
+#[path = "../first_present_latency.rs"]
+mod first_present_latency;
 #[path = "../frame_pacing03.rs"]
 mod frame_pacing03;
 #[path = "../owned_wayland_presentation.rs"]
@@ -11,6 +13,7 @@ mod scene_bridge;
 mod startup_policy;
 use blobin_cp01_hybrid::gltf::import_glb;
 use first_frame_barrier::{FirstFrameBarrier, Outcome, StartupMode};
+use first_present_latency::{calculate, monotonic_now_ns, StartupAnchors};
 use frame_pacing03::FrameCallbackPacing;
 use owned_wayland_presentation::OwnedGpuWindow;
 use scene_bridge::SceneStream;
@@ -50,6 +53,9 @@ struct Live {
     presented_frames: u64,
     discarded_frames: u64,
     first_frame_outcome: Option<Outcome>,
+    first_submit_begin_mono_ns: Option<u128>,
+    first_submit_return_mono_ns: Option<u128>,
+    first_compositor_present: Option<(u64, u128)>,
     last_feedback_refresh_ns: Option<u32>,
     trace: Option<BufWriter<File>>,
     callback_trace: Option<BufWriter<File>>,
@@ -368,6 +374,9 @@ impl Live {
             presented_frames: 0,
             discarded_frames: 0,
             first_frame_outcome: None,
+            first_submit_begin_mono_ns: None,
+            first_submit_return_mono_ns: None,
+            first_compositor_present: None,
             last_feedback_refresh_ns: None,
             trace,
             callback_trace,
@@ -438,6 +447,9 @@ impl Live {
             if r.discarded {
                 self.discarded_frames += 1;
             } else if let Some(ns) = r.timestamp_ns {
+                if self.first_compositor_present.is_none() {
+                    self.first_compositor_present = Some((r.frame_sequence, ns));
+                }
                 if let Some(refresh) = r.refresh_ns {
                     if refresh > 0 {
                         self.last_feedback_refresh_ns = Some(refresh);
@@ -644,8 +656,14 @@ impl Live {
         self.mark_stage(stage_seq, "after_queue_submit", Instant::now())?;
         self.gpu.arm(self.next_frame_sequence)?;
         self.mark_stage(stage_seq, "after_feedback_arm", Instant::now())?;
+        if stage_seq == 1 {
+            self.first_submit_begin_mono_ns = Some(monotonic_now_ns()?);
+        }
         self.next_frame_sequence += 1;
         self.queue.present(frame);
+        if stage_seq == 1 {
+            self.first_submit_return_mono_ns = Some(monotonic_now_ns()?);
+        }
         self.mark_stage(stage_seq, "after_queue_present", Instant::now())?;
         self.record_feedback()?;
         // Measures successful queue.present calls ONLY, never compositor display timestamps.
@@ -696,6 +714,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut output = None;
     let mut callback_output = None;
     let mut stage_output = None;
+    let mut startup_clock_output: Option<String> = None;
     let mut pinned_output: Option<String> = None;
     let mut startup_policy = StartupPolicy::Immediate;
     let mut initial_feedback_mode = StartupMode::Current;
@@ -746,6 +765,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 pinned_output = Some(name);
             }
+            "--startup-clock-json" => {
+                let path = args
+                    .next()
+                    .ok_or("--startup-clock-json requires absolute path")?;
+                if !Path::new(&path).is_absolute() {
+                    return Err("GPU05_STARTUP_CLOCK_PATH_NOT_ABSOLUTE".into());
+                }
+                startup_clock_output = Some(path);
+            }
             "--stage-jsonl" => {
                 let value = args.next().ok_or("--stage-jsonl requires path")?;
                 if !Path::new(&value).is_absolute() {
@@ -782,6 +810,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         stage_trace,
         pinned_output.as_deref(),
     ))?;
+    let app_ready_mono_ns = monotonic_now_ns()?;
     println!("GPU05_PACER04_STAGES_CPU_CLOCK_INSTANT not_wayland_clock=true");
     // Deliberate one-variable A/B after scene import, device setup and
     // swapchain configuration, but before the first surface frame.
@@ -926,6 +955,52 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     if let Some(out) = live.stage_trace.as_mut() {
         out.flush()?;
+    }
+    if let Some(path) = startup_clock_output {
+        let clock = live.gpu.clock().ok_or("GPU05_MISSING_WP_CLOCK_ID")?;
+        let (presented_seq, presented_mono) = live
+            .first_compositor_present
+            .ok_or("GPU05_MISSING_FIRST_COMPOSITOR_PRESENTATION")?;
+        let samples = StartupAnchors {
+            app_ready_ns: app_ready_mono_ns,
+            first_submit_begin_ns: live
+                .first_submit_begin_mono_ns
+                .ok_or("GPU05_MISSING_FIRST_SUBMIT_BEGIN")?,
+            first_submit_return_ns: live
+                .first_submit_return_mono_ns
+                .ok_or("GPU05_MISSING_FIRST_SUBMIT_RETURN")?,
+            first_compositor_present_ns: presented_mono,
+        };
+        let latency = calculate(clock, samples)?;
+        let payload = serde_json::json!({
+            "schema":"blobin.gpu05.startup-clock.v1",
+            "clock_id":clock,
+            "matched_clock":"CLOCK_MONOTONIC",
+            "source":"same-surface-wp_presentation",
+            "wl_surface_token":live.token,
+            "first_compositor_present_sequence":presented_seq,
+            "first_frame_outcome":match live.first_frame_outcome {
+                Some(Outcome::Presented)=>"presented",
+                Some(Outcome::Discarded)=>"discarded",
+                None=>"unresolved",
+            },
+            "app_ready_mono_ns":samples.app_ready_ns.to_string(),
+            "first_submit_begin_mono_ns":samples.first_submit_begin_ns.to_string(),
+            "first_submit_return_mono_ns":samples.first_submit_return_ns.to_string(),
+            "first_compositor_present_mono_ns":samples.first_compositor_present_ns.to_string(),
+            "ready_to_present_ms":latency.ready_to_present_ns as f64/1e6,
+            "submit_begin_to_present_ms":latency.submit_begin_to_present_ns as f64/1e6,
+            "submit_return_to_present_ms":latency.submit_return_to_present_ns
+                .map(|v|v as f64/1e6),
+            "is_input_to_photon_latency":false,
+            "qualifies_cp03":false,
+        });
+        let mut out = BufWriter::new(OpenOptions::new().write(true).create_new(true).open(path)?);
+        serde_json::to_writer_pretty(&mut out, &payload)?;
+        out.write_all(b"\n")?;
+        out.flush()?;
+        println!("GPU05_PACER07_FIRST_PRESENT_LATENCY_MS={:.3} sequence={} wp_clock_id={} NOT_INPUT_TO_PHOTON",
+            latency.ready_to_present_ns as f64/1e6,presented_seq,clock);
     }
     println!("GPU05_PACER06_EXIT mode={} first_outcome={:?} startup_wait_iterations={} seconds={:.3} submitted={} compositor_presented={} discarded={} pending={} callbacks={} callback_pending={} max_inflight={} wsi_timeouts={} wsi_occluded={} watchdog_trips={} aborted={} NOT_CP03",
         first_barrier.mode().name(),first_barrier.outcome(),
