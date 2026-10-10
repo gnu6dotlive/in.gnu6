@@ -36,7 +36,8 @@ Execution logs and two original `grim` screenshots:
 4. **GPU oracle:** live shader animates camera and sphere without a fresh independent oracle over the live time sequence; GPU-01 static spatial parity may not be promoted as GPU-02 dynamic parity.
 5. **Missing:** input-to-pixel latency measurements, asynchronous logic-stall isolation, bounded per-frame allocation/VRAM accounting, independent cross-vendor Wayland E2E, GPU device-loss resilience, nonconvex GLB shader path, production safety.
 6. **Physical GPU concurrency:** this experiment coexists with the other workers; it does not reset devices, modify Hyprland settings, change systemd, touch the VPS, or claim exclusive benchmark isolation.
-7. **No gate inflation:** CP02's seven gates and CP03 HYBRID-60 remain open. CP07/CP08 alpha / Linux cross-vendor remain open. These observations establish a bounded GPU02 slice only.
+7. **CUDA-05F boundary:** GPU-02 is a first-party standalone local Vulkan host; it does **not** route direct `wgpu` device creation through the CUDA-05F resident ingress. No supervised GPU grant or production containment is proven.
+8. **No gate inflation:** CP02's seven gates and CP03 HYBRID-60 remain open. CP07/CP08 alpha / Linux cross-vendor remain open. These observations establish a bounded GPU02 slice only.
 
 Next meaningful experiment: wire a **versioned immutable native scene snapshot** and GPU02 real-time viewport to blob.in's product shell via a separate opt-in adapter; measure actual compositor presentation and frame jitter, then reconcile with the other worker's newest CP01/CP02 source rather than merging blindly.
 
