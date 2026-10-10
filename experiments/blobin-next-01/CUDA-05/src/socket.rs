@@ -87,6 +87,32 @@ mod tests {
         assert!(authorize(&a, peer.uid.wrapping_add(1)).is_err());
     }
     #[test]
+    fn distinct_principal_socket_requires_exact_owner_group_and_mode() {
+        use std::{
+            fs,
+            time::{SystemTime, UNIX_EPOCH},
+        };
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!("blobin-05f-{}-{nonce}", std::process::id()));
+        fs::create_dir(&root).unwrap();
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o710)).unwrap();
+        let destination = root.join("service.sock");
+        assert!(validate_group_socket_destination(&destination).is_ok());
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o770)).unwrap();
+        assert!(validate_group_socket_destination(&destination).is_err());
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o700)).unwrap();
+        assert!(validate_group_socket_destination(&destination).is_err());
+        fs::set_permissions(&root, fs::Permissions::from_mode(0o710)).unwrap();
+        let link = root.with_extension("alias");
+        std::os::unix::fs::symlink(&root, &link).unwrap();
+        assert!(validate_group_socket_destination(&link.join("service.sock")).is_err());
+        fs::remove_file(&link).unwrap();
+        fs::remove_dir(&root).unwrap();
+    }
+    #[test]
     fn socket_path_preconditions_fail_closed() {
         assert!(validate_socket_destination(Path::new("relative")).is_err());
         assert!(validate_socket_destination(Path::new("/tmp/cuda05b.sock")).is_err());

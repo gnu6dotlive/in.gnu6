@@ -1,0 +1,91 @@
+{
+  "contract_sha256": "9af8d1f9222c4be0a3e7febbe6c4318eba069fd540ae2c0de848f8aa766a1761",
+  "experiment_id": "CUDA-05F-P01",
+  "gates": {
+    "authorized_host_peer": {
+      "observation_ids": [
+        "cuda/normal",
+        "vulkan/normal"
+      ],
+      "state": "PASS"
+    },
+    "cuda_gpu_parity": {
+      "observation_ids": [
+        "cuda/normal"
+      ],
+      "state": "PASS"
+    },
+    "dac_rejected_peer": {
+      "observation_ids": [
+        "cuda/normal",
+        "vulkan/normal"
+      ],
+      "state": "PASS"
+    },
+    "host_service_uid": {
+      "observation_ids": [
+        "cuda/normal",
+        "vulkan/normal"
+      ],
+      "state": "PASS"
+    },
+    "provider_integrity": {
+      "observation_ids": [
+        "cuda/provider_tamper"
+      ],
+      "state": "PASS"
+    },
+    "rejected_connected_peer": {
+      "observation_ids": [
+        "cuda/normal",
+        "vulkan/normal"
+      ],
+      "state": "PASS"
+    },
+    "release_authority": {
+      "observation_ids": [],
+      "state": "NOT_QUALIFIED"
+    },
+    "vulkan_gpu_parity": {
+      "observation_ids": [
+        "vulkan/normal"
+      ],
+      "state": "PASS"
+    },
+    "worker_binary_integrity": {
+      "observation_ids": [
+        "cuda/worker_tamper"
+      ],
+      "state": "PASS"
+    },
+    "worker_crash_recovery": {
+      "observation_ids": [
+        "cuda/crash",
+        "vulkan/crash"
+      ],
+      "state": "PASS"
+    },
+    "worker_timeout_recovery": {
+      "observation_ids": [
+        "cuda/timeout",
+        "vulkan/timeout"
+      ],
+      "state": "PASS"
+    }
+  },
+  "limitations": [
+    "Rootful Docker privileged daemon and writable staged binary directory",
+    "One completed qualifying acquisition after earlier negative and amended trials",
+    "Actual device-loss and host-level malicious worker confinement not tested",
+    "SO_PEERCRED identifies UID, not an independently authenticated agent",
+    "Provider and worker digests from local builds are not signed provenance",
+    "Native-provider substitution failure is behaviorally observed; worker stderr was suppressed",
+    "Private raw observations not externally verifiable by a public checksum alone",
+    "Production integration and publication explicitly unauthorized"
+  ],
+  "production_authorization": "DENIED",
+  "protocol_commit": "03ba7945fe6740b2cf35dc28656ba866f66c33fb",
+  "raw_sha256": "e5dbb22b479b51b5f1eaf9bfdeabab7d9d9050eb7236d176a7ed97dc70d3fdcf",
+  "review_status": "draft",
+  "schema": "gnu6.gpu-evidence-public.v1"
+}
