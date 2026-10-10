@@ -332,6 +332,65 @@ impl SceneStream {
         Ok(sequence)
     }
 
+    /// Read-only scene-authored 2-D control geometry in the rectangle
+    /// of the explicitly qualified stage entity. NOT a pick against
+    /// the separately raymarched 3-D sphere/cavity.
+    pub fn latest_visual_control_uv(&self) -> Result<[f32; 4], String> {
+        let scene = self.frames.last().ok_or("ORACLE06_NO_FRAME")?;
+        let stage = scene
+            .entities
+            .iter()
+            .find(|e| e.entity_id == "stage")
+            .ok_or("ORACLE06_STAGE_MISSING")?;
+        let control = scene
+            .entities
+            .iter()
+            .find(|e| e.entity_id == self.entity_id)
+            .ok_or("ORACLE06_CONTROL_MISSING")?;
+        if !stage.visible
+            || !control.visible
+            || stage.role != "surface"
+            || control.role != "control"
+            || stage.world_pose.rotation != 0.0
+            || control.world_pose.rotation != 0.0
+        {
+            return Err("ORACLE06_NONRECTANGULAR_OR_HIDDEN_VISUAL_ENTITY".into());
+        }
+        let (sw, sh, cw, ch) = match (&stage.shape, &control.shape) {
+            (
+                Shape::Rect {
+                    width: sw,
+                    height: sh,
+                    ..
+                },
+                Shape::Rect {
+                    width: cw,
+                    height: ch,
+                    ..
+                },
+            ) => (*sw, *sh, *cw, *ch),
+            _ => return Err("ORACLE06_NON_RECT_VISUAL_SHAPES".into()),
+        };
+        let stage_width = sw * stage.world_pose.scale.x;
+        let stage_height = sh * stage.world_pose.scale.y;
+        let control_width = cw * control.world_pose.scale.x;
+        let control_height = ch * control.world_pose.scale.y;
+        let x = (control.world_pose.position.x - stage.world_pose.position.x) / stage_width + 0.5;
+        let y = (control.world_pose.position.y - stage.world_pose.position.y) / stage_height + 0.5;
+        let w = control_width / stage_width;
+        let h = control_height / stage_height;
+        let result = [x - w / 2.0, y - h / 2.0, x + w / 2.0, y + h / 2.0];
+        if result
+            .iter()
+            .any(|v| !v.is_finite() || !(0.0..=1.0).contains(v))
+            || result[0] >= result[2]
+            || result[1] >= result[3]
+        {
+            return Err("ORACLE06_VISUAL_CONTROL_OUTSIDE_STAGE".into());
+        }
+        // GPU shader consumes f32; no more precision is claimed.
+        Ok(result.map(|v| v as f32))
+    }
     pub fn latest_sequence(&self) -> u64 {
         self.frames
             .last()
@@ -380,6 +439,30 @@ impl SceneStream {
 mod tests {
     use super::*;
     const GOLDEN: &str = include_str!("../fixtures/scene-stream.v1.json");
+    #[test]
+    fn oracle06_latest_fixture_control_is_centered_and_finite() {
+        let scene = SceneStream::from_bytes(GOLDEN.as_bytes()).unwrap();
+        assert_eq!(scene.latest_sequence(), 13);
+        let r = scene.latest_visual_control_uv().unwrap();
+        for (actual, expected) in r.into_iter().zip([0.47, 0.46, 0.53, 0.54]) {
+            assert!((actual - expected).abs() < 1e-6);
+        }
+    }
+    #[test]
+    fn oracle06_rejects_rotated_control() {
+        let mut value: serde_json::Value = serde_json::from_str(GOLDEN).unwrap();
+        value["initial"]["entities"][1]["worldPose"]["rotation"] = serde_json::json!(0.4);
+        for delta in value["deltas"].as_array_mut().unwrap() {
+            for e in delta["updates"].as_array_mut().unwrap() {
+                if e["entityId"] == "cavity-control" {
+                    e["worldPose"]["rotation"] = serde_json::json!(0.4);
+                }
+            }
+        }
+        let scene = SceneStream::from_bytes(&serde_json::to_vec(&value).unwrap()).unwrap();
+        assert!(scene.latest_visual_control_uv().is_err());
+    }
+
     #[test]
     fn live_delta_accepts_valid_update_and_rejects_replay_without_mutation() {
         let mut stream = SceneStream::from_bytes(GOLDEN.as_bytes()).unwrap();

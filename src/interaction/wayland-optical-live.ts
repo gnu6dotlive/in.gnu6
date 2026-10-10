@@ -15,6 +15,7 @@ import {
 export class Oracle05SemanticSession {
   private projection: WaylandOpticalSemanticProjector | undefined;
   private surfaceToken: string | undefined;
+  private visualMarkerContractConsistent = false;
   private readonly frame: RendererFrame;
   private readonly targetId: EntityId;
   private count = 0;
@@ -50,14 +51,83 @@ export class Oracle05SemanticSession {
         throw new Error("ORACLE05_HANDSHAKE_SCENE_OR_AUTHORITY_MISMATCH");
       }
       this.surfaceToken = row.surface_token;
+      const visual = row.visual_marker;
+      let viewportWidth = 2560;
+      let viewportHeight = 1440;
+      if (visual !== undefined && visual !== null) {
+        if (typeof visual !== "object" || Array.isArray(visual)) {
+          throw new Error("ORACLE06_INVALID_VISUAL_MARKER");
+        }
+        const marker = visual as Record<string, unknown>;
+        if (
+          marker.kind !== "scene_control_2d_overlay" ||
+          marker.entity_id !== this.targetId ||
+          marker.scene_frame_sequence !== this.frame.sequence ||
+          marker.render_origin !== "rust_scene_stream_projection" ||
+          marker.independent_pixel_capture !== false ||
+          !Number.isSafeInteger(marker.viewport_width) ||
+          !Number.isSafeInteger(marker.viewport_height) ||
+          !(Number(marker.viewport_width) > 0 && Number(marker.viewport_width) <= 4096) ||
+          !(Number(marker.viewport_height) > 0 && Number(marker.viewport_height) <= 4096) ||
+          !Array.isArray(marker.rect_uv) ||
+          marker.rect_uv.length !== 4 ||
+          !marker.rect_uv.every((v: unknown) => typeof v === "number" && Number.isFinite(v))
+        ) {
+          throw new Error("ORACLE06_INVALID_MARKER_BINDING_OR_AUTHORITY");
+        }
+        viewportWidth = marker.viewport_width as number;
+        viewportHeight = marker.viewport_height as number;
+        const stage = this.frame.entities.find((e) => e.entityId === "stage");
+        const control = this.frame.entities.find((e) => e.entityId === this.targetId);
+        if (
+          !stage ||
+          !control ||
+          !stage.visible ||
+          !control.visible ||
+          stage.role !== "surface" ||
+          control.role !== "control" ||
+          stage.shape.kind !== "rect" ||
+          control.shape.kind !== "rect" ||
+          stage.worldPose.rotation !== 0 ||
+          control.worldPose.rotation !== 0
+        ) {
+          throw new Error("ORACLE06_UNSUPPORTED_SCENE_VISUAL_BINDING");
+        }
+        const sw = stage.shape.width * stage.worldPose.scale.x;
+        const sh = stage.shape.height * stage.worldPose.scale.y;
+        const cw = control.shape.width * control.worldPose.scale.x;
+        const ch = control.shape.height * control.worldPose.scale.y;
+        const ux = (control.worldPose.position.x - stage.worldPose.position.x) / sw + 0.5;
+        const uy = (control.worldPose.position.y - stage.worldPose.position.y) / sh + 0.5;
+        const expected = [ux - cw / sw / 2, uy - ch / sh / 2, ux + cw / sw / 2, uy + ch / sh / 2];
+        if (
+          expected.some((x) => !Number.isFinite(x) || x < 0 || x > 1) ||
+          expected.some((x, i) => Math.abs(x - (marker.rect_uv as number[])[i]!) > 0.0000002)
+        ) {
+          throw new Error("ORACLE06_VISUAL_GEOMETRY_CONTRADICTS_SEMANTIC_FRAME");
+        }
+        this.visualMarkerContractConsistent = true;
+      }
+      const stageForCalibration = this.frame.entities.find((e) => e.entityId === "stage");
+      if (
+        !stageForCalibration ||
+        stageForCalibration.shape.kind !== "rect" ||
+        stageForCalibration.worldPose.rotation !== 0
+      ) {
+        throw new Error("ORACLE06_STAGE_CHART_UNAVAILABLE");
+      }
+      const stageW = stageForCalibration.shape.width * stageForCalibration.worldPose.scale.x;
+      const stageH = stageForCalibration.shape.height * stageForCalibration.worldPose.scale.y;
+      const stageX = stageForCalibration.worldPose.position.x;
+      const stageY = stageForCalibration.worldPose.position.y;
       const calibration: WaylandSurfaceCalibration = {
         id: "oracle05-test-declared-viewport-geometry",
         surfaceToken: this.surfaceToken,
-        viewportWidth: 2560,
-        viewportHeight: 1440,
-        worldOrigin: { x: -200, y: -150 },
-        worldUPerPixel: { x: 400 / 2560, y: 0 },
-        worldVPerPixel: { x: 0, y: 300 / 1440 },
+        viewportWidth,
+        viewportHeight,
+        worldOrigin: { x: stageX - stageW / 2, y: stageY - stageH / 2 },
+        worldUPerPixel: { x: stageW / viewportWidth, y: 0 },
+        worldVPerPixel: { x: 0, y: stageH / viewportHeight },
         sceneFrameSequence: this.frame.sequence,
       };
       this.projection = new WaylandOpticalSemanticProjector(this.frame, calibration, this.targetId);
@@ -66,6 +136,8 @@ export class Oracle05SemanticSession {
         schema: "blobin.gpu05.semantic-observation.v1",
         scene_sequence: this.frame.sequence,
         calibration: "fixture_declared_not_physically_verified",
+        scene_visual_marker_contract_consistent: this.visualMarkerContractConsistent,
+        independent_display_pixel_capture: false,
         cp03_pass: false,
       };
     }
@@ -107,6 +179,8 @@ export class Oracle05SemanticSession {
       native_wayland_input_observed: false,
       sender_claimed_wayland_input: true,
       semantic_projection_executed: true,
+      scene_visual_marker_contract_consistent: this.visualMarkerContractConsistent,
+      independently_verified_screen_pixel: false,
       photodiode_qualified: false,
       mutation_authority_granted: false,
       cp03_pass: false,

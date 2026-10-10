@@ -31,6 +31,8 @@ Deux intégrations consommateurs — Docklab et le harnais SP Joaillerie — ser
 
 La preuve **125 secondes / 74,956 FPS de moyenne / p95 13,478 ms / zéro frame écartée** est une observation physique locale via `wp_presentation` sur une surface Wayland attribuée au binaire natif, **pas** une garantie multi-GPU, une certification produit ou une mesure input-to-photon.
 
+**ORACLE-06** : le contrôle 2D de la scène possède désormais un repère visuel réellement composé par Vulkan, dont les pixels sont confirmés par un témoin de framebuffer Wayland. Le run de 28 s compte **2 098 présentations**, zéro discard, et un contrat Rust↔TypeScript concordant. **Aucun clic observé : hit/miss encore OPEN ; CP03 FULL OPEN.** [Rapport ORACLE-06](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-06-STATUS.md) · [Chemin E2E vers CP03](experiments/blobin-next-01/CP02-VULKAN/GPU-05-CP03-E2E-CLOSURE-PATH.md).
+
 **ORACLE-05 (preuve live)** : Rust et le projecteur sémantique TypeScript in.gnu6 échangent 40 événements Wayland réels sur un socket Unix privé, avec correspondance de séquence exacte et 1 497 frames présentées sans discard en 20 s. **Les 20 appuis se projettent sur stage, jamais cavity-control : la calibration visuelle reste non qualifiée.** CP03 OPEN. [Rapport ORACLE-05](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-05-STATUS.md).
 
 ORACLE-04 observe 10 cycles optiques logiciels corrélés sur 35 s, sans excès de gap >33,4 ms dans cet essai ; l'ancienne interruption de 413 ms reste inexpliquée. [Rapport ORACLE-04](experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-04-STATUS.md).

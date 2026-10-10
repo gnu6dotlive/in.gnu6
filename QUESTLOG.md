@@ -1739,3 +1739,7 @@ L'oracle dual-canal matériel (contact et photodiode sur une seule horloge) est 
 ## GPU05-ORACLE-05 — observation sémantique native en direct
 
 **LIVE LOCAL PASS / 40/40 observations corrélées / 20 appuis sur stage / 0 sur cavity-control (calibration RED) / CP03 OPEN.** Le renderer Rust transmet les événements wl_pointer via IPC Unix privé à un processus TypeScript qui réutilise le projecteur de scène in.gnu6. Un run Vulkan 20 s donne 1 497 frames présentées et zéro discard, mais la correspondance graphique du contrôle, la provenance humaine et les photons restent non qualifiés. Rapport : experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-05-STATUS.md.
+
+## GPU05-ORACLE-06 — control marker et bilan E2E pour CP03
+
+**BUFFER_MARKER_LOCAL_PASS / 2098 compositor frames / 0 discarded / 0 actual pointer clicks / CP03 OPEN.** Le shader opt-in ajoute un marqueur 2D dérivé du contrôle sémantique de la frame 13 (UV 0,47–0,53 × 0,46–0,54). Le récepteur TS recalcule et valide ce repère. Premier run bloqué à cause d'une vérification plein écran prématurée ; correctif qualifié au second run sous garde GNU6. Capture du framebuffer privée : RGB centre/bordure delta 248, six tests de falsification PASS. Le hit/miss réel, le témoin optique conditionné au résultat sémantique, la photodiode et la clôture CP03 demeurent OPEN. Rapports : experiments/blobin-next-01/CP02-VULKAN/GPU-05-ORACLE-06-STATUS.md et GPU-05-CP03-E2E-CLOSURE-PATH.md.

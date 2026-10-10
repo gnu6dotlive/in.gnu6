@@ -39,6 +39,10 @@ use std::{
 use wgpu::util::DeviceExt;
 const W: u32 = 640;
 const H: u32 = 432;
+struct WitnessConfig {
+    optical_trace: Option<BufWriter<File>>,
+    visual_control: bool,
+}
 struct Live {
     gpu: OwnedGpuWindow,
     config: wgpu::SurfaceConfiguration,
@@ -52,6 +56,10 @@ struct Live {
     draw: wgpu::RenderPipeline,
     draw_bind: wgpu::BindGroup,
     optical_uniform: Option<wgpu::Buffer>,
+    visual_uniform: Option<wgpu::Buffer>,
+    visual_bounds_uv: Option<[f32; 4]>,
+    visual_viewport: Option<(u32, u32)>,
+    visual_viewport_confirmed: bool,
     optical_probe: Option<OpticalProbe>,
     optical_trace: Option<BufWriter<File>>,
     semantic_observer: Option<SemanticPublisher>,
@@ -95,8 +103,12 @@ impl Live {
         callback_trace: Option<BufWriter<File>>,
         stage_trace: Option<BufWriter<File>>,
         output: Option<&str>,
-        optical_trace: Option<BufWriter<File>>,
+        witness: WitnessConfig,
     ) -> Result<Self, Box<dyn Error>> {
+        let WitnessConfig {
+            optical_trace,
+            visual_control,
+        } = witness;
         let mut desc = wgpu::InstanceDescriptor::new_without_display_handle();
         desc.backends = wgpu::Backends::VULKAN;
         let instance = wgpu::Instance::new(desc);
@@ -276,6 +288,27 @@ impl Live {
             min_filter: wgpu::FilterMode::Linear,
             ..Default::default()
         });
+        let visual_bounds_uv = if visual_control {
+            Some(
+                stream
+                    .as_ref()
+                    .ok_or("ORACLE06_REQUIRES_SCENE")?
+                    .latest_visual_control_uv()?,
+            )
+        } else {
+            None
+        };
+        // The initial XDG configure may precede the mapped fullscreen size.
+        // Assert the exact size after rendering has actually begun; declaring
+        // it here would race Hyprland and can abort a valid surface on boot.
+        let visual_viewport = visual_bounds_uv.map(|_| (2560u32, 1440u32));
+        let visual_uniform = visual_bounds_uv.map(|bounds| {
+            device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("oracle06 visibly rendered scene-owned control"),
+                contents: bytemuck::cast_slice(&bounds),
+                usage: wgpu::BufferUsages::UNIFORM,
+            })
+        });
         let optical_uniform = if optical_trace.is_some() {
             Some(
                 device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -317,6 +350,18 @@ impl Live {
                 count: None,
             });
         }
+        if visual_uniform.is_some() {
+            draw_entries.push(wgpu::BindGroupLayoutEntry {
+                binding: 3,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            });
+        }
         let draw_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("gpu02 draw bindings"),
             entries: &draw_entries,
@@ -337,6 +382,12 @@ impl Live {
                 resource: buffer.as_entire_binding(),
             });
         }
+        if let Some(buffer) = visual_uniform.as_ref() {
+            bind_entries.push(wgpu::BindGroupEntry {
+                binding: 3,
+                resource: buffer.as_entire_binding(),
+            });
+        }
         let draw_bind = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("gpu05 scene projection and optional optical ROI"),
             layout: &draw_layout,
@@ -344,7 +395,9 @@ impl Live {
         });
         let draw_shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("gpu02 graphics presenter"),
-            source: wgpu::ShaderSource::Wgsl(if optical_uniform.is_some() {
+            source: wgpu::ShaderSource::Wgsl(if visual_uniform.is_some() {
+                include_str!("../present_optical_control.wgsl").into()
+            } else if optical_uniform.is_some() {
                 include_str!("../present_optical.wgsl").into()
             } else {
                 include_str!("../present.wgsl").into()
@@ -430,6 +483,10 @@ impl Live {
             draw,
             draw_bind,
             optical_uniform,
+            visual_uniform,
+            visual_bounds_uv,
+            visual_viewport,
+            visual_viewport_confirmed: false,
             optical_probe: optical_trace.as_ref().map(|_| OpticalProbe::new()),
             optical_trace,
             semantic_observer: None,
@@ -590,6 +647,9 @@ impl Live {
             self.callback_sequences.push(cb.frame_sequence);
         }
         for button in self.gpu.optical_buttons()? {
+            if self.visual_uniform.is_some() && !self.visual_viewport_confirmed {
+                return Err("ORACLE06_BUTTON_BEFORE_VIEWPORT_CONFIRMED".into());
+            }
             let now = self.started.elapsed();
             let result = if let Some(probe) = self.optical_probe.as_mut() {
                 probe.on_button(button.pressed, now)?
@@ -621,6 +681,16 @@ impl Live {
     fn render(&mut self) -> Result<(), String> {
         self.record_feedback()?;
         let (width, height) = self.gpu.size();
+        if self.visual_uniform.is_some() {
+            if self.visual_viewport == Some((width, height)) {
+                if !self.visual_viewport_confirmed {
+                    self.visual_viewport_confirmed = true;
+                    println!("ORACLE06_MAPPED_VIEWPORT_VERIFIED width={width} height={height}");
+                }
+            } else if self.visual_viewport_confirmed {
+                return Err("ORACLE06_VISUAL_MARKER_VIEWPORT_CHANGED".into());
+            }
+        }
         if width == 0 || height == 0 || width > 4096 || height > 4096 {
             return Err("GPU05_XDG_SURFACE_SIZE_OUT_OF_BOUNDS".into());
         }
@@ -883,6 +953,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut optical_trace_output: Option<String> = None;
     let mut host_stall_output: Option<String> = None;
     let mut semantic_observer_socket: Option<String> = None;
+    let mut visual_control_overlay = false;
     let mut args = std::env::args().skip(1);
     while let Some(key) = args.next() {
         match key.as_str() {
@@ -957,6 +1028,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 semantic_observer_socket = Some(path);
             }
+            "--visual-control-overlay" => {
+                visual_control_overlay = true;
+            }
             "--host-stall-jsonl" => {
                 let path = args
                     .next()
@@ -1023,6 +1097,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     if semantic_observer_socket.is_some() && (optical_trace.is_none() || scene.is_none()) {
         return Err("ORACLE05_REQUIRES_OPTICAL_TRACE_AND_QUALIFIED_SCENE".into());
     }
+    if visual_control_overlay
+        && (semantic_observer_socket.is_none() || pinned_output.as_deref() != Some("HDMI-A-1"))
+    {
+        return Err("ORACLE06_REQUIRES_REFERENCE_OUTPUT_AND_SEMANTIC_OBSERVER".into());
+    }
     let mut live = pollster::block_on(Live::create(
         scene,
         None,
@@ -1030,7 +1109,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         callback_trace,
         stage_trace,
         pinned_output.as_deref(),
-        optical_trace,
+        WitnessConfig {
+            optical_trace,
+            visual_control: visual_control_overlay,
+        },
     ))?;
     if let Some(socket) = semantic_observer_socket.as_ref() {
         let sequence = live
@@ -1048,6 +1130,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                 "coordinate_space":"surface_logical_pixels",
                 "consumer_authority":"read_only_observation",
                 "calibration_status":"fixture_declared_not_physically_verified",
+                "visual_marker":live.visual_bounds_uv.map(|uv|
+                    serde_json::json!({
+                        "kind":"scene_control_2d_overlay",
+                        "entity_id":"cavity-control",
+                        "scene_frame_sequence":sequence,
+                        "rect_uv":uv,
+                        "viewport_width":live.visual_viewport.map(|v|v.0),
+                        "viewport_height":live.visual_viewport.map(|v|v.1),
+                        "render_origin":"rust_scene_stream_projection",
+                        "independent_pixel_capture":false
+                    })
+                )
             }),
         )?);
         println!(
@@ -1279,6 +1373,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     if let Some(out) = live.optical_trace.as_mut() {
         out.flush()?;
+    }
+    if live.visual_uniform.is_some() && !live.visual_viewport_confirmed {
+        return Err("ORACLE06_REFERENCE_FULLSCREEN_NEVER_CONFIRMED".into());
     }
     if let Some(bridge) = live.semantic_observer.as_mut() {
         let delivered = bridge.finish()?;
