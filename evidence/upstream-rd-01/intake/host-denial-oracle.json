@@ -1,0 +1,30 @@
+{
+  "classification": "HOST_BWRAP_ONLY",
+  "exitcode": 0,
+  "host_net_namespace": "net:[4026531833]",
+  "stderr": "",
+  "observed": {
+    "read_only_write_denied": true,
+    "write_error": {
+      "errno": 30,
+      "error": "[Errno 30] Read-only file system: '/mnt/workbench/workspaces/gnu.in.labs/.worktrees/upstream-rd-01-20261010/evidence/upstream-rd-01/intake/rd01-oracle-v4du278p/sentinel.txt'"
+    },
+    "content_preserved": true,
+    "private_tmp_writable": true,
+    "network_connect_failed": true,
+    "network_error": {
+      "errno": 101,
+      "error": "[Errno 101] Network is unreachable"
+    },
+    "namespace": "net:[4026533812]"
+  },
+  "host_sentinel_sha256": "e433cae30f00dacb206cce21a39ab3b41e408b16d849b3c5db1cb4d24bf94eb2",
+  "host_sentinel_preserved": true,
+  "limitations": [
+    "not MXC SDK behavior",
+    "ro root remains readable",
+    "single unroutable test endpoint is not exhaustive network proof",
+    "only a bounded negative and positive fixture, not a security certification"
+  ],
+  "gate": "PASS_BOUNDARY_FIXTURE"
+}

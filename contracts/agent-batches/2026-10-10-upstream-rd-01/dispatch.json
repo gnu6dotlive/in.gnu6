@@ -23,7 +23,7 @@
     "product-authority-amplification"
   ],
   "source_manifest": "contracts/agent-batches/2026-10-10-upstream-rd-01/sources.json",
-  "worker_execution": "NOT_LAUNCHED",
+  "worker_execution": "SIX_PARALLEL_DETERMINISTIC_WORKERS_COMPLETE; NO_AUTONOMOUS_LLM_AGENTS",
   "intake_execution": "6 upstreams in parallel via authenticated GitHub CLI; 12 exact-source files inspected",
   "workers": [
     {
@@ -38,8 +38,8 @@
         "docs/agent-results/upstream-rd-01/w01.md",
         "evidence/upstream-rd-01/w01/"
       ],
-      "state": "SOURCE_INTAKE_COMPLETE",
-      "agent_status": "NOT_LAUNCHED"
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
     },
     {
       "id": "W02",
@@ -53,8 +53,8 @@
         "docs/agent-results/upstream-rd-01/w02.md",
         "evidence/upstream-rd-01/w02/"
       ],
-      "state": "SOURCE_INTAKE_COMPLETE",
-      "agent_status": "NOT_LAUNCHED"
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
     },
     {
       "id": "W03",
@@ -68,8 +68,8 @@
         "docs/agent-results/upstream-rd-01/w03.md",
         "evidence/upstream-rd-01/w03/"
       ],
-      "state": "SOURCE_INTAKE_COMPLETE",
-      "agent_status": "NOT_LAUNCHED"
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
     },
     {
       "id": "W04",
@@ -83,8 +83,8 @@
         "docs/agent-results/upstream-rd-01/w04.md",
         "evidence/upstream-rd-01/w04/"
       ],
-      "state": "SOURCE_INTAKE_COMPLETE",
-      "agent_status": "NOT_LAUNCHED"
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
     },
     {
       "id": "W05",
@@ -98,8 +98,8 @@
         "docs/agent-results/upstream-rd-01/w05.md",
         "evidence/upstream-rd-01/w05/"
       ],
-      "state": "SOURCE_INTAKE_COMPLETE",
-      "agent_status": "NOT_LAUNCHED"
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
     },
     {
       "id": "W06",
@@ -113,8 +113,8 @@
         "docs/agent-results/upstream-rd-01/w06.md",
         "evidence/upstream-rd-01/w06/"
       ],
-      "state": "SOURCE_INTAKE_COMPLETE",
-      "agent_status": "NOT_LAUNCHED"
+      "state": "SOURCE_DEEP_REVIEW_COMPLETE",
+      "agent_status": "DETERMINISTIC_WORKER_COMPLETE"
     }
   ],
   "stages": [
@@ -129,7 +129,7 @@
         "W05",
         "W06"
       ],
-      "state": "DRAFT"
+      "state": "SOURCE_CROSS_ANALYSIS_COMPLETE"
     },
     {
       "id": "W08",
@@ -142,7 +142,7 @@
         "W05",
         "W06"
       ],
-      "state": "PROTOCOL_READY"
+      "state": "HOST_BWRAP_BOUNDARY_FIXTURE_PASS__UPSTREAM_SDK_NOT_RUN"
     },
     {
       "id": "W09",
@@ -151,7 +151,7 @@
         "W07",
         "W08"
       ],
-      "state": "PENDING"
+      "state": "INTEGRATOR_RECONCILED_SOURCE_WORKERS__NO_PRODUCT_TRANSFER"
     },
     {
       "id": "W10",
@@ -159,7 +159,7 @@
       "depends_on": [
         "W09"
       ],
-      "state": "DRAFT"
+      "state": "PRIVATE_DOCS_BRIDGE_COMPLETE__PUBLIC_DRAFT_ONLY_NO_SITE_DEPLOY"
     },
     {
       "id": "W11",
@@ -168,7 +168,8 @@
         "W09",
         "W10"
       ],
-      "state": "PARTIAL"
+      "state": "PARTIAL_PENDING_REMOTE_VERIFICATION"
     }
-  ]
+  ],
+  "deep_inspection": "18 additional pinned files verified (three per upstream), plus 12 intake files"
 }
