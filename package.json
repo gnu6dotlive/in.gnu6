@@ -4,7 +4,7 @@
   "private": true,
   "description": "Headless scenic, spatial, and topology runtime for gnu6 consumers.",
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=24"
   },
