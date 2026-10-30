@@ -68,7 +68,7 @@ Pour les expérimentations GPU sur la station de référence, l’exécution lou
 
 ## Public et open source : frontières actuelles
 
-Le dépôt GitHub **tension-atoi/in.gnu6 est maintenant PUBLIC** (visibilité confirmée le 2026-10-10). Les revues de données, de provenance et de droits de redistribution restent ouvertes. Le paquet npm reste **`private: true` / `UNLICENSED`** tant qu’un choix de licence et un contrat de distribution n’ont pas été ratifiés. **Accessible publiquement ne signifie pas automatiquement réutilisable sous licence libre.** Aucune stabilité d’API publique n’est promise.
+Le dépôt GitHub **gnu6dotlive/in.gnu6 est PUBLIC** (visibilité confirmée le 2026-10-10) et, depuis le 2026-10-30, **sous licence MIT** (`LICENSE`), par décision de l’opérateur. Le code peut donc être copié, modifié et redistribué selon ces termes. Le paquet npm reste **`private: true`** : aucune publication npm, aucun contrat de distribution et aucune stabilité d’API publique ne sont promis.
 
 Les corrections éditoriales, les questions reproductibles et les contre-exemples techniques sont bienvenus selon les règles de contribution qui seront publiées avec l’ouverture du dépôt.
 

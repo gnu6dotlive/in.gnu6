@@ -15,9 +15,9 @@ Le 2026-10-10, la visibilité PUBLIC de tension-atoi/in.gnu6 a été vérifiée 
 | Historique Git complet | **Automated gitleaks PASS, manual review OPEN** | Le scan `gitleaks git --log-opts=--all` a détecté **0 finding** sur les références locales ; vérifier séparément les secrets non reconnus et le droit de publier toutes les branches distantes |
 | Fichiers suivis et artefacts | **TRIAGE REQUIRED** | 974 fichiers suivis ; 80 fichiers avec chemins absolus d'environnement ; 28 avec références aux consommateurs ; 27 avec URL/email ; 18 avec termes liés à l'authentification. Correspondances heuristiques, pas 80 secrets prouvés |
 | Provenance/droits | OPEN | Origine du seed et des donors attribuable ; licences des dépendances et extraits vérifiées |
-| Licence du nouveau dépôt | **UNDECIDED** | Choix explicite de l'opérateur. Sans licence, la visibilité GitHub n'accorde pas le droit général de copier ou modifier |
+| Licence du nouveau dépôt | **DECIDED — MIT (2026-10-30)** | Choix explicite de l'opérateur, consigné ici ; `LICENSE` à la racine, `"license": "MIT"` dans `package.json` |
 | README et promesses | IN_PROGRESS | Claims adossés à un gate et un environnement ; CP03 complet déclaré OPEN |
-| API et package | BLOCKED | `private: true`, `UNLICENSED`, pas de package public ni promesse ABI/API |
+| API et package | BLOCKED | `private: true`, pas de package public ni promesse ABI/API (la licence MIT couvre le code du dépôt, pas un contrat de distribution) |
 | Portail et docs externes | DEFERRED | Mise à jour par preuves publiables, FR/EN, après cohérence du dépôt |
 
 Les résultats des scans doivent vivre dans un registre **non versionné** ; ne jamais commiter les valeurs de secrets détectés. Si un secret est retrouvé dans l'historique, **rotation et assainissement de l'historique** sont des opérations distinctes : ne pas simplement supprimer le fichier dans HEAD puis publier.

@@ -4,7 +4,7 @@
 
 ## Trois identités à ne pas confondre
 
-1. **Version de travail npm** — calendrier `YYYY.MM.REVISION-CHANNEL`, syntaxe compatible SemVer pour l'outillage, mais **sémantique CalVer** explicitement documentée. Première version de travail : `2026.10.0-research`. Le paquet reste `private: true` et `UNLICENSED`; une valeur de `version` ne crée aucun contrat public.
+1. **Version de travail npm** — calendrier `YYYY.MM.REVISION-CHANNEL`, syntaxe compatible SemVer pour l'outillage, mais **sémantique CalVer** explicitement documentée. Première version de travail : `2026.10.0-research`. Le paquet reste `private: true` (le code du dépôt est sous licence MIT depuis le 2026-10-30) ; une valeur de `version` ne crée aucun contrat public.
 2. **Checkpoint d'ingénierie** — une portée + un résultat + un SHA complet + les empreintes de preuve. Exemple : `GPU05.PACER07@4f4ae70…`, `GPU05.ENDURANCE01@0fa5d12…`. Un checkpoint peut être `LOCAL_PASS`, `RED` ou `OPEN`; il n'est pas nécessairement une release.
 3. **Release publique** — événement distinct, seulement après une licence choisie, un contrat d'API/distribution, un inventaire de dépendances, l'audit de confidentialité et les gates de portabilité pertinents. Les tags publics sont créés **uniquement au moment de cet événement**, jamais rétroactivement pour maquiller un essai local.
 
